@@ -39,8 +39,11 @@
     container.appendChild(script);
   }
 
+  // Run immediately for first load
   renderGiscus();
-  document.addEventListener('astro:page-load', renderGiscus);
+
+  // Re-run if navigating via History API or simple re-exec
+  document.addEventListener('DOMContentLoaded', renderGiscus);
 </script>
 
 <style>
