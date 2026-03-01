@@ -1,0 +1,146 @@
+---
+// src/layouts/Layout.astro
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MusicPlayer from '../components/MusicPlayer.astro';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+		<script is:inline>
+			const theme = (() => {
+				if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+					return localStorage.getItem('theme');
+				}
+				if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+					return 'dark';
+				}
+				return 'light';
+			})();
+			document.documentElement.setAttribute('data-theme', theme);
+			window.localStorage.setItem('theme', theme);
+		</script>
+	</head>
+	<body>
+		<!-- Welcome Screen (Splash Animation) -->
+		<div id="welcome-screen" class="welcome-screen">
+			<div class="welcome-inner">
+				<div class="welcome-logo-anim">
+					<span class="welcome-letter" style="--i:0">O</span>
+					<span class="welcome-letter" style="--i:1">K</span>
+					<span class="welcome-letter" style="--i:2">a</span>
+					<span class="welcome-letter" style="--i:3">y</span>
+					<span class="welcome-letter dot" style="--i:4">'</span>
+					<span class="welcome-letter" style="--i:5">s</span>
+					<span class="welcome-letter space" style="--i:6">&nbsp;</span>
+					<span class="welcome-letter" style="--i:7">B</span>
+					<span class="welcome-letter" style="--i:8">l</span>
+					<span class="welcome-letter" style="--i:9">o</span>
+					<span class="welcome-letter" style="--i:10">g</span>
+				</div>
+				<p class="welcome-subtitle">嵌入式 Linux · AI · 硬件开发</p>
+				<div class="welcome-loader">
+					<div class="welcome-bar"></div>
+				</div>
+			</div>
+		</div>
+
+		<div id="app" class="app" style="opacity: 0; transition: opacity 0.5s ease;">
+			<Header />
+			
+			<slot />
+
+			<Footer />
+			
+			<MusicPlayer />
+		</div>
+
+		<script is:inline>
+			// Execute immediately during HTML parsing (before load) to prevent flashes
+			const isHome = window.location.pathname === '/';
+			
+			// 判断是否应该播放动画
+			// 播放条件：在首页 AND (硬刷新 OR 从外部/新标签页进入)
+			// 不播放条件：从本站内部页面（文章）导航过来
+			let shouldPlayAnimation = false;
+
+			if (isHome) {
+				const navEntries = performance.getEntriesByType('navigation');
+				const navType = navEntries.length > 0 ? navEntries[0].type : 'navigate';
+				
+				if (navType === 'reload') {
+					// 浏览器刷新按钮 / F5 → 播放
+					shouldPlayAnimation = true;
+				} else if (navType === 'navigate') {
+					// 检查 referrer：如果来自同源站点内部页面则不播放
+					const referrer = document.referrer;
+					if (!referrer || !referrer.startsWith(window.location.origin)) {
+						// 新标签页打开 或 从外部网站跳入 → 播放
+						shouldPlayAnimation = true;
+					}
+					// 否则是从文章页点返回 → 不播放
+				}
+				// navType === 'back_forward' 浏览器前进后退 → 不播放
+			}
+
+			if (!shouldPlayAnimation) {
+				document.write('<style>#welcome-screen { display: none !important; } #app { opacity: 1 !important; visibility: visible !important; }</style>');
+			}
+			
+			function initWelcomeScreen() {
+				const welcome = document.getElementById('welcome-screen');
+				const app = document.getElementById('app');
+
+				if (shouldPlayAnimation) {
+					if(app) {
+						app.style.opacity = '0';
+						app.classList.remove('hidden');
+					}
+					if(welcome) {
+						welcome.style.display = 'flex';
+						welcome.classList.remove('fade-out');
+					}
+
+					setTimeout(() => {
+						if(welcome) welcome.classList.add('fade-out');
+						if(app) {
+							app.style.opacity = '1';
+						}
+						setTimeout(() => {
+							if(welcome) welcome.style.display = 'none';
+						}, 600);
+					}, 2500);
+				} else {
+					if(welcome) welcome.style.display = 'none';
+					if(app) {
+						app.classList.remove('hidden');
+						app.style.opacity = '1';
+					}
+				}
+			}
+
+			window.addEventListener('load', initWelcomeScreen);
+		</script>
+	</body>
+</html>

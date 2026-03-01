@@ -1,0 +1,519 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OKay's Blog | 嵌入式 Linux AI 开发者</title>
+    <meta name="description" content="OKay的个人技术博客，专注于嵌入式Linux AI、高速PCB硬件开发、瑞芯微全系列芯片驱动开发，包含鲁班猫、香橙派等开发板实战文章。">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+
+    <!-- ============ WELCOME SCREEN ============ -->
+    <div id="welcome-screen" class="welcome-screen">
+        <div class="welcome-inner">
+            <div class="welcome-logo-anim">
+                <span class="welcome-letter" style="--i:0">O</span>
+                <span class="welcome-letter" style="--i:1">K</span>
+                <span class="welcome-letter" style="--i:2">a</span>
+                <span class="welcome-letter" style="--i:3">y</span>
+                <span class="welcome-letter dot" style="--i:4">'</span>
+                <span class="welcome-letter" style="--i:5">s</span>
+                <span class="welcome-letter space" style="--i:6">&nbsp;</span>
+                <span class="welcome-letter" style="--i:7">B</span>
+                <span class="welcome-letter" style="--i:8">l</span>
+                <span class="welcome-letter" style="--i:9">o</span>
+                <span class="welcome-letter" style="--i:10">g</span>
+            </div>
+            <p class="welcome-subtitle">嵌入式 Linux · AI · 硬件开发</p>
+            <div class="welcome-loader">
+                <div class="welcome-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MAIN APP ============ -->
+    <div id="app" class="app hidden">
+
+        <!-- Top Navigation -->
+        <nav class="navbar" id="navbar">
+            <div class="nav-inner">
+                <a href="#" class="nav-logo" onclick="showHome(event)">
+                    <span class="logo-icon material-icons-round">memory</span>
+                    <span class="logo-text">OKay<span class="logo-accent">.dev</span></span>
+                </a>
+                <div class="nav-center">
+                    <div class="search-bar" id="search-bar">
+                        <span class="material-icons-round search-icon">search</span>
+                        <input type="text" id="search-input" placeholder="搜索文章、标签..." autocomplete="off">
+                        <div class="search-results" id="search-results"></div>
+                    </div>
+                </div>
+                <div class="nav-right">
+                    <button class="nav-create-btn" id="nav-create-btn" onclick="handleCreateClick()">
+                        <span class="material-icons-round">edit</span> 创作
+                    </button>
+                    <button class="theme-toggle" id="theme-toggle" title="切换主题">
+                        <span class="material-icons-round" id="theme-icon">dark_mode</span>
+                    </button>
+                    <a href="#about" class="nav-avatar-link" onclick="scrollToAbout(event)">
+                        <img src="avatar.jpg" alt="OKay" class="nav-avatar">
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Guide / Quick Nav -->
+        <section class="guide-bar" id="guide-bar">
+            <div class="guide-inner">
+                <button class="guide-chip active" data-filter="all" onclick="filterArticles('all', this)">
+                    <span class="material-icons-round">explore</span> 全部
+                </button>
+                <button class="guide-chip" data-filter="ai" onclick="filterArticles('ai', this)">
+                    <span class="material-icons-round">psychology</span> AI推理
+                </button>
+                <button class="guide-chip" data-filter="driver" onclick="filterArticles('driver', this)">
+                    <span class="material-icons-round">developer_board</span> 驱动开发
+                </button>
+                <button class="guide-chip" data-filter="hardware" onclick="filterArticles('hardware', this)">
+                    <span class="material-icons-round">cable</span> PCB/硬件
+                </button>
+                <button class="guide-chip" data-filter="board" onclick="filterArticles('board', this)">
+                    <span class="material-icons-round">devices</span> 开发板
+                </button>
+                <button class="guide-chip" data-filter="linux" onclick="filterArticles('linux', this)">
+                    <span class="material-icons-round">terminal</span> Linux
+                </button>
+            </div>
+        </section>
+
+        <!-- ============ HOME VIEW ============ -->
+        <main id="home-view">
+
+            <!-- Hero -->
+            <section class="hero">
+                <div class="hero-content">
+                    <img src="avatar.jpg" alt="OKay" class="hero-avatar">
+                    <h1>Hi，我是 <span class="text-accent">OKay</span> 👋</h1>
+                    <p class="hero-desc">嵌入式 Linux AI 开发者 · 专注瑞芯微全系列芯片<br>高速PCB硬件开发 & Linux驱动开发</p>
+                    <div class="hero-tags">
+                        <span>RK3588</span><span>RK3568</span><span>RK3566</span><span>RK3399</span><span>RK3328</span><span>RKNN</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Articles Grid -->
+            <section class="articles-section" id="articles-section">
+                <h2 class="section-heading">最新文章</h2>
+                <div class="articles-grid" id="articles-grid">
+                    <!-- Rendered by JS -->
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section class="about-section" id="about">
+                <div class="about-card">
+                    <div class="about-left">
+                        <img src="avatar.jpg" alt="OKay" class="about-avatar">
+                    </div>
+                    <div class="about-right">
+                        <h2>关于 OKay</h2>
+                        <p class="about-bio">
+                            一名热爱底层技术的嵌入式软件&硬件工程师。专注于<strong>嵌入式 Linux AI</strong> 方向，长期深耕瑞芯微 (Rockchip)
+                            全系列芯片的驱动开发与系统适配工作，同时具备高速 PCB 设计能力，覆盖从原理图到 Layout 的完整硬件开发流程。
+                        </p>
+                        <p class="about-bio">
+                            在这里我会分享有关 RK3588、RK3568 等 SoC 的 NPU 模型部署、Linux 内核驱动、Device Tree、Yocto
+                            构建、以及鲁班猫、香橙派等各种开发板的实战经验与踩坑记录。
+                        </p>
+                        <div class="about-skills">
+                            <span>C/C++</span><span>Linux Kernel</span><span>Device Tree</span>
+                            <span>RKNN</span><span>V4L2</span><span>PCIe</span>
+                            <span>Yocto</span><span>Altium Designer</span><span>高速PCB</span>
+                            <span>Python</span><span>AOSP</span><span>Ubuntu</span>
+                        </div>
+                        <div class="about-links">
+                            <a href="https://github.com" target="_blank" class="about-link">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                    <path
+                                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                </svg>
+                                GitHub
+                            </a>
+                            <a href="mailto:okay@example.com" class="about-link">
+                                <span class="material-icons-round">email</span> 联系我
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- ============ ARTICLE DETAIL VIEW ============ -->
+        <main id="article-view" class="hidden">
+            <article class="article-detail">
+                <button class="back-btn" onclick="showHome(event)">
+                    <span class="material-icons-round">arrow_back</span> 返回
+                </button>
+                <div class="article-header">
+                    <div class="article-meta-top">
+                        <span class="article-tag" id="detail-tag"></span>
+                        <span class="article-date" id="detail-date"></span>
+                    </div>
+                    <h1 id="detail-title"></h1>
+                    <div class="article-author-row">
+                        <img src="avatar.jpg" alt="OKay" class="article-author-avatar">
+                        <div>
+                            <span class="article-author-name">OKay</span>
+                            <span class="article-read-time" id="detail-readtime"></span>
+                        </div>
+                    </div>
+                    <div id="dev-actions" class="hidden"
+                        style="margin-top: 20px; text-align: center; display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="saveArticle()"
+                            style="background: var(--green); color: white; border: none; padding: 8px 16px; border-radius: var(--radius-full); cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600;">
+                            <span class="material-icons-round" style="font-size: 18px;">save</span> 保存并发布
+                        </button>
+                        <button onclick="exitDevMode()"
+                            style="background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border); padding: 8px 16px; border-radius: var(--radius-full); cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600;">
+                            <span class="material-icons-round" style="font-size: 18px;">exit_to_app</span> 退出编辑
+                        </button>
+                    </div>
+                    <div id="sync-status" class="hidden"
+                        style="margin-top: 10px; font-size: 0.85rem; padding: 8px; border-radius: var(--radius-md); text-align: center;">
+                    </div>
+                </div>
+                <div class="article-body" id="detail-body"></div>
+                <!-- Editor Full Screen Container -->
+                <div id="editor-container" class="hidden fullscreen-editor">
+                    <!-- Top Action Bar -->
+                    <div class="editor-topbar">
+                        <button class="editor-back-btn" onclick="exitDevMode()">
+                            <span class="material-icons-round">arrow_back</span> 返回
+                        </button>
+                        <input type="text" id="editor-title-input" class="editor-title-input" placeholder="输入文章标题...">
+                        <div class="editor-actions-right">
+                            <span id="sync-status" class="sync-status hidden"></span>
+                            <button class="editor-action-btn" onclick="openMetaSettings()">
+                                <span class="material-icons-round">settings</span> 文章设置
+                            </button>
+                            <button class="editor-save-btn" onclick="saveArticle()">
+                                发布文章
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Toolbar -->
+                    <div class="editor-toolbar">
+                        <div class="toolbar-group">
+                            <button onclick="insertMd('**', '**')" title="加粗"><span
+                                    class="material-icons-round">format_bold</span></button>
+                            <button onclick="insertMd('*', '*')" title="斜体"><span
+                                    class="material-icons-round">format_italic</span></button>
+                            <button onclick="insertMd('~~', '~~')" title="删除线"><span
+                                    class="material-icons-round">strikethrough_s</span></button>
+                        </div>
+                        <div class="toolbar-divider"></div>
+                        <div class="toolbar-group">
+                            <button onclick="insertMd('# ', '')" title="一级标题">H1</button>
+                            <button onclick="insertMd('## ', '')" title="二级标题">H2</button>
+                            <button onclick="insertMd('### ', '')" title="三级标题">H3</button>
+                        </div>
+                        <div class="toolbar-divider"></div>
+                        <div class="toolbar-group">
+                            <button onclick="insertMd('- ', '')" title="无序列表"><span
+                                    class="material-icons-round">format_list_bulleted</span></button>
+                            <button onclick="insertMd('1. ', '')" title="有序列表"><span
+                                    class="material-icons-round">format_list_numbered</span></button>
+                            <button onclick="insertMd('> ', '')" title="引用"><span
+                                    class="material-icons-round">format_quote</span></button>
+                        </div>
+                        <div class="toolbar-divider"></div>
+                        <div class="toolbar-group">
+                            <button onclick="insertMd('```\\n', '\\n```')" title="代码块"><span
+                                    class="material-icons-round">code</span></button>
+                            <button onclick="insertMd('[', '](url)')" title="链接"><span
+                                    class="material-icons-round">link</span></button>
+                            <button onclick="document.getElementById('img-upload-input').click()" title="插入图片"><span
+                                    class="material-icons-round">image</span></button>
+                        </div>
+                        <div style="flex: 1;"></div>
+                        <button onclick="toggleSyntaxGuide()" title="Markdown 语法说明" style="color: var(--accent);">
+                            <span class="material-icons-round">help_outline</span> 语法说明
+                        </button>
+                    </div>
+
+                    <input type="file" id="img-upload-input" class="hidden" accept="image/*"
+                        onchange="uploadImage(this)">
+
+                    <!-- Split Workspace -->
+                    <div class="editor-workspace">
+                        <div class="editor-pane">
+                            <textarea id="article-editor" spellcheck="false"
+                                placeholder="在这里开始书写 Markdown..."></textarea>
+                        </div>
+                        <div class="preview-pane">
+                            <div class="article-body" id="editor-preview"></div>
+                        </div>
+
+                        <!-- Markdown Syntax Guide Sidebar (Hidden by default) -->
+                        <div id="syntax-guide-panel" class="syntax-guide-panel hidden">
+                            <div class="syntax-guide-header">
+                                <h3>Markdown 语法说明</h3>
+                                <button onclick="toggleSyntaxGuide()" class="close-guide">
+                                    <span class="material-icons-round">close</span>
+                                </button>
+                            </div>
+                            <div class="syntax-guide-body">
+                                <h4>标题</h4>
+                                <pre># 一级标题\n## 二级标题\n### 三级标题</pre>
+
+                                <h4>文本样式</h4>
+                                <pre>**粗体**\n*斜体*\n~~删除线~~\n`行内代码`</pre>
+
+                                <h4>列表</h4>
+                                <pre>- 无序列表\n- 无序列表\n\n1. 有序列表\n2. 有序列表</pre>
+
+                                <h4>引用与代码块</h4>
+                                <pre>> 引用内容\n\n```python\nprint("Hello World")\n```</pre>
+
+                                <h4>链接与图片</h4>
+                                <pre>[链接文字](http://...)\n\n![图片描述](图片URL)</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="article-actions">
+                    <button class="action-btn like-btn" id="like-btn" onclick="toggleLike()">
+                        <span class="material-icons-round" id="like-icon">favorite_border</span>
+                        <span id="like-count">0</span>
+                    </button>
+                    <button class="action-btn" onclick="document.getElementById('comment-input').focus()">
+                        <span class="material-icons-round">chat_bubble_outline</span>
+                        <span id="comment-count">0</span>
+                    </button>
+                    <button class="action-btn" onclick="shareArticle()">
+                        <span class="material-icons-round">share</span>
+                    </button>
+                </div>
+                <!-- Comments Section -->
+                <div class="comments-section">
+                    <h3>评论</h3>
+                    <div class="comment-form">
+                        <img src="avatar.jpg" alt="Me" class="comment-avatar">
+                        <div class="comment-input-wrap">
+                            <input type="text" id="comment-input" placeholder="写下你的评论..."
+                                onkeydown="if(event.key==='Enter')postComment()">
+                            <button class="comment-send" onclick="postComment()">
+                                <span class="material-icons-round">send</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="comments-list" id="comments-list">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+            </article>
+        </main>
+
+        <!-- ============ FOOTER ============ -->
+        <footer class="site-footer" id="site-footer">
+            <p>&copy; 2026 OKay's Blog · 用代码驱动硬件，以 AI 赋能边缘</p>
+        </footer>
+
+        <!-- ============ MUSIC PLAYER (NetEase Cloud Style) ============ -->
+        <div class="music-player" id="music-player">
+            <div class="player-mini" id="player-mini" onclick="togglePlayerExpand()">
+                <div class="player-disc" id="player-disc">
+                    <div class="disc-inner">
+                        <span class="material-icons-round">album</span>
+                    </div>
+                </div>
+                <div class="player-info-mini">
+                    <span class="player-song" id="player-song-mini">晴天</span>
+                    <span class="player-artist">周杰伦</span>
+                </div>
+                <div class="player-controls-mini">
+                    <button onclick="prevTrack(event)"><span class="material-icons-round">skip_previous</span></button>
+                    <button class="play-btn" id="play-btn" onclick="togglePlay(event)"><span
+                            class="material-icons-round" id="play-icon">play_arrow</span></button>
+                    <button onclick="nextTrack(event)"><span class="material-icons-round">skip_next</span></button>
+                </div>
+            </div>
+            <div class="player-expanded hidden" id="player-expanded">
+                <div class="player-expanded-header">
+                    <span class="player-expanded-title">正在播放</span>
+                    <button class="player-close" onclick="togglePlayerExpand()"><span
+                            class="material-icons-round">keyboard_arrow_down</span></button>
+                </div>
+                <div class="player-expanded-disc">
+                    <div class="big-disc" id="big-disc">
+                        <div class="big-disc-inner">
+                            <span class="material-icons-round">album</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-expanded-info">
+                    <h3 id="player-song-big">晴天</h3>
+                    <p>周杰伦</p>
+                </div>
+                <div class="player-progress">
+                    <input type="range" min="0" max="100" value="0" class="progress-slider" id="progress-slider">
+                    <div class="progress-time">
+                        <span id="current-time">0:00</span>
+                        <span id="total-time">4:29</span>
+                    </div>
+                </div>
+                <div class="player-controls-big">
+                    <button onclick="toggleShuffle()" id="shuffle-btn"><span
+                            class="material-icons-round">shuffle</span></button>
+                    <button onclick="prevTrack(event)"><span class="material-icons-round">skip_previous</span></button>
+                    <button class="play-btn-big" onclick="togglePlay(event)"><span class="material-icons-round"
+                            id="play-icon-big">play_arrow</span></button>
+                    <button onclick="nextTrack(event)"><span class="material-icons-round">skip_next</span></button>
+                    <button onclick="toggleRepeat()" id="repeat-btn"><span
+                            class="material-icons-round">repeat</span></button>
+                </div>
+                <div class="player-playlist">
+                    <h4>播放列表 · 周杰伦精选</h4>
+                    <ul id="playlist">
+                        <!-- Rendered by JS -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Hidden Developer Trigger Zone -->
+    <div id="dev-trigger" style="position: fixed; bottom: 0; right: 0; width: 60px; height: 60px; z-index: 9999;"
+        onclick="handleDevTrigger()"></div>
+
+    <!-- Developer Login Modal -->
+    <div id="dev-login-modal" class="hidden"
+        style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div
+            style="background: var(--surface); padding: 30px; border-radius: var(--radius-lg); width: 320px; box-shadow: var(--shadow-xl); border: 1px solid var(--border);">
+            <h3 style="margin-bottom: 20px; text-align: center;">进入开发者模式</h3>
+            <div style="margin-bottom: 15px;">
+                <label
+                    style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">用户名</label>
+                <input type="text" id="dev-user"
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); outline: none;">
+            </div>
+            <div style="margin-bottom: 24px;">
+                <label
+                    style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">密码</label>
+                <input type="password" id="dev-pwd"
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); outline: none;"
+                    onkeydown="if(event.key==='Enter')loginDevMode()">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="document.getElementById('dev-login-modal').classList.add('hidden')"
+                    style="flex: 1; padding: 10px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); border-radius: var(--radius-sm); cursor: pointer;">取消</button>
+                <button onclick="loginDevMode()"
+                    style="flex: 1; padding: 10px; border: none; background: var(--accent); color: white; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">登录</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Article Meta Settings Modal -->
+    <div id="meta-settings-modal" class="hidden"
+        style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div
+            style="background: var(--surface); padding: 30px; border-radius: var(--radius-lg); width: 400px; max-width: 90vw; box-shadow: var(--shadow-xl); border: 1px solid var(--border);">
+            <h3 style="margin-bottom: 20px;" id="meta-modal-title">文章设置</h3>
+            <div style="margin-bottom: 15px;">
+                <label
+                    style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">标题</label>
+                <input type="text" id="meta-title"
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); outline: none;">
+            </div>
+            <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label
+                        style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">标签
+                        (Tag)</label>
+                    <input type="text" id="meta-tag"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); outline: none;">
+                </div>
+                <div style="flex: 1;">
+                    <label
+                        style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">分类
+                        (Filter)</label>
+                    <input type="text" id="meta-filter" list="filter-options" placeholder="选择或自定义输入..."
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); outline: none;">
+                    <datalist id="filter-options">
+                        <option value="ai">AI推理</option>
+                        <option value="driver">驱动开发</option>
+                        <option value="hardware">硬件设计</option>
+                        <option value="linux">Linux内核/系统</option>
+                        <option value="project">项目实践</option>
+                    </datalist>
+                </div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label
+                    style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">文章摘要</label>
+                <textarea id="meta-summary" rows="3"
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); outline: none; resize: vertical;"></textarea>
+            </div>
+            <div style="margin-bottom: 24px;">
+                <label
+                    style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">封面图片</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="meta-cover" placeholder="上传封面图片 (留空将自动分配)"
+                        style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); outline: none;">
+                    <button onclick="document.getElementById('meta-cover-input').click()" id="upload-cover-btn"
+                        style="padding: 0 15px; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text); border-radius: var(--radius-sm); cursor: pointer; white-space: nowrap;">上传</button>
+                    <input type="file" id="meta-cover-input" class="hidden" accept="image/*"
+                        onchange="uploadCoverImage(this)">
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="deleteArticle()" id="meta-delete-btn" class="hidden"
+                    style="padding: 10px 15px; border: none; background: rgba(252, 85, 49, 0.1); color: #fc5531; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">删除文章</button>
+                <button onclick="document.getElementById('meta-settings-modal').classList.add('hidden')"
+                    style="flex: 1; padding: 10px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); border-radius: var(--radius-sm); cursor: pointer;">取消</button>
+                <button onclick="saveMetaSettings()"
+                    style="flex: 1; padding: 10px; border: none; background: var(--accent); color: white; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Publish Success Modal -->
+    <div id="publish-success-modal" class="hidden"
+        style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10001; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div
+            style="background: var(--surface); padding: 40px 30px; border-radius: var(--radius-lg); width: 340px; text-align: center; box-shadow: var(--shadow-xl); border: 1px solid var(--border);">
+            <div
+                style="width: 60px; height: 60px; border-radius: 50%; background: #4caf50; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <span class="material-icons-round" style="font-size: 36px;">check</span>
+            </div>
+            <h2 style="margin-bottom: 10px; color: var(--text);">发布成功！</h2>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 25px;">
+                你的文章已保存。请注意，同步至 GitHub Pages 外网通常需要 1~3 分钟，在此期间刷新可能会看到旧版。
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button onclick="viewPublishedArticle()"
+                    style="padding: 12px; border: none; background: var(--accent); color: white; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; font-size: 1rem;">查看刚发布的文章</button>
+                <button onclick="returnToHomeFromEditor()"
+                    style="padding: 12px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; font-size: 1rem;">回到首页</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+---
+// src/components/Footer.astro
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container">
+    <p>&copy; {currentYear} OKay's Blog · 用代码驱动硬件，以 AI 赋能边缘</p>
+    <div class="links">
+      <a href="https://github.com/okayjh" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <span class="divider">·</span>
+      <a href="/rss.xml">RSS</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--border-color);
+    padding: 2rem 1rem;
+    margin-top: 4rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .divider {
+    color: var(--border-color);
+  }
+
+  a {
+    color: var(--text-muted);
+  }
+
+  a:hover {
+    color: var(--text-color);
+  }
+</style>

@@ -1,17 +1,70 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import AuthorProfile from '../components/AuthorProfile.astro';
+import GuideBar from '../components/GuideBar.astro';
+import { getCollection } from 'astro:content';
 
+const allPosts = await getCollection('blog', ({ data }) => {
+  return import.meta.env.PROD ? data.draft !== true : true;
+});
+
+// 模拟的分类文章和真文章结合
+const dummyPosts = [
+  { title: "OpenHarmony Industrial OS", date: "2026-02-28", slug: "harmony", tags: ["Linux"] },
+  { title: "Edge Edge Computing Beginners", date: "2026-02-23", slug: "edge", tags: ["AI"] },
+  { title: "TensorFlow Lite Inference", date: "2026-02-20", slug: "tf-lite", tags: ["AI"] },
+  { title: "AI Vision", date: "2026-02-18", slug: "ai-vision", tags: ["AI"] },
+  { title: "Hardware Video Transcoding", date: "2026-02-10", slug: "video", tags: ["Hardware"] }
+];
+
+const processedPosts = allPosts.map(p => ({
+  title: p.data.title,
+  date: p.data.date.toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\//g, '-'),
+  slug: p.slug,
+  desc: p.data.description || "点击阅读详情...",
+  tags: p.data.tags,
+  cover: p.data.cover
+}));
+
+const displayPosts = [...processedPosts, ...dummyPosts.map(d => ({...d, desc: "Testing description..."}))].slice(0, 6);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="首页 | OKay's Blog">
+    <!-- Quick Nav -->
+    <GuideBar />
+
+    <main id="home-view">
+        <AuthorProfile />
+
+        <!-- Articles Grid -->
+        <section class="articles-section" id="articles-section">
+            <h2 class="section-heading">最新文章</h2>
+            <div class="articles-grid">
+                {displayPosts.map((post, index) => (
+                    <a href={`/blog/${post.slug}`} class="article-card">
+                        {post.cover ? (
+                            <img src={post.cover} alt={post.title} class="article-card-cover" />
+                        ) : (
+                            <div class={`article-card-cover gradient-${(index % 5) + 1}`}>
+                                <div style="font-size: 1.25rem; font-weight: 700; width: 100%; text-align: center; padding: 0 20px; text-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                                    {post.title}
+                                </div>
+                            </div>
+                        )}
+                        <div class="article-card-body">
+                            <span class="article-card-tag">原创</span>
+                            <p>{post.desc}</p>
+                        </div>
+                        <div class="article-card-footer">
+                            <span>{post.date}</span>
+                            <div class="article-card-stats">
+                                <span><span class="material-icons-round">favorite</span> 0</span>
+                                <span><span class="material-icons-round">chat_bubble</span> 0</span>
+                            </div>
+                        </div>
+                    </a>
+                ))}
+            </div>
+        </section>
+    </main>
+</Layout>

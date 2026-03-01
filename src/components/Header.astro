@@ -1,0 +1,66 @@
+---
+// src/components/Header.astro
+---
+
+<nav class="navbar" id="navbar">
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">
+            <span class="logo-icon material-icons-round">memory</span>
+            <span class="logo-text">OKay<span class="logo-accent">.dev</span></span>
+        </a>
+        <div class="nav-center">
+            <div class="search-bar" id="search-bar">
+                <span class="material-icons-round search-icon">search</span>
+                <input type="text" id="search-input" placeholder="搜索文章、标签..." autocomplete="off">
+                <div class="search-results" id="search-results"></div>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="theme-toggle" id="theme-toggle" title="切换主题">
+                <span class="material-icons-round" id="theme-icon">dark_mode</span>
+            </button>
+            <a href="/#about" class="nav-avatar-link">
+                <!-- Using the downloaded avatar image -->
+                <img src="/avatar.jpg" alt="OKay" class="nav-avatar">
+            </a>
+        </div>
+    </div>
+</nav>
+
+<script>
+    const setupThemeToggle = () => {
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        
+        const updateIcon = (theme: string) => {
+            if(themeIcon) {
+                themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+            }
+        };
+        
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        updateIcon(currentTheme);
+
+        if (themeToggle) {
+            // Remove previous event listener to avoid duplicates in Astro view transitions
+            const newBtn = themeToggle.cloneNode(true);
+            themeToggle.parentNode?.replaceChild(newBtn, themeToggle);
+            
+            newBtn.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme');
+                const next = current === 'dark' ? 'light' : 'dark';
+                
+                document.documentElement.setAttribute('data-theme', next);
+                localStorage.setItem('theme', next);
+                
+                const newIcon = newBtn.querySelector('#theme-icon');
+                if(newIcon) {
+                    newIcon.textContent = next === 'dark' ? 'light_mode' : 'dark_mode';
+                }
+            });
+        }
+    };
+
+    setupThemeToggle();
+    document.addEventListener('astro:page-load', setupThemeToggle);
+</script>

@@ -1,0 +1,144 @@
+---
+// src/pages/blog/index.astro
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const posts = await getCollection('blog', ({ data }) => {
+  return import.meta.env.PROD ? data.draft !== true : true;
+});
+
+posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<Layout title="文章列表 | OKay's Blog">
+  <div class="blog-index">
+    <header class="page-header">
+      <h1>所有文章</h1>
+      <p>关于嵌入式 Linux、AI、高速 PCB 及各类开发板的技术随笔与实战指南。</p>
+    </header>
+
+    <div class="post-list">
+      {posts.map(post => (
+        <a href={`/blog/${post.slug}`} class="post-item card">
+          <div class="post-header">
+            <h2>{post.data.title}</h2>
+            <time datetime={post.data.date.toISOString()}>
+              {post.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </time>
+          </div>
+          <p class="description">{post.data.description || '点击阅读全文...'}</p>
+          <div class="tags">
+            {post.data.tags.map(tag => (
+              <span class="tag">{tag}</span>
+            ))}
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .blog-index {
+    max-width: 800px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .page-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .page-header h1 {
+    font-size: 2.5rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+  }
+
+  .page-header p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .post-item {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+  }
+
+  .post-item:hover h2 {
+    color: var(--link-color);
+  }
+
+  .post-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .post-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    line-height: 1.4;
+  }
+
+  time {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .description {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+  }
+
+  @media (min-width: 600px) {
+    .post-header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    
+    time {
+      white-space: nowrap;
+      margin-top: 5px;
+    }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>

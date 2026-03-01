@@ -1,0 +1,56 @@
+---
+// src/components/Comments.astro
+// Giscus comments integration. 
+// User will need to update repo and repoId before deployment to production.
+---
+
+<div class="comments-section">
+  <h3>评论</h1>
+  <div id="giscus-container"></div>
+</div>
+
+<script>
+  function renderGiscus() {
+    const container = document.getElementById('giscus-container');
+    if (!container) return;
+    
+    // Clear existing iframe if any (for view transitions support)
+    container.innerHTML = '';
+    
+    const theme = document.documentElement.classList.contains('dark') ? 'noborder_gray' : 'light';
+    
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'okayjh/okayjh.github.io'); // PLEASE UPDATE
+    script.setAttribute('data-repo-id', 'R_kgDOMxxx'); // PLEASE UPDATE
+    script.setAttribute('data-category', 'Announcements'); 
+    script.setAttribute('data-category-id', 'DIC_kwDOMxxx'); // PLEASE UPDATE
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'bottom');
+    script.setAttribute('data-theme', theme);
+    script.setAttribute('data-lang', 'zh-CN');
+    script.setAttribute('data-loading', 'lazy');
+    script.crossOrigin = 'anonymous';
+    script.async = true;
+    
+    container.appendChild(script);
+  }
+
+  renderGiscus();
+  document.addEventListener('astro:page-load', renderGiscus);
+</script>
+
+<style>
+  .comments-section {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+  }
+  
+  .comments-section h3 {
+    margin-bottom: 2rem;
+  }
+</style>

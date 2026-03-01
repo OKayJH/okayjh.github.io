@@ -1,0 +1,77 @@
+---
+// src/components/MusicPlayer.astro
+---
+<div class="music-player" id="music-player">
+    <div class="player-mini" id="player-mini">
+        <div class="player-disc" id="player-disc">
+            <div class="disc-inner">
+                <span class="material-icons-round">album</span>
+            </div>
+        </div>
+        <div class="player-info-mini">
+            <span class="player-song" id="player-song-mini">晴天</span>
+            <span class="player-artist">周杰伦</span>
+        </div>
+        <div class="player-controls-mini">
+            <button><span class="material-icons-round">skip_previous</span></button>
+            <button class="play-btn" id="play-btn-mini"><span class="material-icons-round" id="play-icon-mini">play_arrow</span></button>
+            <button><span class="material-icons-round">skip_next</span></button>
+        </div>
+    </div>
+    
+    <audio id="bg-audio" src="https://downsc.chinaz.net/Files/DownLoad/sound1/201906/11582.mp3" loop preload="none"></audio>
+</div>
+
+<script>
+    const setupPlayer = () => {
+        const audio = document.getElementById('bg-audio') as HTMLAudioElement;
+        const playBtn = document.getElementById('play-btn-mini');
+        const playIcon = document.getElementById('play-icon-mini');
+        const disc = document.getElementById('player-disc');
+        
+        if(!audio || !playBtn) return;
+        
+        let isPlaying = !audio.paused && audio.currentTime > 0;
+        
+        const updateUI = () => {
+             if(isPlaying) {
+                 playIcon!.textContent = 'pause';
+                 disc?.classList.add('playing');
+             } else {
+                 playIcon!.textContent = 'play_arrow';
+                 disc?.classList.remove('playing');
+             }
+        };
+        
+        updateUI();
+
+        const newBtn = playBtn.cloneNode(true);
+        playBtn.parentNode?.replaceChild(newBtn, playBtn);
+        
+        newBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if(isPlaying) {
+                audio.pause();
+                isPlaying = false;
+            } else {
+                audio.play().then(() => {
+                    isPlaying = true;
+                }).catch(err => console.log('Interact with page first'));
+                isPlaying = true;
+            }
+            // re-select icon as we cloned the button
+            const newIcon = newBtn.querySelector('#play-icon-mini');
+            if(newIcon) {
+                newIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
+            }
+            if(isPlaying) {
+                disc?.classList.add('playing');
+            } else {
+                disc?.classList.remove('playing');
+            }
+        });
+    };
+    
+    setupPlayer();
+    document.addEventListener('astro:page-load', setupPlayer);
+</script>
