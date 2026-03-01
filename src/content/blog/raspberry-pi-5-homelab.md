@@ -2,7 +2,7 @@
 title: "树莓派 5 打造家庭实验室：Docker + Home Assistant 全攻略"
 description: "利用 Raspberry Pi 5 搭建一个强大的家庭实验室，包含 Docker 容器管理、Home Assistant 智能家居、以及 Tailscale 内网穿透。"
 date: 2026-02-20
-tags: ["树莓派", "Docker", "智能家居", "HomeAssistant"]
+tags: ["树莓派", "开发板", "Docker", "Linux"]
 cover: "/cover-raspberrypi.png"
 ---
 

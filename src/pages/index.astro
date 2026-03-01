@@ -63,7 +63,7 @@ const displayPosts = processedPosts.sort((a, b) => new Date(b.date).getTime() - 
 </Layout>
 
 <script is:inline>
-  document.addEventListener('astro:page-load', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     const chips = document.querySelectorAll('.guide-chip');
     const cards = document.querySelectorAll('.article-card');
 
