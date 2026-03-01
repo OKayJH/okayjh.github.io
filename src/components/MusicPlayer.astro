@@ -4,74 +4,363 @@
 <div class="music-player" id="music-player">
     <div class="player-mini" id="player-mini">
         <div class="player-disc" id="player-disc">
-            <div class="disc-inner">
-                <span class="material-icons-round">album</span>
-            </div>
+            <img src="/music/cover/qingtian.jpg" alt="Cover" id="mini-cover" />
         </div>
-        <div class="player-info-mini">
+        <div class="player-info-mini" id="mini-info">
             <span class="player-song" id="player-song-mini">晴天</span>
-            <span class="player-artist">周杰伦</span>
+            <span class="player-artist" id="player-artist-mini">周杰伦</span>
         </div>
         <div class="player-controls-mini">
-            <button><span class="material-icons-round">skip_previous</span></button>
+            <button id="prev-btn-mini"><span class="material-icons-round">skip_previous</span></button>
             <button class="play-btn" id="play-btn-mini"><span class="material-icons-round" id="play-icon-mini">play_arrow</span></button>
-            <button><span class="material-icons-round">skip_next</span></button>
+            <button id="next-btn-mini"><span class="material-icons-round">skip_next</span></button>
         </div>
     </div>
     
-    <audio id="bg-audio" src="https://downsc.chinaz.net/Files/DownLoad/sound1/201906/11582.mp3" loop preload="none"></audio>
+    <!-- Expanded Player -->
+    <div class="player-expanded" id="player-expanded" style="display: none;">
+        <div class="player-bg-blur" id="player-bg-blur"></div>
+        <div class="player-expanded-content">
+            <div class="player-expanded-header">
+                <button class="player-close" id="player-close"><span class="material-icons-round">keyboard_arrow_down</span></button>
+                <div class="player-expanded-title">正在播放</div>
+                <div style="width: 40px;"></div>
+            </div>
+            
+            <div class="player-expanded-disc" id="expanded-disc-container">
+                <div class="big-disc" id="big-disc">
+                    <img src="/music/cover/qingtian.jpg" alt="Cover" id="big-cover" />
+                </div>
+            </div>
+            
+            <div class="player-expanded-info">
+                <h3 id="player-song-big">晴天</h3>
+                <p id="player-artist-big">周杰伦</p>
+            </div>
+            
+            <div class="player-progress">
+                <input type="range" class="progress-slider" id="progress-slider" min="0" max="100" value="0">
+                <div class="progress-time">
+                    <span id="time-current">00:00</span>
+                    <span id="time-total">00:00</span>
+                </div>
+            </div>
+            
+            <div class="player-controls-big">
+                <button id="mode-btn"><span class="material-icons-round" id="mode-icon">repeat</span></button>
+                <button id="prev-btn-big"><span class="material-icons-round">skip_previous</span></button>
+                <button class="play-btn play-btn-big" id="play-btn-big"><span class="material-icons-round" id="play-icon-big">play_arrow</span></button>
+                <button id="next-btn-big"><span class="material-icons-round">skip_next</span></button>
+                <button id="list-btn"><span class="material-icons-round">playlist_play</span></button>
+            </div>
+
+            <div class="player-playlist-panel" id="playlist-panel" style="display: none;">
+                <h4>播放列表 (<span id="playlist-count">0</span>)</h4>
+                <ul id="playlist-ul"></ul>
+            </div>
+        </div>
+    </div>
+    
+    <audio id="bg-audio" preload="metadata"></audio>
 </div>
 
 <script>
-    const setupPlayer = () => {
-        const audio = document.getElementById('bg-audio') as HTMLAudioElement;
-        const playBtn = document.getElementById('play-btn-mini');
-        const playIcon = document.getElementById('play-icon-mini');
-        const disc = document.getElementById('player-disc');
-        
-        if(!audio || !playBtn) return;
-        
-        let isPlaying = !audio.paused && audio.currentTime > 0;
-        
-        const updateUI = () => {
-             if(isPlaying) {
-                 playIcon!.textContent = 'pause';
-                 disc?.classList.add('playing');
-             } else {
-                 playIcon!.textContent = 'play_arrow';
-                 disc?.classList.remove('playing');
-             }
-        };
-        
-        updateUI();
+    const playlist = [
+        { title: '遇到了', artist: 'Mr.', src: '/music/yudaole.mp3', cover: '/music/cover/yudaole.jpg' },
+        { title: '无谓再假', artist: 'Mr.', src: '/music/wuweizaijia.mp3', cover: '/music/cover/wuweizaijia.jpg' },
+        { title: '无条件', artist: '陈奕迅', src: '/music/wutiaojian.mp3', cover: '/music/cover/wutiaojian.jpg' },
+        { title: '森林', artist: 'Mr.', src: '/music/senlin.mp3', cover: '/music/cover/senlin.jpg' },
+        { title: '人生马拉松', artist: '陈奕迅', src: '/music/renshengmalasong.mp3', cover: '/music/cover/renshengmalasong.jpg' },
+        { title: '你的背包', artist: '陈奕迅', src: '/music/nidebeibao.mp3', cover: '/music/cover/nidebeibao.jpg' },
+        { title: '碌卡', artist: '陈奕迅', src: '/music/luka.mp3', cover: '/music/cover/luka.jpg' },
+        { title: 'What Do You Mean?', artist: 'Justin Bieber', src: '/music/What Do You Mean.mp3', cover: '/music/cover/What Do You Mean.jpg' },
+        { title: 'Love Yourself', artist: 'Justin Bieber', src: '/music/Love Yourself.mp3', cover: '/music/cover/Love Yourself.jpg' },
+        { title: 'Baby', artist: 'Justin Bieber / Ludacris', src: '/music/Baby.mp3', cover: '/music/cover/baby.jpg' },
+        { title: '最长的电影', artist: '周杰伦', src: '/music/zuichangdedianying.mp3', cover: '/music/cover/zuichangdedianying.jpg' },
+        { title: '一路向北', artist: '周杰伦', src: '/music/yiluxiangbei.mp3', cover: '/music/cover/yiluxiangbei.jpg' },
+        { title: '我是如此相信', artist: '周杰伦', src: '/music/woshirucixiangxin.mp3', cover: '/music/cover/woshirucidexiangxin.jpg' },
+        { title: '晴天', artist: '周杰伦', src: '/music/qingtian.mp3', cover: '/music/cover/qingtian.jpg' },
+        { title: '七里香', artist: '周杰伦', src: '/music/qilixiang.mp3', cover: '/music/cover/qilixiang.jpg' },
+        { title: '可爱女人', artist: '周杰伦', src: '/music/keainvren.mp3', cover: '/music/cover/keainvren.jpg' },
+        { title: '反方向的钟', artist: '周杰伦', src: '/music/fanfangxiangdezhong.mp3', cover: '/music/cover/fanfangxiangdezhong.jpg' },
+        { title: '不能说的秘密', artist: '周杰伦', src: '/music/bunengshuodemimi.mp3', cover: '/music/cover/bunengshuodemimi.jpg' },
+        { title: '半岛铁盒', artist: '周杰伦', src: '/music/bandaotiehe.mp3', cover: '/music/cover/bandaotiehe.jpg' },
+        { title: '爱在西元前', artist: '周杰伦', src: '/music/aizaixiyuanqian.mp3', cover: '/music/cover/aizaixiyuanqian.jpg' }
+    ];
 
-        const newBtn = playBtn.cloneNode(true);
-        playBtn.parentNode?.replaceChild(newBtn, playBtn);
+    let currentIndex = 0;
+    let isPlaying = false;
+    let playMode = 'repeat'; // 'repeat', 'one', 'shuffle'
+
+    // Use a global variable for the audio element so it persists across page loads
+    // Make sure we only create one audio element.
+    if (!window.globalAudio) {
+        window.globalAudio = new Audio();
+        window.globalAudio.preload = 'metadata';
+        // We will sink events from this global audio object to the UI components.
+    }
+
+    const setupPlayer = () => {
+        const audio = window.globalAudio as HTMLAudioElement;
         
-        newBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if(isPlaying) {
+        // Re-query the actual DOM elements currently on the page
+        const playerElements = {
+            miniPlayer: document.getElementById('player-mini'),
+            miniCover: document.getElementById('mini-cover') as HTMLImageElement,
+            miniSong: document.getElementById('player-song-mini'),
+            miniArtist: document.getElementById('player-artist-mini'),
+            miniPlayBtn: document.getElementById('play-btn-mini'),
+            miniPlayIcon: document.getElementById('play-icon-mini'),
+            miniPrevBtn: document.getElementById('prev-btn-mini'),
+            miniNextBtn: document.getElementById('next-btn-mini'),
+            miniDisc: document.getElementById('player-disc'),
+            miniInfo: document.getElementById('mini-info'),
+            
+            expandedPlayer: document.getElementById('player-expanded'),
+            bgBlur: document.getElementById('player-bg-blur'),
+            closeBtn: document.getElementById('player-close'),
+            bigCover: document.getElementById('big-cover') as HTMLImageElement,
+            bigSong: document.getElementById('player-song-big'),
+            bigArtist: document.getElementById('player-artist-big'),
+            bigPlayBtn: document.getElementById('play-btn-big'),
+            bigPlayIcon: document.getElementById('play-icon-big'),
+            bigPrevBtn: document.getElementById('prev-btn-big'),
+            bigNextBtn: document.getElementById('next-btn-big'),
+            bigDisc: document.getElementById('big-disc'),
+            modeBtn: document.getElementById('mode-btn'),
+            modeIcon: document.getElementById('mode-icon'),
+            listBtn: document.getElementById('list-btn'),
+            
+            progressBar: document.getElementById('progress-slider') as HTMLInputElement,
+            timeCurrent: document.getElementById('time-current'),
+            timeTotal: document.getElementById('time-total'),
+            
+            playlistPanel: document.getElementById('playlist-panel'),
+            playlistUl: document.getElementById('playlist-ul'),
+            playlistCount: document.getElementById('playlist-count'),
+            expandedDiscContainer: document.getElementById('expanded-disc-container')
+        };
+
+        if (!playerElements.miniPlayer) return; // Not on a page with the player
+
+        const formatTime = (seconds: number) => {
+            if (isNaN(seconds)) return '00:00';
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        };
+
+        const loadSongToUI = (index: number) => {
+            const song = playlist[index];
+            
+            if (playerElements.miniCover) playerElements.miniCover.src = song.cover;
+            if (playerElements.miniSong) playerElements.miniSong.textContent = song.title;
+            if (playerElements.miniArtist) playerElements.miniArtist.textContent = song.artist;
+            
+            if (playerElements.bigCover) playerElements.bigCover.src = song.cover;
+            if (playerElements.bigSong) playerElements.bigSong.textContent = song.title;
+            if (playerElements.bigArtist) playerElements.bigArtist.textContent = song.artist;
+            
+            if (playerElements.bgBlur) {
+                playerElements.bgBlur.style.backgroundImage = `url(${song.cover})`;
+            }
+
+            renderPlaylist();
+        };
+
+        const loadSong = (index: number) => {
+            const song = playlist[index];
+            if (audio.src.indexOf(encodeURI(song.src)) === -1) {
+                 audio.src = song.src;
+            }
+            loadSongToUI(index);
+        };
+
+        const updatePlayStateUI = () => {
+            isPlaying = !audio.paused && audio.currentTime > 0;
+            const icon = isPlaying ? 'pause' : 'play_arrow';
+            
+            if(playerElements.miniPlayIcon) playerElements.miniPlayIcon.textContent = icon;
+            if(playerElements.bigPlayIcon) playerElements.bigPlayIcon.textContent = icon;
+            
+            if (isPlaying) {
+                playerElements.miniDisc?.classList.add('playing');
+                playerElements.bigDisc?.classList.add('playing');
+            } else {
+                playerElements.miniDisc?.classList.remove('playing');
+                playerElements.bigDisc?.classList.remove('playing');
+            }
+        };
+
+        const togglePlay = () => {
+            if (isPlaying) {
                 audio.pause();
                 isPlaying = false;
             } else {
+                // If it's the very first time and no src is set
+                if (!audio.src || audio.src === window.location.href) {
+                     loadSong(currentIndex);
+                }
                 audio.play().then(() => {
                     isPlaying = true;
                 }).catch(err => console.log('Interact with page first'));
-                isPlaying = true;
             }
-            // re-select icon as we cloned the button
-            const newIcon = newBtn.querySelector('#play-icon-mini');
-            if(newIcon) {
-                newIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
-            }
-            if(isPlaying) {
-                disc?.classList.add('playing');
+            updatePlayStateUI();
+        };
+
+        const playNext = () => {
+            if (playMode === 'shuffle') {
+                currentIndex = Math.floor(Math.random() * playlist.length);
             } else {
-                disc?.classList.remove('playing');
+                currentIndex = (currentIndex + 1) % playlist.length;
             }
-        });
+            loadSong(currentIndex);
+            audio.play().then(() => { isPlaying = true; updatePlayStateUI(); }).catch(e => console.log(e));
+        };
+
+        const playPrev = () => {
+            if (playMode === 'shuffle') {
+                currentIndex = Math.floor(Math.random() * playlist.length);
+            } else {
+                currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+            }
+            loadSong(currentIndex);
+            audio.play().then(() => { isPlaying = true; updatePlayStateUI(); }).catch(e => console.log(e));
+        };
+
+        const toggleMode = () => {
+            const modes = ['repeat', 'one', 'shuffle'];
+            const icons = {'repeat': 'repeat', 'one': 'repeat_one', 'shuffle': 'shuffle'};
+            let idx = modes.indexOf(playMode);
+            playMode = modes[(idx + 1) % modes.length];
+            if(playerElements.modeIcon) playerElements.modeIcon.textContent = icons[playMode as keyof typeof icons];
+        };
+
+        const renderPlaylist = () => {
+            if (!playerElements.playlistUl) return;
+            playerElements.playlistUl.innerHTML = '';
+            if (playerElements.playlistCount) {
+                playerElements.playlistCount.textContent = playlist.length.toString();
+            }
+            
+            playlist.forEach((song, idx) => {
+                const li = document.createElement('li');
+                li.className = idx === currentIndex ? 'active' : '';
+                li.innerHTML = `
+                    <div class="track-num">${idx === currentIndex ? '<span class="material-icons-round" style="font-size: 16px;">volume_up</span>' : (idx + 1).toString().padStart(2, '0')}</div>
+                    <div class="track-name">
+                        <div style="font-weight: 600;">${song.title}</div>
+                        <div style="font-size: 0.75rem; opacity: 0.7;">${song.artist}</div>
+                    </div>
+                `;
+                li.addEventListener('click', () => {
+                    currentIndex = idx;
+                    loadSong(currentIndex);
+                    audio.play().then(() => { isPlaying = true; updatePlayStateUI(); }).catch(e => console.log(e));
+                });
+                playerElements.playlistUl.appendChild(li);
+            });
+        };
+
+        // --- GLOBAL AUDIO EVENT LISTENERS ---
+        // Clean up old listeners attached to audio if page is reloaded (prevents duplicate triggers)
+        audio.onupdate = null; 
+        
+        const onTimeUpdate = () => {
+            if (!audio.duration || !playerElements.progressBar) return;
+            const current = audio.currentTime;
+            const total = audio.duration;
+            
+            // Only update slider if user isn't holding it
+            playerElements.progressBar.value = ((current / total) * 100).toString();
+            
+            if(playerElements.timeCurrent) playerElements.timeCurrent.textContent = formatTime(current);
+            if(playerElements.timeTotal) playerElements.timeTotal.textContent = formatTime(total);
+            updatePlayStateUI(); // keep UI in sync
+        };
+
+        const onEnded = () => {
+            if (playMode === 'one') {
+                audio.currentTime = 0;
+                audio.play();
+            } else {
+                playNext();
+            }
+        };
+
+        const onLoadedMetadata = () => {
+            if(playerElements.timeTotal) playerElements.timeTotal.textContent = formatTime(audio.duration);
+        };
+
+        // We replace listeners rather than addEventListener so they don't pile up on globalAudio across Swup/ViewTransitions
+        audio.ontimeupdate = onTimeUpdate;
+        audio.onended = onEnded;
+        audio.onloadedmetadata = onLoadedMetadata;
+        audio.onplay = updatePlayStateUI;
+        audio.onpause = updatePlayStateUI;
+
+
+        // --- UI BINDINGS ---
+        // We do not need the complex "cloneNode" trick if we simply hook standard events on fresh elements
+        
+        // Progress interaction
+        if (playerElements.progressBar) {
+            playerElements.progressBar.addEventListener('input', (e) => {
+                const target = e.target as HTMLInputElement;
+                if (!audio.duration) return;
+                const time = (parseFloat(target.value) / 100) * audio.duration;
+                audio.currentTime = time;
+            });
+        }
+        
+        // Expanded UI toggle
+        const openExpanded = (e: Event) => {
+            e.stopPropagation();
+            if(playerElements.expandedPlayer) playerElements.expandedPlayer.style.display = 'block';
+        };
+        const closeExpanded = () => {
+            if(playerElements.expandedPlayer) playerElements.expandedPlayer.style.display = 'none';
+        };
+
+        // Playlist Toggle
+        const toggleList = () => {
+            if (!playerElements.playlistPanel) return;
+            if (playerElements.playlistPanel.style.display === 'none') {
+                playerElements.playlistPanel.style.display = 'block';
+                if(playerElements.expandedDiscContainer) playerElements.expandedDiscContainer.style.display = 'none';
+            } else {
+                playerElements.playlistPanel.style.display = 'none';
+                if(playerElements.expandedDiscContainer) playerElements.expandedDiscContainer.style.display = 'flex';
+            }
+        };
+
+        playerElements.miniPlayBtn?.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+        playerElements.bigPlayBtn?.addEventListener('click', togglePlay);
+        playerElements.miniPrevBtn?.addEventListener('click', (e) => { e.stopPropagation(); playPrev(); });
+        playerElements.bigPrevBtn?.addEventListener('click', playPrev);
+        playerElements.miniNextBtn?.addEventListener('click', (e) => { e.stopPropagation(); playNext(); });
+        playerElements.bigNextBtn?.addEventListener('click', playNext);
+        playerElements.modeBtn?.addEventListener('click', toggleMode);
+        
+        playerElements.miniDisc?.addEventListener('click', openExpanded);
+        playerElements.miniInfo?.addEventListener('click', openExpanded);
+        playerElements.closeBtn?.addEventListener('click', closeExpanded);
+        playerElements.listBtn?.addEventListener('click', toggleList);
+        
+        // Initial setup
+        loadSongToUI(currentIndex);
+        updatePlayStateUI(); // Sync the UI with the global audio playing state if already playing
     };
-    
+
+    // Global typing for window
+    declare global {
+        interface Window {
+            globalAudio: HTMLAudioElement;
+        }
+    }
+
+    // Since Astro's page transitions might re-evaluate this script, 
+    // setupPlayer connects the new DOM elements to the existing window.globalAudio
     setupPlayer();
     document.addEventListener('astro:page-load', setupPlayer);
 </script>
