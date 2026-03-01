@@ -8,25 +8,18 @@ const allPosts = await getCollection('blog', ({ data }) => {
   return import.meta.env.PROD ? data.draft !== true : true;
 });
 
-// 模拟的分类文章和真文章结合
-const dummyPosts = [
-  { title: "OpenHarmony Industrial OS", date: "2026-02-28", slug: "harmony", tags: ["Linux"] },
-  { title: "Edge Edge Computing Beginners", date: "2026-02-23", slug: "edge", tags: ["AI"] },
-  { title: "TensorFlow Lite Inference", date: "2026-02-20", slug: "tf-lite", tags: ["AI"] },
-  { title: "AI Vision", date: "2026-02-18", slug: "ai-vision", tags: ["AI"] },
-  { title: "Hardware Video Transcoding", date: "2026-02-10", slug: "video", tags: ["Hardware"] }
-];
-
+// 只需要正式文章即可
 const processedPosts = allPosts.map(p => ({
   title: p.data.title,
   date: p.data.date.toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\//g, '-'),
   slug: p.slug,
   desc: p.data.description || "点击阅读详情...",
-  tags: p.data.tags,
+  tags: p.data.tags || [],
   cover: p.data.cover
 }));
 
-const displayPosts = [...processedPosts, ...dummyPosts.map(d => ({...d, desc: "Testing description..."}))].slice(0, 6);
+// 按日期降序排列
+const displayPosts = processedPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 ---
 
 <Layout title="首页 | OKay's Blog">
@@ -41,7 +34,7 @@ const displayPosts = [...processedPosts, ...dummyPosts.map(d => ({...d, desc: "T
             <h2 class="section-heading">最新文章</h2>
             <div class="articles-grid">
                 {displayPosts.map((post, index) => (
-                    <a href={`/blog/${post.slug}`} class="article-card">
+                    <a href={`/blog/${post.slug}`} class="article-card" data-tags={post.tags.join(',')}>
                         {post.cover ? (
                             <img src={post.cover} alt={post.title} class="article-card-cover" />
                         ) : (
@@ -68,3 +61,34 @@ const displayPosts = [...processedPosts, ...dummyPosts.map(d => ({...d, desc: "T
         </section>
     </main>
 </Layout>
+
+<script is:inline>
+  document.addEventListener('astro:page-load', () => {
+    const chips = document.querySelectorAll('.guide-chip');
+    const cards = document.querySelectorAll('.article-card');
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        // 更新激活状态
+        chips.forEach(c => c.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+
+        const category = e.currentTarget.getAttribute('data-category');
+
+        cards.forEach(card => {
+          const tags = card.getAttribute('data-tags') || '';
+          if (category === 'all') {
+            card.style.display = 'flex';
+          } else {
+            // 支持模糊匹配或者包含关系
+            if (tags.includes(category)) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          }
+        });
+      });
+    });
+  });
+</script>
