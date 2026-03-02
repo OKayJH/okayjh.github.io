@@ -179,6 +179,8 @@ const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.p
 
 			if (triggerArea) {
 				triggerArea.addEventListener('click', () => {
+					// Dev mode only works on localhost
+					if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) return;
 					clickCount++;
 					if (clickTimer) clearTimeout(clickTimer);
 					
@@ -194,7 +196,7 @@ const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.p
 					} else {
 						clickTimer = setTimeout(() => {
 							clickCount = 0;
-						}, 1000); // Must click 5 times within 1 second
+						}, 1000);
 					}
 				});
 			}

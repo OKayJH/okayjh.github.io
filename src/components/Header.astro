@@ -108,9 +108,10 @@
             });
         }
 
-        // Dev Mode UI Logic
+        // Dev Mode UI Logic - only works on localhost (editor is dev-only)
+        const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
         const checkDevMode = () => {
-            const isDev = localStorage.getItem('okay_dev_mode') === 'true';
+            const isDev = localStorage.getItem('okay_dev_mode') === 'true' && isLocalDev;
             if (isDev) {
                 if(createBtn) createBtn.style.display = 'flex';
                 if(exitDevBtn) exitDevBtn.style.display = 'block';

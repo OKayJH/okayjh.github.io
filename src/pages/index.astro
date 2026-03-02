@@ -116,8 +116,9 @@ const displayPosts = processedPosts.sort((a, b) => new Date(b.date).getTime() - 
     });
 
     // Dev mode check for Editor/Delete buttons and Drafts
+    const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
     const checkDevModeIndex = () => {
-        const isDev = localStorage.getItem('okay_dev_mode') === 'true';
+        const isDev = localStorage.getItem('okay_dev_mode') === 'true' && isLocalDev;
         const devActions = document.querySelectorAll('.dev-actions');
         const wrappers = document.querySelectorAll('.article-card-wrapper');
         
