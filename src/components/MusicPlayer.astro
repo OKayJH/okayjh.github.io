@@ -208,10 +208,15 @@
             updatePlayStateUI();
         };
 
-        const playNext = () => {
+        const playNext = (userInitiated = true) => {
             if (playMode === 'shuffle') {
                 currentIndex = Math.floor(Math.random() * playlist.length);
+            } else if (playMode === 'one' && !userInitiated) {
+                // If not user-initiated (i.e. auto-next), 'one' mode means we don't change index
+                // This is normally handled in onEnded, but just in case this is called directly
             } else {
+                // 'repeat' (which acts like sequential list play in many players, or loop list depending on preference)
+                // Let's make 'repeat' loop the list when it reaches the end for smooth listening
                 currentIndex = (currentIndex + 1) % playlist.length;
             }
             loadSong(currentIndex);
@@ -229,11 +234,17 @@
         };
 
         const toggleMode = () => {
+            // Updated modes: 
+            // - repeat: sequential play (loops back to 0)
+            // - one: single loop
+            // - shuffle: random play
             const modes = ['repeat', 'one', 'shuffle'];
             const icons = {'repeat': 'repeat', 'one': 'repeat_one', 'shuffle': 'shuffle'};
             let idx = modes.indexOf(playMode);
             playMode = modes[(idx + 1) % modes.length];
             if(playerElements.modeIcon) playerElements.modeIcon.textContent = icons[playMode as keyof typeof icons];
+            
+            // Re-render playlist to update visual hints if any based on mode later
         };
 
         const renderPlaylist = () => {
@@ -284,7 +295,7 @@
                 audio.currentTime = 0;
                 audio.play();
             } else {
-                playNext();
+                playNext(false);
             }
         };
 
@@ -323,16 +334,25 @@
         };
 
         // Playlist Toggle
-        const toggleList = () => {
+        const toggleList = (e: Event) => {
+            e.stopPropagation();
             if (!playerElements.playlistPanel) return;
             if (playerElements.playlistPanel.style.display === 'none') {
-                playerElements.playlistPanel.style.display = 'block';
-                if(playerElements.expandedDiscContainer) playerElements.expandedDiscContainer.style.display = 'none';
+                playerElements.playlistPanel.style.display = 'flex';
             } else {
                 playerElements.playlistPanel.style.display = 'none';
-                if(playerElements.expandedDiscContainer) playerElements.expandedDiscContainer.style.display = 'flex';
             }
         };
+
+        // Click outside to close playlist
+        document.addEventListener('click', (e) => {
+            if (playerElements.playlistPanel && playerElements.playlistPanel.style.display === 'flex') {
+                const target = e.target as HTMLElement;
+                if (!playerElements.playlistPanel.contains(target) && target !== playerElements.listBtn && !playerElements.listBtn?.contains(target)) {
+                    playerElements.playlistPanel.style.display = 'none';
+                }
+            }
+        });
 
         playerElements.miniPlayBtn?.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
         playerElements.bigPlayBtn?.addEventListener('click', togglePlay);
