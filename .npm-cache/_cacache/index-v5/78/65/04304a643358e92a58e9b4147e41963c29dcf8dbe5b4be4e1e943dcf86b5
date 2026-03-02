@@ -1,0 +1,2 @@
+
+fda0e3178894f677bdb725b0886a27ffc4b55cf3	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/srvx","integrity":null,"time":1772414499830,"size":"262","metadata":{"time":1772414499830,"url":"http://registry.npmmirror.com/srvx","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:39 GMT","location":"https://registry.npmmirror.com/srvx"},"options":{"compress":true},"status":301}}

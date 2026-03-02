@@ -1,0 +1,2 @@
+
+83628e6f15b62dd78ec4acbe00e8874c939285ff	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/micromark-core-commonmark","integrity":null,"time":1772414503271,"size":"262","metadata":{"time":1772414503271,"url":"http://registry.npmmirror.com/micromark-core-commonmark","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/micromark-core-commonmark"},"options":{"compress":true},"status":301}}

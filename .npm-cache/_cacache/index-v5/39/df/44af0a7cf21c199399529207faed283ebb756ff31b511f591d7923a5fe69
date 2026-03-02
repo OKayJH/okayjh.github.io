@@ -1,0 +1,2 @@
+
+9cacc874b81455ae07bfd33cb06a0a4cc8ab5e54	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/fontace","integrity":null,"time":1772414486994,"size":"262","metadata":{"time":1772414486994,"url":"http://registry.npmmirror.com/fontace","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/fontace"},"options":{"compress":true},"status":301}}

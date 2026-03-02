@@ -1,0 +1,2 @@
+
+6d37501af70439011c1d85bdb443f2070bd6513c	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/bail","integrity":null,"time":1772414488222,"size":"262","metadata":{"time":1772414488222,"url":"http://registry.npmmirror.com/bail","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/bail"},"options":{"compress":true},"status":301}}

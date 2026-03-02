@@ -1,0 +1,2 @@
+
+1bcc593e09940f01ffc73964c69a69942249d528	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@opentelemetry%2fapi","integrity":null,"time":1772414494984,"size":"262","metadata":{"time":1772414494984,"url":"http://registry.npmmirror.com/@opentelemetry%2fapi","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:34 GMT","location":"https://registry.npmmirror.com/@opentelemetry%2fapi"},"options":{"compress":true},"status":301}}

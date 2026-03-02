@@ -1,0 +1,2 @@
+
+0ce01c4bf89f2fa006ff87bc3b595d9429ce0101	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/micromark-util-subtokenize","integrity":null,"time":1772414503273,"size":"262","metadata":{"time":1772414503273,"url":"http://registry.npmmirror.com/micromark-util-subtokenize","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/micromark-util-subtokenize"},"options":{"compress":true},"status":301}}

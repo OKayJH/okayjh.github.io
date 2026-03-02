@@ -1,0 +1,2 @@
+
+272fb218f2e083ca4643de35209c56814c19e03b	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@types%2fpg","integrity":null,"time":1772414496638,"size":"262","metadata":{"time":1772414496638,"url":"http://registry.npmmirror.com/@types%2fpg","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:36 GMT","location":"https://registry.npmmirror.com/@types%2fpg"},"options":{"compress":true},"status":301}}

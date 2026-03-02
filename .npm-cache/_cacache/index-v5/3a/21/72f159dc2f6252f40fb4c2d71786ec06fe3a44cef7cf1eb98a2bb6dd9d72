@@ -1,0 +1,2 @@
+
+dbe1bf6d0ca68f12fbf3a70bc73e05a05bb7c776	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/better-sqlite3","integrity":null,"time":1772414492385,"size":"262","metadata":{"time":1772414492385,"url":"http://registry.npmmirror.com/better-sqlite3","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:31 GMT","location":"https://registry.npmmirror.com/better-sqlite3"},"options":{"compress":true},"status":301}}

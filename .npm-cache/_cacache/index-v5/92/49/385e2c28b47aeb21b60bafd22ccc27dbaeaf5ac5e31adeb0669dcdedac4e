@@ -1,0 +1,2 @@
+
+9408254dd20da7bad3181b51fc7d0bc13c19cdd0	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@azure%2fstorage-blob","integrity":null,"time":1772414489977,"size":"262","metadata":{"time":1772414489977,"url":"http://registry.npmmirror.com/@azure%2fstorage-blob","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:29 GMT","location":"https://registry.npmmirror.com/@azure%2fstorage-blob"},"options":{"compress":true},"status":301}}

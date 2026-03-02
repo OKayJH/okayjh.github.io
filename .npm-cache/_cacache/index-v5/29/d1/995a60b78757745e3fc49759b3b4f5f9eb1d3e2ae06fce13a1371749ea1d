@@ -1,0 +1,2 @@
+
+8fc2581515fabc3eaff295aa6d73744a692f5734	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@esbuild%2fandroid-x64","integrity":null,"time":1772414501504,"size":"262","metadata":{"time":1772414501504,"url":"http://registry.npmmirror.com/@esbuild%2fandroid-x64","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/@esbuild%2fandroid-x64"},"options":{"compress":true},"status":301}}

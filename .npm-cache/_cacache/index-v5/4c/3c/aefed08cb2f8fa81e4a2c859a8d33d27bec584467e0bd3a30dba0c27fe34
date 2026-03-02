@@ -1,0 +1,2 @@
+
+c4cce11c0894d4b092a625cc8c9497a682cf8dce	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/remark-smartypants","integrity":null,"time":1772414486704,"size":"262","metadata":{"time":1772414486704,"url":"http://registry.npmmirror.com/remark-smartypants","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/remark-smartypants"},"options":{"compress":true},"status":301}}

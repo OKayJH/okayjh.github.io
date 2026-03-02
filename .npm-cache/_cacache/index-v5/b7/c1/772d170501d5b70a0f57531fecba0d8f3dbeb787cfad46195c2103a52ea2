@@ -1,0 +1,2 @@
+
+90ad68e55564f5aa243ffaef0aa7732fa6558400	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/fontkitten","integrity":null,"time":1772414501436,"size":"262","metadata":{"time":1772414501436,"url":"http://registry.npmmirror.com/fontkitten","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:40 GMT","location":"https://registry.npmmirror.com/fontkitten"},"options":{"compress":true},"status":301}}

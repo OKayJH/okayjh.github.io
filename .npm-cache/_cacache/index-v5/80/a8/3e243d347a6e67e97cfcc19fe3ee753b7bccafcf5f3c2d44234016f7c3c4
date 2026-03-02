@@ -1,0 +1,2 @@
+
+c533d9dac2d39056677d322c38a48e5e473c5942	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@mdx-js%2fmdx","integrity":null,"time":1772414486659,"size":"262","metadata":{"time":1772414486659,"url":"http://registry.npmmirror.com/@mdx-js%2fmdx","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/@mdx-js%2fmdx"},"options":{"compress":true},"status":301}}

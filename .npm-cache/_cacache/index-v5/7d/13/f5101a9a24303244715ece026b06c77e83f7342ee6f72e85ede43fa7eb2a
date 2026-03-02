@@ -1,0 +1,2 @@
+
+6318afe14120247f705ffd6a709e4fc316a14be5	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/react-native-webview","integrity":null,"time":1772414498131,"size":"262","metadata":{"time":1772414498131,"url":"http://registry.npmmirror.com/react-native-webview","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:37 GMT","location":"https://registry.npmmirror.com/react-native-webview"},"options":{"compress":true},"status":301}}

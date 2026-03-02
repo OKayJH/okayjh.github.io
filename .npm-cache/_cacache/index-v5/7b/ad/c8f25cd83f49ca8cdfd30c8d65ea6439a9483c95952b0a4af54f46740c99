@@ -1,0 +1,2 @@
+
+1810e728e3a7f46e02bc0de98b84c3ed851f51c8	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/etag","integrity":null,"time":1772420037573,"size":"262","metadata":{"time":1772420037573,"url":"http://registry.npmmirror.com/etag","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 02:53:57 GMT","location":"https://registry.npmmirror.com/etag"},"options":{"compress":true},"status":301}}

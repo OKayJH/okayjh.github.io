@@ -1,0 +1,2 @@
+
+77052dfa6382b7eeb4870f79bbc5f35a2db6a710	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/smol-toml","integrity":null,"time":1772414487106,"size":"262","metadata":{"time":1772414487106,"url":"http://registry.npmmirror.com/smol-toml","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/smol-toml"},"options":{"compress":true},"status":301}}

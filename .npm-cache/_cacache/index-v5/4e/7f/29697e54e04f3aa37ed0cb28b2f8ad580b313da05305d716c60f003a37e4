@@ -1,0 +1,2 @@
+
+57a9dba4cf43df311a96eb5fe7792851565a76cd	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/mdast-util-definitions","integrity":null,"time":1772414487755,"size":"262","metadata":{"time":1772414487755,"url":"http://registry.npmmirror.com/mdast-util-definitions","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/mdast-util-definitions"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+875af785580c2f12f0421c9f325c2912ac707eec	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/regex-recursion","integrity":null,"time":1772414505443,"size":"262","metadata":{"time":1772414505443,"url":"http://registry.npmmirror.com/regex-recursion","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:44 GMT","location":"https://registry.npmmirror.com/regex-recursion"},"options":{"compress":true},"status":301}}

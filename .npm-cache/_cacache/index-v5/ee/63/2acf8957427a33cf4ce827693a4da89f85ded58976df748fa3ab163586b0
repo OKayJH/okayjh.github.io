@@ -1,0 +1,2 @@
+
+0f561f8f91b9d3ef631e07934ce300e7f83c24d2	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/kysely","integrity":null,"time":1772414498419,"size":"262","metadata":{"time":1772414498418,"url":"http://registry.npmmirror.com/kysely","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:37 GMT","location":"https://registry.npmmirror.com/kysely"},"options":{"compress":true},"status":301}}

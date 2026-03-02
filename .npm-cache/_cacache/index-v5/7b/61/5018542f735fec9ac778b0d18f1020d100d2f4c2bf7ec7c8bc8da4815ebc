@@ -1,0 +1,2 @@
+
+006b3f4abe768cd5f0402dac0ae2b1273e112c94	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/undici-types","integrity":null,"time":1772417611477,"size":"262","metadata":{"time":1772417611477,"url":"http://registry.npmmirror.com/undici-types","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 02:13:31 GMT","location":"https://registry.npmmirror.com/undici-types"},"options":{"compress":true},"status":301}}

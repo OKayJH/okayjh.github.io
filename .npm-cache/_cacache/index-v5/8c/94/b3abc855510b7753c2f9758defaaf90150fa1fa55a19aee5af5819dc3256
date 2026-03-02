@@ -1,0 +1,2 @@
+
+4b43d91698399f352f8b1aa1adf81dd87f65557c	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/decode-named-character-reference","integrity":null,"time":1772414503176,"size":"262","metadata":{"time":1772414503176,"url":"http://registry.npmmirror.com/decode-named-character-reference","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/decode-named-character-reference"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+e9cbc759110787db129f0a0b914683e0481f9d64	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/mdast-util-mdx","integrity":null,"time":1772414488530,"size":"262","metadata":{"time":1772414488530,"url":"http://registry.npmmirror.com/mdast-util-mdx","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:28 GMT","location":"https://registry.npmmirror.com/mdast-util-mdx"},"options":{"compress":true},"status":301}}

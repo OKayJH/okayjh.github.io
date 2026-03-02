@@ -1,0 +1,2 @@
+
+6ed4cbc34a7825c4ad1028ca40e2ab2e7cad4e49	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/sass","integrity":null,"time":1772414500692,"size":"262","metadata":{"time":1772414500692,"url":"http://registry.npmmirror.com/sass","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:40 GMT","location":"https://registry.npmmirror.com/sass"},"options":{"compress":true},"status":301}}

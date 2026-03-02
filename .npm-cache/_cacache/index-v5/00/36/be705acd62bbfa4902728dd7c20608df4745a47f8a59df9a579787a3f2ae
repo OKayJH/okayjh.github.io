@@ -1,0 +1,2 @@
+
+e18ac7f1ae1f23c8c809aa04706df0a5d02316f3	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/is-hexadecimal","integrity":null,"time":1772414503377,"size":"262","metadata":{"time":1772414503377,"url":"http://registry.npmmirror.com/is-hexadecimal","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/is-hexadecimal"},"options":{"compress":true},"status":301}}

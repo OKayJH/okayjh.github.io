@@ -1,0 +1,2 @@
+
+511966f2808000e2f310c6e43f56f231cade9735	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@esbuild%2fopenharmony-arm64","integrity":null,"time":1772414501607,"size":"262","metadata":{"time":1772414501607,"url":"http://registry.npmmirror.com/@esbuild%2fopenharmony-arm64","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/@esbuild%2fopenharmony-arm64"},"options":{"compress":true},"status":301}}

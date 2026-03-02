@@ -1,0 +1,2 @@
+
+2c0369801459a044e8d6cd6aa8e0c9d8f4e4ee85	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@shikijs%2flangs","integrity":null,"time":1772414488164,"size":"262","metadata":{"time":1772414488164,"url":"http://registry.npmmirror.com/@shikijs%2flangs","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/@shikijs%2flangs"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+5b7d0a1fe63f8f2754c3ef90d1f71f1a507ef340	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/shiki","integrity":null,"time":1772414487105,"size":"262","metadata":{"time":1772414487105,"url":"http://registry.npmmirror.com/shiki","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/shiki"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+57c42a22171ab0de9b16e810f455714d73b82dc7	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/recma-build-jsx","integrity":null,"time":1772414487866,"size":"262","metadata":{"time":1772414487866,"url":"http://registry.npmmirror.com/recma-build-jsx","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/recma-build-jsx"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+409a5138158d486bdee2942ed26470556b1c0e9a	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/property-information","integrity":null,"time":1772414487968,"size":"262","metadata":{"time":1772414487968,"url":"http://registry.npmmirror.com/property-information","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/property-information"},"options":{"compress":true},"status":301}}

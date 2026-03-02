@@ -1,0 +1,2 @@
+
+c747ca914a4f4e12871326a64b1ff78435ad331d	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/zod-to-json-schema","integrity":null,"time":1772414487199,"size":"262","metadata":{"time":1772414487199,"url":"http://registry.npmmirror.com/zod-to-json-schema","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/zod-to-json-schema"},"options":{"compress":true},"status":301}}

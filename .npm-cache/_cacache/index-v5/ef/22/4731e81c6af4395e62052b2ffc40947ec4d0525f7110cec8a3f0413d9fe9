@@ -1,0 +1,2 @@
+
+475f32843fbbd967b6a68a934eca5229454f9e6e	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@planetscale%2fdatabase","integrity":null,"time":1772414490841,"size":"262","metadata":{"time":1772414490841,"url":"http://registry.npmmirror.com/@planetscale%2fdatabase","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:30 GMT","location":"https://registry.npmmirror.com/@planetscale%2fdatabase"},"options":{"compress":true},"status":301}}

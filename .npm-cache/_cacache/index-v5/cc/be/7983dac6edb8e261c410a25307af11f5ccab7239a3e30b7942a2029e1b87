@@ -1,0 +1,2 @@
+
+15cf28a929202b2a1a0d257a1c096d229584c33b	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/eventemitter3","integrity":null,"time":1772414501656,"size":"262","metadata":{"time":1772414501656,"url":"http://registry.npmmirror.com/eventemitter3","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/eventemitter3"},"options":{"compress":true},"status":301}}

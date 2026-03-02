@@ -1,0 +1,2 @@
+
+34125483ad7e03cec5065b2648c71c625f9426c8	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/fast-xml-builder","integrity":null,"time":1772414488420,"size":"262","metadata":{"time":1772414488420,"url":"http://registry.npmmirror.com/fast-xml-builder","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/fast-xml-builder"},"options":{"compress":true},"status":301}}

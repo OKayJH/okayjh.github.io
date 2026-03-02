@@ -1,0 +1,2 @@
+
+a1520cb5a1f780584c552458009493679dd2cd72	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/camelcase","integrity":null,"time":1772414501436,"size":"262","metadata":{"time":1772414501436,"url":"http://registry.npmmirror.com/camelcase","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:40 GMT","location":"https://registry.npmmirror.com/camelcase"},"options":{"compress":true},"status":301}}

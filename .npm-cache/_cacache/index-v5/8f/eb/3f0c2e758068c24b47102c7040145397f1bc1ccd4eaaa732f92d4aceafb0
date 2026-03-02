@@ -1,0 +1,2 @@
+
+ddae9922a3076aeebd2644c0e952d31e3cd1965b	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/aws4fetch","integrity":null,"time":1772414491892,"size":"262","metadata":{"time":1772414491891,"url":"http://registry.npmmirror.com/aws4fetch","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:31 GMT","location":"https://registry.npmmirror.com/aws4fetch"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+3928a6e62657c227f89020c4e8b5b0a880810168	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/axobject-query","integrity":null,"time":1772414486875,"size":"262","metadata":{"time":1772414486875,"url":"http://registry.npmmirror.com/axobject-query","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/axobject-query"},"options":{"compress":true},"status":301}}

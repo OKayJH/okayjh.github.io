@@ -1,0 +1,2 @@
+
+cf5b22b24b1f57af907126337da2e4a45d1d9461	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@img%2fsharp-linux-arm","integrity":null,"time":1772414501752,"size":"262","metadata":{"time":1772414501752,"url":"http://registry.npmmirror.com/@img%2fsharp-linux-arm","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/@img%2fsharp-linux-arm"},"options":{"compress":true},"status":301}}

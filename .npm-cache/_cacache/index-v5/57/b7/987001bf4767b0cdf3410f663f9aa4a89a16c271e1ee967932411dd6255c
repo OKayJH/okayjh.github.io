@@ -1,0 +1,2 @@
+
+1b47364b7ff5d3b30967c0cbefa53f0224aa9377	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@azure%2fkeyvault-secrets","integrity":null,"time":1772414489819,"size":"262","metadata":{"time":1772414489819,"url":"http://registry.npmmirror.com/@azure%2fkeyvault-secrets","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:29 GMT","location":"https://registry.npmmirror.com/@azure%2fkeyvault-secrets"},"options":{"compress":true},"status":301}}

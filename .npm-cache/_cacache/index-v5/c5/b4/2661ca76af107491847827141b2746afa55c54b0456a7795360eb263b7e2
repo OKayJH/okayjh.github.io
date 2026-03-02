@@ -1,0 +1,2 @@
+
+0ba2c23f602319e5978d9779b3023c703248a1c5	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/oniguruma-parser","integrity":null,"time":1772414505440,"size":"262","metadata":{"time":1772414505440,"url":"http://registry.npmmirror.com/oniguruma-parser","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:44 GMT","location":"https://registry.npmmirror.com/oniguruma-parser"},"options":{"compress":true},"status":301}}

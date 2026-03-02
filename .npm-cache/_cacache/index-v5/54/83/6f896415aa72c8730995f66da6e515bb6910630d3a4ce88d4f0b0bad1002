@@ -1,0 +1,2 @@
+
+43cc0e00eb33d81630a11c6906e6fa091c72d9c7	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/form-data","integrity":null,"time":1772417180561,"size":"262","metadata":{"time":1772417180561,"url":"http://registry.npmmirror.com/form-data","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 02:06:20 GMT","location":"https://registry.npmmirror.com/form-data"},"options":{"compress":true},"status":301}}

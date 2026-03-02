@@ -1,0 +1,2 @@
+
+0f526b83ef3e69ee2c2a879cf582f55bb271da8c	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/oniguruma-to-es","integrity":null,"time":1772414505348,"size":"262","metadata":{"time":1772414505348,"url":"http://registry.npmmirror.com/oniguruma-to-es","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:44 GMT","location":"https://registry.npmmirror.com/oniguruma-to-es"},"options":{"compress":true},"status":301}}

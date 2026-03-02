@@ -1,0 +1,2 @@
+
+41ee94f8645043179f2f7169b30dee1d8bd95133	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@cloudflare%2fworkers-types","integrity":null,"time":1772414494041,"size":"262","metadata":{"time":1772414494041,"url":"http://registry.npmmirror.com/@cloudflare%2fworkers-types","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:33 GMT","location":"https://registry.npmmirror.com/@cloudflare%2fworkers-types"},"options":{"compress":true},"status":301}}

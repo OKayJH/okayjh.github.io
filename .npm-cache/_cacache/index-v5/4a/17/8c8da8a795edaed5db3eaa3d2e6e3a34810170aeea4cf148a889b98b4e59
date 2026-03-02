@@ -1,0 +1,2 @@
+
+7d6a7c2b09594d36fa903f07f96cdb13a99ee609	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/mysql2","integrity":null,"time":1772414498538,"size":"262","metadata":{"time":1772414498538,"url":"http://registry.npmmirror.com/mysql2","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:38 GMT","location":"https://registry.npmmirror.com/mysql2"},"options":{"compress":true},"status":301}}

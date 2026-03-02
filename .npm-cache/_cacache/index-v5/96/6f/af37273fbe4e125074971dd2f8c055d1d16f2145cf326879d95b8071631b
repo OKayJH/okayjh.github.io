@@ -1,0 +1,2 @@
+
+b78cac70d9d3620eefa5bb776850d7a75ff2d9aa	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/yoctocolors","integrity":null,"time":1772414501912,"size":"262","metadata":{"time":1772414501912,"url":"http://registry.npmmirror.com/yoctocolors","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/yoctocolors"},"options":{"compress":true},"status":301}}

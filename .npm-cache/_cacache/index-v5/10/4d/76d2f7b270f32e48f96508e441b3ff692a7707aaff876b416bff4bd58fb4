@@ -1,0 +1,2 @@
+
+8bb4711a477ab7cd0a90ba901862fa392572beb3	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/vfile","integrity":null,"time":1772414486715,"size":"262","metadata":{"time":1772414486715,"url":"http://registry.npmmirror.com/vfile","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/vfile"},"options":{"compress":true},"status":301}}

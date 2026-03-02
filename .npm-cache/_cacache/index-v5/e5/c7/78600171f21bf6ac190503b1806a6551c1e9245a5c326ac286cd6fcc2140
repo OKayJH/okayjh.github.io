@@ -1,0 +1,2 @@
+
+e36215db2cbcba40ef5285f971a0f5f23314e8ea	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/jiti","integrity":null,"time":1772414500467,"size":"262","metadata":{"time":1772414500467,"url":"http://registry.npmmirror.com/jiti","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:39 GMT","location":"https://registry.npmmirror.com/jiti"},"options":{"compress":true},"status":301}}

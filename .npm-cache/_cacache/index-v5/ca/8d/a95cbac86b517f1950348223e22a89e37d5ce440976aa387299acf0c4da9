@@ -1,0 +1,2 @@
+
+082c5c373c85425f2835fa7dd21458dbcf43d867	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/micromark-util-types","integrity":null,"time":1772414488163,"size":"262","metadata":{"time":1772414488163,"url":"http://registry.npmmirror.com/micromark-util-types","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/micromark-util-types"},"options":{"compress":true},"status":301}}

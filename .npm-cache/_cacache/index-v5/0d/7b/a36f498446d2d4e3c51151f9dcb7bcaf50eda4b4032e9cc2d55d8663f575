@@ -1,0 +1,2 @@
+
+fb1e884c33ba84b749074b452122537c57cd341f	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@esbuild%2flinux-riscv64","integrity":null,"time":1772414501553,"size":"262","metadata":{"time":1772414501552,"url":"http://registry.npmmirror.com/@esbuild%2flinux-riscv64","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/@esbuild%2flinux-riscv64"},"options":{"compress":true},"status":301}}

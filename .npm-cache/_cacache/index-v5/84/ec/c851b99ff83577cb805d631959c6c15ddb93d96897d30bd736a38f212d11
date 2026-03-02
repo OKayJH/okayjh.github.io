@@ -1,0 +1,2 @@
+
+76da5157c904153201e1f7116ca0c402d917c4dc	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/tinyglobby","integrity":null,"time":1772414487126,"size":"262","metadata":{"time":1772414487126,"url":"http://registry.npmmirror.com/tinyglobby","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/tinyglobby"},"options":{"compress":true},"status":301}}

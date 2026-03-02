@@ -1,0 +1,2 @@
+
+68e4a8459fd69a190ddba051035a75dd33fe3d24	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/ci-info","integrity":null,"time":1772414486893,"size":"262","metadata":{"time":1772414486893,"url":"http://registry.npmmirror.com/ci-info","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/ci-info"},"options":{"compress":true},"status":301}}

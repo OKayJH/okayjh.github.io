@@ -1,0 +1,2 @@
+
+4fa1f3cc1339f0cba8559c5ed54aa149c6967ea1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/get-intrinsic","integrity":null,"time":1772417180901,"size":"262","metadata":{"time":1772417180901,"url":"http://registry.npmmirror.com/get-intrinsic","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 02:06:20 GMT","location":"https://registry.npmmirror.com/get-intrinsic"},"options":{"compress":true},"status":301}}

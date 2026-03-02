@@ -1,0 +1,2 @@
+
+e7cf854ffb7eaf9b4d8e6ad4e642cc84e1c7500d	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/cli-boxes","integrity":null,"time":1772414501430,"size":"262","metadata":{"time":1772414501430,"url":"http://registry.npmmirror.com/cli-boxes","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:40 GMT","location":"https://registry.npmmirror.com/cli-boxes"},"options":{"compress":true},"status":301}}

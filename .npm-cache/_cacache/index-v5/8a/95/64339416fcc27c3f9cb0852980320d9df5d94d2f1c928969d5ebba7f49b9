@@ -1,0 +1,2 @@
+
+a8f86614cee673d5acd40e42b5b9342f1fb6cde7	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/fast-xml-parser","integrity":null,"time":1772414487229,"size":"262","metadata":{"time":1772414487229,"url":"http://registry.npmmirror.com/fast-xml-parser","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/fast-xml-parser"},"options":{"compress":true},"status":301}}

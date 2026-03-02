@@ -1,0 +1,2 @@
+
+c63806a3fd98396ac6d35188a37ba0cdb11e7f79	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@vercel%2ffunctions","integrity":null,"time":1772414491384,"size":"262","metadata":{"time":1772414491384,"url":"http://registry.npmmirror.com/@vercel%2ffunctions","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:30 GMT","location":"https://registry.npmmirror.com/@vercel%2ffunctions"},"options":{"compress":true},"status":301}}

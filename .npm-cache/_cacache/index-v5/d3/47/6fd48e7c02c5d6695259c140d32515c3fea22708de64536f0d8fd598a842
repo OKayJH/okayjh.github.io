@@ -1,0 +1,2 @@
+
+df44f9cde717b1040455a99db8309c94cf09f66f	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/common-ancestor-path","integrity":null,"time":1772414486912,"size":"262","metadata":{"time":1772414486912,"url":"http://registry.npmmirror.com/common-ancestor-path","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/common-ancestor-path"},"options":{"compress":true},"status":301}}

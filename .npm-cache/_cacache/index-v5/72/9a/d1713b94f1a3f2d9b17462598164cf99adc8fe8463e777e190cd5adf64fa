@@ -1,0 +1,2 @@
+
+6a995927d122b2d07fadb303b7b8d00ad1bf2243	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/js-yaml","integrity":null,"time":1772414487020,"size":"262","metadata":{"time":1772414487020,"url":"http://registry.npmmirror.com/js-yaml","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/js-yaml"},"options":{"compress":true},"status":301}}

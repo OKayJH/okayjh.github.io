@@ -1,0 +1,2 @@
+
+fdbc4f9e6f7cba127853ea951ad0bf73dde3c144	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@img%2fsharp-win32-arm64","integrity":null,"time":1772414501804,"size":"262","metadata":{"time":1772414501804,"url":"http://registry.npmmirror.com/@img%2fsharp-win32-arm64","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/@img%2fsharp-win32-arm64"},"options":{"compress":true},"status":301}}

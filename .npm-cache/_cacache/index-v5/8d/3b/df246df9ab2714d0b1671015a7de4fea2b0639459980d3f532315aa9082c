@@ -1,0 +1,2 @@
+
+5b8d7b6397a6115169e31fef3db0e39523687cca	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/clsx","integrity":null,"time":1772414486910,"size":"262","metadata":{"time":1772414486910,"url":"http://registry.npmmirror.com/clsx","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/clsx"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+c3ce561f65b38f38d3b94f7f97d3ea46061eea6f	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/knex","integrity":null,"time":1772414498324,"size":"262","metadata":{"time":1772414498324,"url":"http://registry.npmmirror.com/knex","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:37 GMT","location":"https://registry.npmmirror.com/knex"},"options":{"compress":true},"status":301}}

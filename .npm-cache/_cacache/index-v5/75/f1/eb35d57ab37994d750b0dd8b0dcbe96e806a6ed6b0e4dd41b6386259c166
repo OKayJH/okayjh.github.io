@@ -1,0 +1,2 @@
+
+e0761ba5ee7fcb0290881e2030bbadd08391e57b	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/longest-streak","integrity":null,"time":1772414503182,"size":"262","metadata":{"time":1772414503182,"url":"http://registry.npmmirror.com/longest-streak","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/longest-streak"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+64b7ad781ad38c688223b04da8c5a44db5978bfe	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/chalk","integrity":null,"time":1772414501441,"size":"262","metadata":{"time":1772414501441,"url":"http://registry.npmmirror.com/chalk","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:40 GMT","location":"https://registry.npmmirror.com/chalk"},"options":{"compress":true},"status":301}}

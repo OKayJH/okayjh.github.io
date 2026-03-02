@@ -1,0 +1,2 @@
+
+2702df6f109fa14a91eeba746992b8255fa736bd	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@rollup%2frollup-linux-x64-musl","integrity":null,"time":1772414506338,"size":"262","metadata":{"time":1772414506337,"url":"http://registry.npmmirror.com/@rollup%2frollup-linux-x64-musl","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:45 GMT","location":"https://registry.npmmirror.com/@rollup%2frollup-linux-x64-musl"},"options":{"compress":true},"status":301}}

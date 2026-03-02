@@ -1,0 +1,2 @@
+
+a9b15633329ce8476994e6854e17b307d675a36d	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/trim-lines","integrity":null,"time":1772414502675,"size":"262","metadata":{"time":1772414502674,"url":"http://registry.npmmirror.com/trim-lines","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/trim-lines"},"options":{"compress":true},"status":301}}

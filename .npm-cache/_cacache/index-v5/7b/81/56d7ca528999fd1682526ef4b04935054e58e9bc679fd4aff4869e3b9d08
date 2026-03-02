@@ -1,0 +1,2 @@
+
+0cddab79f55ee9253243b3ee6b7e83ea3a7d86e3	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/defu","integrity":null,"time":1772414506054,"size":"262","metadata":{"time":1772414506054,"url":"http://registry.npmmirror.com/defu","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:45 GMT","location":"https://registry.npmmirror.com/defu"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+0b5d7ae7575a702b054d341dd6f8436002c82ad1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/tinyexec","integrity":null,"time":1772414487117,"size":"262","metadata":{"time":1772414487116,"url":"http://registry.npmmirror.com/tinyexec","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/tinyexec"},"options":{"compress":true},"status":301}}

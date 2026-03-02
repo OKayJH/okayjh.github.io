@@ -3,14 +3,18 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import node from '@astrojs/node';
 
+// Only use node adapter in dev mode (needed for API routes)
+// In production (GitHub Pages), we build as fully static
+const isDev = process.env.NODE_ENV !== 'production' && !process.env.CI;
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://okayjh.github.io',
-  adapter: node({ mode: 'standalone' }),
+  ...(isDev ? { adapter: node({ mode: 'standalone' }) } : {}),
   integrations: [mdx()],
   markdown: {
     shikiConfig: {
-      theme: 'dracula', // 暗色系高亮，适合技术博客
+      theme: 'dracula',
       wrap: true,
     },
   },

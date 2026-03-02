@@ -1,0 +1,2 @@
+
+eb4494a40c1fbc7663d435975a6226c2d4e7571b	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@types%2fdompurify","integrity":null,"time":1772417180261,"size":"262","metadata":{"time":1772417180261,"url":"http://registry.npmmirror.com/@types%2fdompurify","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 02:06:20 GMT","location":"https://registry.npmmirror.com/@types%2fdompurify"},"options":{"compress":true},"status":301}}

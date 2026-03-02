@@ -1,0 +1,2 @@
+
+8ea02d925448c055d0e215d8ced9b51a7a778508	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@img%2fsharp-wasm32","integrity":null,"time":1772414501807,"size":"262","metadata":{"time":1772414501807,"url":"http://registry.npmmirror.com/@img%2fsharp-wasm32","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/@img%2fsharp-wasm32"},"options":{"compress":true},"status":301}}

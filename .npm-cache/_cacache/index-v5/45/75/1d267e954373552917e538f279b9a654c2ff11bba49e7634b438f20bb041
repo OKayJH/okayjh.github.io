@@ -1,0 +1,2 @@
+
+f326a8384f450d25134b7fa4c3fb4e56850b8fcd	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/parse-latin","integrity":null,"time":1772414504780,"size":"262","metadata":{"time":1772414504780,"url":"http://registry.npmmirror.com/parse-latin","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:44 GMT","location":"https://registry.npmmirror.com/parse-latin"},"options":{"compress":true},"status":301}}

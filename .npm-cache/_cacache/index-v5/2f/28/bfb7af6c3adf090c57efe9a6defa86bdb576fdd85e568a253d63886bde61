@@ -1,0 +1,2 @@
+
+7d71c10150f7259768810658d8141f234d84156e	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/dom-serializer","integrity":null,"time":1772414505964,"size":"262","metadata":{"time":1772414505964,"url":"http://registry.npmmirror.com/dom-serializer","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:45 GMT","location":"https://registry.npmmirror.com/dom-serializer"},"options":{"compress":true},"status":301}}

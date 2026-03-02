@@ -1,0 +1,2 @@
+
+004482aff603d8bfd0072851a075f41fc86858a2	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@azure%2fidentity","integrity":null,"time":1772414489505,"size":"262","metadata":{"time":1772414489505,"url":"http://registry.npmmirror.com/@azure%2fidentity","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:29 GMT","location":"https://registry.npmmirror.com/@azure%2fidentity"},"options":{"compress":true},"status":301}}

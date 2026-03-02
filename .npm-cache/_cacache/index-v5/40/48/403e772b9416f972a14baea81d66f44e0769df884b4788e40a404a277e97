@@ -1,0 +1,2 @@
+
+96ce85c558a2d074ffcfaa64dedf99ca46a791d5	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@astrojs%2fprism","integrity":null,"time":1772414487754,"size":"262","metadata":{"time":1772414487754,"url":"http://registry.npmmirror.com/@astrojs%2fprism","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/@astrojs%2fprism"},"options":{"compress":true},"status":301}}

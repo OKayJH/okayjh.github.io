@@ -1,0 +1,2 @@
+
+58bf6cd6880eb911fcfb8e41798409e5d791a3ca	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/is-wsl","integrity":null,"time":1772414501432,"size":"262","metadata":{"time":1772414501432,"url":"http://registry.npmmirror.com/is-wsl","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:40 GMT","location":"https://registry.npmmirror.com/is-wsl"},"options":{"compress":true},"status":301}}

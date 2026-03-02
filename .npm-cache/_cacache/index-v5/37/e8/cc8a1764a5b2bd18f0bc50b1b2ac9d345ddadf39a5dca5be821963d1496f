@@ -1,0 +1,2 @@
+
+168ef40fd23db046fbb62ffa8a80d158b18f0ee0	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/micromark-factory-destination","integrity":null,"time":1772414503471,"size":"262","metadata":{"time":1772414503471,"url":"http://registry.npmmirror.com/micromark-factory-destination","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/micromark-factory-destination"},"options":{"compress":true},"status":301}}

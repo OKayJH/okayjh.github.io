@@ -1,0 +1,2 @@
+
+64aff89c5fb5f030b58bd9b15e56b47d5d1e3bc1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/aria-query","integrity":null,"time":1772414486853,"size":"262","metadata":{"time":1772414486852,"url":"http://registry.npmmirror.com/aria-query","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/aria-query"},"options":{"compress":true},"status":301}}

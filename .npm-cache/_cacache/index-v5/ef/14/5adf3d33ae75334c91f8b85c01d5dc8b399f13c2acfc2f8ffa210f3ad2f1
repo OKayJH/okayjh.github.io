@@ -1,0 +1,2 @@
+
+b5dfedcbf5b5e8144caa01488399c2a1bdd9c72d	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/bun-types","integrity":null,"time":1772414497352,"size":"262","metadata":{"time":1772414497352,"url":"http://registry.npmmirror.com/bun-types","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:36 GMT","location":"https://registry.npmmirror.com/bun-types"},"options":{"compress":true},"status":301}}

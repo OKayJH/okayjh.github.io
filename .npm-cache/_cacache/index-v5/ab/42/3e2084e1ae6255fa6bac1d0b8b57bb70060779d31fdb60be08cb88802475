@@ -1,0 +1,2 @@
+
+d7e70565b09c7d8574d012e4a4aaca7c3f5bbfa7	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/expo","integrity":null,"time":1772414497567,"size":"262","metadata":{"time":1772414497567,"url":"http://registry.npmmirror.com/expo","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:37 GMT","location":"https://registry.npmmirror.com/expo"},"options":{"compress":true},"status":301}}

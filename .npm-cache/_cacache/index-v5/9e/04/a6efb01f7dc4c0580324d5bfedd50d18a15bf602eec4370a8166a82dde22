@@ -1,0 +1,2 @@
+
+25c53401529d661330105b8e8929a0533bc84ec4	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/micromark","integrity":null,"time":1772414503180,"size":"262","metadata":{"time":1772414503180,"url":"http://registry.npmmirror.com/micromark","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/micromark"},"options":{"compress":true},"status":301}}

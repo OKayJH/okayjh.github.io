@@ -1,0 +1,2 @@
+
+692fe4081c2e9694b17e56cb87ea02d252f58f9a	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/github-slugger","integrity":null,"time":1772414486997,"size":"262","metadata":{"time":1772414486997,"url":"http://registry.npmmirror.com/github-slugger","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/github-slugger"},"options":{"compress":true},"status":301}}

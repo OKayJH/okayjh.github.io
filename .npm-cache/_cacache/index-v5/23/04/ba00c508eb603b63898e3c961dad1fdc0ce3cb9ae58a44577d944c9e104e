@@ -1,0 +1,2 @@
+
+4f65462196be47a369f4c240b7faba1cfc21ac4a	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/depd","integrity":null,"time":1772420037747,"size":"262","metadata":{"time":1772420037747,"url":"http://registry.npmmirror.com/depd","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 02:53:57 GMT","location":"https://registry.npmmirror.com/depd"},"options":{"compress":true},"status":301}}

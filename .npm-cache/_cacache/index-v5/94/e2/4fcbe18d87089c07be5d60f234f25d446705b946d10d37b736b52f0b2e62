@@ -1,0 +1,2 @@
+
+6d22d5b2f4bf23b0f3261e0aec381fda64069390	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/node-mock-http","integrity":null,"time":1772414506054,"size":"262","metadata":{"time":1772414506054,"url":"http://registry.npmmirror.com/node-mock-http","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:45 GMT","location":"https://registry.npmmirror.com/node-mock-http"},"options":{"compress":true},"status":301}}

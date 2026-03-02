@@ -1,0 +1,2 @@
+
+d24a9f47381d33919cd2264e03529664c7c3ee52	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/web-namespaces","integrity":null,"time":1772414502429,"size":"262","metadata":{"time":1772414502429,"url":"http://registry.npmmirror.com/web-namespaces","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/web-namespaces"},"options":{"compress":true},"status":301}}

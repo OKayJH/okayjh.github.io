@@ -1,0 +1,2 @@
+
+5e2f839148dd98f60fc852be0c7fba5a93c81640	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/uncrypto","integrity":null,"time":1772414506052,"size":"262","metadata":{"time":1772414506052,"url":"http://registry.npmmirror.com/uncrypto","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:45 GMT","location":"https://registry.npmmirror.com/uncrypto"},"options":{"compress":true},"status":301}}

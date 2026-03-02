@@ -1,0 +1,2 @@
+
+17483af2541e75daff80d2c1b1384110f2d54095	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/p-timeout","integrity":null,"time":1772414501666,"size":"262","metadata":{"time":1772414501666,"url":"http://registry.npmmirror.com/p-timeout","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/p-timeout"},"options":{"compress":true},"status":301}}

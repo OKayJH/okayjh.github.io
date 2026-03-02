@@ -1,0 +1,2 @@
+
+2d02434e3d10e39a090435191620c94b19296a01	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/react-native","integrity":null,"time":1772414494672,"size":"262","metadata":{"time":1772414494672,"url":"http://registry.npmmirror.com/react-native","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:34 GMT","location":"https://registry.npmmirror.com/react-native"},"options":{"compress":true},"status":301}}

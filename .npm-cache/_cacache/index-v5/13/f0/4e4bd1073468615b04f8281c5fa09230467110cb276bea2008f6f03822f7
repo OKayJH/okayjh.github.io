@@ -1,0 +1,2 @@
+
+96b2a2bad743d779863ed8522340d45a4e9e923f	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/p-queue","integrity":null,"time":1772414487043,"size":"262","metadata":{"time":1772414487043,"url":"http://registry.npmmirror.com/p-queue","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/p-queue"},"options":{"compress":true},"status":301}}

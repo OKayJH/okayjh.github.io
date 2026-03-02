@@ -1,0 +1,2 @@
+
+33bfc318a3687775d091f74940016c79434bd827	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/http-cache-semantics","integrity":null,"time":1772414487011,"size":"262","metadata":{"time":1772414487011,"url":"http://registry.npmmirror.com/http-cache-semantics","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/http-cache-semantics"},"options":{"compress":true},"status":301}}

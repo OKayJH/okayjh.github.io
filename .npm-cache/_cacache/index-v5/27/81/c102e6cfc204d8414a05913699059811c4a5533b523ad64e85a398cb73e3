@@ -1,0 +1,2 @@
+
+9f97a96f8a5b4a22e9933a6c0677293e7c37cfb8	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/tsconfck","integrity":null,"time":1772414487128,"size":"262","metadata":{"time":1772414487128,"url":"http://registry.npmmirror.com/tsconfck","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/tsconfck"},"options":{"compress":true},"status":301}}

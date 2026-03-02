@@ -1,0 +1,2 @@
+
+9f76adc13ceb891c10dfe14807178774c22c0853	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/mdn-data","integrity":null,"time":1772414505872,"size":"262","metadata":{"time":1772414505872,"url":"http://registry.npmmirror.com/mdn-data","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:45 GMT","location":"https://registry.npmmirror.com/mdn-data"},"options":{"compress":true},"status":301}}

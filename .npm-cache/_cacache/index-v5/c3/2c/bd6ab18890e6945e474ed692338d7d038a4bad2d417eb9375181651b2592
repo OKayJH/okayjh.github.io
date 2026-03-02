@@ -1,0 +1,2 @@
+
+ee58f40d46f7a3f3e14fae9a5a8f7dd6018dc890	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/retext-stringify","integrity":null,"time":1772414504566,"size":"262","metadata":{"time":1772414504566,"url":"http://registry.npmmirror.com/retext-stringify","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:44 GMT","location":"https://registry.npmmirror.com/retext-stringify"},"options":{"compress":true},"status":301}}

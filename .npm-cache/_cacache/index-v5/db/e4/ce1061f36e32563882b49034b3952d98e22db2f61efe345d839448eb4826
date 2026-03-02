@@ -1,0 +1,2 @@
+
+3b6d564e5b8258066de813ed5187352dd47270b8	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/boxen","integrity":null,"time":1772414486891,"size":"262","metadata":{"time":1772414486891,"url":"http://registry.npmmirror.com/boxen","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/boxen"},"options":{"compress":true},"status":301}}

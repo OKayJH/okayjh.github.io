@@ -1,0 +1,2 @@
+
+5a7bbd327dd651724ecb33ee259be448623894fd	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/semver","integrity":null,"time":1772414487086,"size":"262","metadata":{"time":1772414487086,"url":"http://registry.npmmirror.com/semver","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/semver"},"options":{"compress":true},"status":301}}

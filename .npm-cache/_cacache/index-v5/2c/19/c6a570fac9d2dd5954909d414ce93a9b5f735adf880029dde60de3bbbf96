@@ -1,0 +1,2 @@
+
+b92199595b14ebd42a7a74a24821bff54f781bdb	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@esbuild%2ffreebsd-x64","integrity":null,"time":1772414501523,"size":"262","metadata":{"time":1772414501523,"url":"http://registry.npmmirror.com/@esbuild%2ffreebsd-x64","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/@esbuild%2ffreebsd-x64"},"options":{"compress":true},"status":301}}

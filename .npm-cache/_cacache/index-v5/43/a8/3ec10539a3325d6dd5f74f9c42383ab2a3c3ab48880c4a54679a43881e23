@@ -1,0 +1,2 @@
+
+80610f775b99cd3744e3e4c23378aa10f53e3e14	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@shikijs%2ftypes","integrity":null,"time":1772414488156,"size":"262","metadata":{"time":1772414488156,"url":"http://registry.npmmirror.com/@shikijs%2ftypes","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/@shikijs%2ftypes"},"options":{"compress":true},"status":301}}

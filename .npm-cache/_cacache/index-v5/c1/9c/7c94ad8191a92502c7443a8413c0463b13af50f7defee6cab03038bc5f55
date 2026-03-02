@@ -1,0 +1,2 @@
+
+f2c6592f7f6b1c87b39a8d411ca26eb93fac0de6	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/boolbase","integrity":null,"time":1772414505878,"size":"262","metadata":{"time":1772414505878,"url":"http://registry.npmmirror.com/boolbase","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:45 GMT","location":"https://registry.npmmirror.com/boolbase"},"options":{"compress":true},"status":301}}

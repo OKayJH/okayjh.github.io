@@ -1,0 +1,2 @@
+
+cb91634e388fb12fe385e084db91362a514a8903	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/micromark-extension-gfm-task-list-item","integrity":null,"time":1772414504090,"size":"262","metadata":{"time":1772414504090,"url":"http://registry.npmmirror.com/micromark-extension-gfm-task-list-item","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:43 GMT","location":"https://registry.npmmirror.com/micromark-extension-gfm-task-list-item"},"options":{"compress":true},"status":301}}

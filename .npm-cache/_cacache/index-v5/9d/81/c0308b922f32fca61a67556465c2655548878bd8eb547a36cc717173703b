@@ -1,0 +1,2 @@
+
+15b22173d4a5a28f4de0bbd7e0cc16807eca99fa	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/yocto-spinner","integrity":null,"time":1772414487174,"size":"262","metadata":{"time":1772414487174,"url":"http://registry.npmmirror.com/yocto-spinner","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/yocto-spinner"},"options":{"compress":true},"status":301}}

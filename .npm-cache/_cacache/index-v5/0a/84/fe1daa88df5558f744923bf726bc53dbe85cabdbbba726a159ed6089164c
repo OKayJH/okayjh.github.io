@@ -1,0 +1,2 @@
+
+279198f8256f850333436c0451615af24d5fcdce	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@types%2ftrusted-types","integrity":null,"time":1772414503001,"size":"262","metadata":{"time":1772414503001,"url":"http://registry.npmmirror.com/@types%2ftrusted-types","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/@types%2ftrusted-types"},"options":{"compress":true},"status":301}}

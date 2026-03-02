@@ -1,0 +1,2 @@
+
+de87c04d364ceb54d1f49285f22a1ce2eaba47ba	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/zwitch","integrity":null,"time":1772414487972,"size":"262","metadata":{"time":1772414487972,"url":"http://registry.npmmirror.com/zwitch","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/zwitch"},"options":{"compress":true},"status":301}}

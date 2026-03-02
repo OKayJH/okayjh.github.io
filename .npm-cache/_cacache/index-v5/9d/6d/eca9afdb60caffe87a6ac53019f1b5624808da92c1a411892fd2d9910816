@@ -1,0 +1,2 @@
+
+312e66b911498bcc4070247d7aa2dfbf36dba9ce	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/strnum","integrity":null,"time":1772414488419,"size":"262","metadata":{"time":1772414488419,"url":"http://registry.npmmirror.com/strnum","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/strnum"},"options":{"compress":true},"status":301}}

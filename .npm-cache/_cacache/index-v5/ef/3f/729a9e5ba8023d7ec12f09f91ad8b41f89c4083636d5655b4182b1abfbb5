@@ -1,0 +1,2 @@
+
+60c74bdf70c0d7afb9bd2d201c4ac79ff9500302	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@azure%2fdata-tables","integrity":null,"time":1772414489392,"size":"262","metadata":{"time":1772414489392,"url":"http://registry.npmmirror.com/@azure%2fdata-tables","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:28 GMT","location":"https://registry.npmmirror.com/@azure%2fdata-tables"},"options":{"compress":true},"status":301}}

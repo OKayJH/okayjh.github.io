@@ -1,0 +1,2 @@
+
+fc8b1cb5935f12b6cbf2b8576fc467c15ad692cd	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/es-module-lexer","integrity":null,"time":1772414486703,"size":"262","metadata":{"time":1772414486703,"url":"http://registry.npmmirror.com/es-module-lexer","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/es-module-lexer"},"options":{"compress":true},"status":301}}

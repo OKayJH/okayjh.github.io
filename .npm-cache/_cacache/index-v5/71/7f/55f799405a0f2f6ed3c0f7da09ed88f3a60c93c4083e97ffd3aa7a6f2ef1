@@ -1,0 +1,2 @@
+
+c7774b14e1e685443d70a41222d66d519334fce7	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/character-entities-html4","integrity":null,"time":1772414502676,"size":"262","metadata":{"time":1772414502675,"url":"http://registry.npmmirror.com/character-entities-html4","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/character-entities-html4"},"options":{"compress":true},"status":301}}

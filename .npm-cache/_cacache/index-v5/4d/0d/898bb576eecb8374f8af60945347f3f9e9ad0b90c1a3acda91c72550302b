@@ -1,0 +1,2 @@
+
+7dd4176ae030239ad1670680990ccced042ffcf5	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/mdast-util-gfm-autolink-literal","integrity":null,"time":1772414504090,"size":"262","metadata":{"time":1772414504090,"url":"http://registry.npmmirror.com/mdast-util-gfm-autolink-literal","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:43 GMT","location":"https://registry.npmmirror.com/mdast-util-gfm-autolink-literal"},"options":{"compress":true},"status":301}}

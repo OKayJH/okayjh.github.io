@@ -1,0 +1,2 @@
+
+7abcbef04d4074312d7152fd2d1f20b6025742e0	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@esbuild%2fwin32-ia32","integrity":null,"time":1772414501624,"size":"262","metadata":{"time":1772414501624,"url":"http://registry.npmmirror.com/@esbuild%2fwin32-ia32","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/@esbuild%2fwin32-ia32"},"options":{"compress":true},"status":301}}

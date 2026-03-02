@@ -1,0 +1,2 @@
+
+9483fa28dce43638a320664cf4179fbd32f6e9f2	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/is-decimal","integrity":null,"time":1772414503375,"size":"262","metadata":{"time":1772414503375,"url":"http://registry.npmmirror.com/is-decimal","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/is-decimal"},"options":{"compress":true},"status":301}}

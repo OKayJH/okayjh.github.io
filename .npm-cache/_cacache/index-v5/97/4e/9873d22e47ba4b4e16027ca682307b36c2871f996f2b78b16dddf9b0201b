@@ -1,0 +1,2 @@
+
+f3916b336211017139ff6a49b9501f83d10306d4	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@img%2fsharp-linux-s390x","integrity":null,"time":1772414501783,"size":"262","metadata":{"time":1772414501783,"url":"http://registry.npmmirror.com/@img%2fsharp-linux-s390x","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/@img%2fsharp-linux-s390x"},"options":{"compress":true},"status":301}}

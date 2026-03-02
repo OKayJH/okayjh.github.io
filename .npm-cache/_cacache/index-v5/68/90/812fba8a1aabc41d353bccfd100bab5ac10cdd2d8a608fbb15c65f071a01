@@ -1,0 +1,2 @@
+
+68a5850f681f92459582e918b79809359a64ce7d	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@shikijs%2fengine-javascript","integrity":null,"time":1772414488154,"size":"262","metadata":{"time":1772414488154,"url":"http://registry.npmmirror.com/@shikijs%2fengine-javascript","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/@shikijs%2fengine-javascript"},"options":{"compress":true},"status":301}}

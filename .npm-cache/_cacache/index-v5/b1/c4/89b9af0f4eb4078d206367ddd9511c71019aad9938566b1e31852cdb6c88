@@ -1,0 +1,2 @@
+
+ff92db5b37b82b129528fad69879cea38691e72c	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/ufo","integrity":null,"time":1772414501892,"size":"262","metadata":{"time":1772414501892,"url":"http://registry.npmmirror.com/ufo","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/ufo"},"options":{"compress":true},"status":301}}

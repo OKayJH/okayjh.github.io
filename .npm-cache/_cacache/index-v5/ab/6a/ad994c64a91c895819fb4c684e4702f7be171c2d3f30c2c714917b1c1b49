@@ -1,0 +1,2 @@
+
+d3ebd9186e385b0af3e1b8975b04a9a09b6c1755	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@azure%2fapp-configuration","integrity":null,"time":1772414489080,"size":"262","metadata":{"time":1772414489080,"url":"http://registry.npmmirror.com/@azure%2fapp-configuration","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:28 GMT","location":"https://registry.npmmirror.com/@azure%2fapp-configuration"},"options":{"compress":true},"status":301}}

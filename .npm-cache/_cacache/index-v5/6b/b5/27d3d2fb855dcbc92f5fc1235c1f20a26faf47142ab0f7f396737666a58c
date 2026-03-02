@@ -1,0 +1,2 @@
+
+f3b55d606b0d06c2f743d33f9ccb9b124d076990	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@rollup%2frollup-openharmony-arm64","integrity":null,"time":1772414506345,"size":"262","metadata":{"time":1772414506345,"url":"http://registry.npmmirror.com/@rollup%2frollup-openharmony-arm64","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:45 GMT","location":"https://registry.npmmirror.com/@rollup%2frollup-openharmony-arm64"},"options":{"compress":true},"status":301}}

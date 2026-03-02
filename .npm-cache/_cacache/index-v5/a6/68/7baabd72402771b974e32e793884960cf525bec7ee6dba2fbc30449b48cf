@@ -1,0 +1,2 @@
+
+e0017592b0c993114262aa6e760ed21b3bf0b270	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/domhandler","integrity":null,"time":1772414505878,"size":"262","metadata":{"time":1772414505878,"url":"http://registry.npmmirror.com/domhandler","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:45 GMT","location":"https://registry.npmmirror.com/domhandler"},"options":{"compress":true},"status":301}}

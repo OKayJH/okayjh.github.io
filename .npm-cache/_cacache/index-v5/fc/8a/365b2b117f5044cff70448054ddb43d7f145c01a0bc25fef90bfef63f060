@@ -1,0 +1,2 @@
+
+fdfbb396b4ca8c447f8685865d2cf4cdc6247925	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@astrojs%2fmdx","integrity":null,"time":1772414485701,"size":"262","metadata":{"time":1772414485701,"url":"http://registry.npmmirror.com/@astrojs%2fmdx","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:25 GMT","location":"https://registry.npmmirror.com/@astrojs%2fmdx"},"options":{"compress":true},"status":301}}

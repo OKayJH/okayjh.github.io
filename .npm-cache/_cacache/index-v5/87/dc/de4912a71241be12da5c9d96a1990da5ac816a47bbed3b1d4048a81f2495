@@ -1,0 +1,2 @@
+
+42d4d71663ccb4b7a26f35a3fea3ee6872ddaed1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/svgo","integrity":null,"time":1772414487114,"size":"262","metadata":{"time":1772414487114,"url":"http://registry.npmmirror.com/svgo","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/svgo"},"options":{"compress":true},"status":301}}

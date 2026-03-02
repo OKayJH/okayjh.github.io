@@ -1,0 +1,2 @@
+
+d7f013af52cb3c4212777967ea32809b0e2c44ba	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@tidbcloud%2fserverless","integrity":null,"time":1772414496462,"size":"262","metadata":{"time":1772414496462,"url":"http://registry.npmmirror.com/@tidbcloud%2fserverless","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:35 GMT","location":"https://registry.npmmirror.com/@tidbcloud%2fserverless"},"options":{"compress":true},"status":301}}

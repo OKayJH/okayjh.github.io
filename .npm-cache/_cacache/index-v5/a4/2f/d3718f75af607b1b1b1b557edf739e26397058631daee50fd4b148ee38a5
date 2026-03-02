@@ -1,0 +1,2 @@
+
+78dc07effbed17eed4a582cf656bc0dacd1c8184	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@types%2fmdast","integrity":null,"time":1772414487979,"size":"262","metadata":{"time":1772414487979,"url":"http://registry.npmmirror.com/@types%2fmdast","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/@types%2fmdast"},"options":{"compress":true},"status":301}}

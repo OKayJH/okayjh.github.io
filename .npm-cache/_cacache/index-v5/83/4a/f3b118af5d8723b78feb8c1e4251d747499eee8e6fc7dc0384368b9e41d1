@@ -1,0 +1,2 @@
+
+ca8bf093014b979d6c91dfb2605f0be54b895d27	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/acorn","integrity":null,"time":1772414486662,"size":"262","metadata":{"time":1772414486662,"url":"http://registry.npmmirror.com/acorn","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/acorn"},"options":{"compress":true},"status":301}}

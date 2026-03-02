@@ -1,0 +1,2 @@
+
+918c7fb9ea96fb8d48cf0a9b5feb8046757c1fb6	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/vitefu","integrity":null,"time":1772414487160,"size":"262","metadata":{"time":1772414487160,"url":"http://registry.npmmirror.com/vitefu","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/vitefu"},"options":{"compress":true},"status":301}}

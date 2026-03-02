@@ -1,0 +1,2 @@
+
+d157cf8278e7c3cb01c4ceab2274efcab9f145ad	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/hast-util-parse-selector","integrity":null,"time":1772414502552,"size":"262","metadata":{"time":1772414502552,"url":"http://registry.npmmirror.com/hast-util-parse-selector","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/hast-util-parse-selector"},"options":{"compress":true},"status":301}}

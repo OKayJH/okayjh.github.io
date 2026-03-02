@@ -1,0 +1,2 @@
+
+03af7d7008149a2c6f8cf645d69cc1ea3be73035	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@aws-sdk%2fcredential-provider-web-identity","integrity":null,"time":1772414491474,"size":"262","metadata":{"time":1772414491474,"url":"http://registry.npmmirror.com/@aws-sdk%2fcredential-provider-web-identity","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:30 GMT","location":"https://registry.npmmirror.com/@aws-sdk%2fcredential-provider-web-identity"},"options":{"compress":true},"status":301}}

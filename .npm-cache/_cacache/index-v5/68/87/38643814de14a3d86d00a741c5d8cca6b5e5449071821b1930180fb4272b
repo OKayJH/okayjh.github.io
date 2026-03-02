@@ -1,0 +1,2 @@
+
+f1d36152ad650d585be20d616829e798d1d71c81	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@ungap%2fstructured-clone","integrity":null,"time":1772414502677,"size":"262","metadata":{"time":1772414502677,"url":"http://registry.npmmirror.com/@ungap%2fstructured-clone","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/@ungap%2fstructured-clone"},"options":{"compress":true},"status":301}}

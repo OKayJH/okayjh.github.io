@@ -1,0 +1,2 @@
+
+38047aea067d0c33ce4855dcdec86ffb248d93a0	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/unstorage","integrity":null,"time":1772414487143,"size":"262","metadata":{"time":1772414487143,"url":"http://registry.npmmirror.com/unstorage","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/unstorage"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,663 @@
+0 verbose cli D:\Installed\Nodejs\node.exe D:\Installed\Nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.9.0
+2 info using node@v24.14.0
+3 silly config load:file:D:\Installed\Nodejs\node_modules\npm\npmrc
+4 silly config load:file:D:\OKay\OKay_Blog\.npmrc
+5 silly config load:file:D:\Users\okayj\AppData\Roaming\SPB_Data\.npmrc
+6 silly config load:file:D:\Installed\Nodejs\node_global\etc\npmrc
+7 verbose title npm install @astrojs/node
+8 verbose argv "install" "@astrojs/node" "--save-dev" "--cache" "./.npm-cache"
+9 verbose logfile logs-max:10 dir:D:\OKay\OKay_Blog\.npm-cache\_logs\2026-03-02T02_53_56_246Z-
+10 verbose logfile D:\OKay\OKay_Blog\.npm-cache\_logs\2026-03-02T02_53_56_246Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+13 silly idealTree buildDeps
+14 silly fetch manifest @astrojs/node@*
+15 silly packumentCache full:http://registry.npmmirror.com/@astrojs%2fnode cache-miss
+16 http fetch GET 200 https://registry.npmmirror.com/@astrojs%2fnode 347ms (cache miss)
+17 silly packumentCache full:http://registry.npmmirror.com/@astrojs%2fnode set size:97237 disposed:false
+18 silly fetch manifest astro@^5.17.1
+19 silly packumentCache full:http://registry.npmmirror.com/astro cache-miss
+20 http fetch GET 200 https://registry.npmmirror.com/astro 154ms (cache revalidated)
+21 silly packumentCache full:http://registry.npmmirror.com/astro set size:8814678 disposed:false
+22 silly placeDep ROOT @astrojs/node@9.5.4 OK for: okay-blog@0.0.1 want: *
+23 silly fetch manifest send@^1.2.1
+24 silly packumentCache full:http://registry.npmmirror.com/send cache-miss
+25 silly fetch manifest server-destroy@^1.0.1
+26 silly packumentCache full:http://registry.npmmirror.com/server-destroy cache-miss
+27 http fetch GET 200 https://registry.npmmirror.com/send 79ms (cache miss)
+28 silly packumentCache full:http://registry.npmmirror.com/send set size:28306 disposed:false
+29 http fetch GET 200 https://registry.npmmirror.com/server-destroy 194ms (cache miss)
+30 silly packumentCache full:http://registry.npmmirror.com/server-destroy set size:1311 disposed:false
+31 silly placeDep ROOT send@1.2.1 OK for: @astrojs/node@9.5.4 want: ^1.2.1
+32 silly placeDep ROOT server-destroy@1.0.1 OK for: @astrojs/node@9.5.4 want: ^1.0.1
+33 silly fetch manifest encodeurl@^2.0.0
+34 silly packumentCache full:http://registry.npmmirror.com/encodeurl cache-miss
+35 silly fetch manifest escape-html@^1.0.3
+36 silly packumentCache full:http://registry.npmmirror.com/escape-html cache-miss
+37 silly fetch manifest etag@^1.8.1
+38 silly packumentCache full:http://registry.npmmirror.com/etag cache-miss
+39 silly fetch manifest fresh@^2.0.0
+40 silly packumentCache full:http://registry.npmmirror.com/fresh cache-miss
+41 silly fetch manifest http-errors@^2.0.1
+42 silly packumentCache full:http://registry.npmmirror.com/http-errors cache-miss
+43 silly fetch manifest mime-types@^3.0.2
+44 silly packumentCache full:http://registry.npmmirror.com/mime-types cache-miss
+45 silly fetch manifest on-finished@^2.4.1
+46 silly packumentCache full:http://registry.npmmirror.com/on-finished cache-miss
+47 silly fetch manifest range-parser@^1.2.1
+48 silly packumentCache full:http://registry.npmmirror.com/range-parser cache-miss
+49 silly fetch manifest statuses@^2.0.2
+50 silly packumentCache full:http://registry.npmmirror.com/statuses cache-miss
+51 http fetch GET 200 https://registry.npmmirror.com/escape-html 63ms (cache miss)
+52 silly packumentCache full:http://registry.npmmirror.com/escape-html set size:2142 disposed:false
+53 http fetch GET 200 https://registry.npmmirror.com/encodeurl 74ms (cache miss)
+54 silly packumentCache full:http://registry.npmmirror.com/encodeurl set size:3849 disposed:false
+55 http fetch GET 200 https://registry.npmmirror.com/range-parser 106ms (cache miss)
+56 silly packumentCache full:http://registry.npmmirror.com/range-parser set size:5208 disposed:false
+57 http fetch GET 200 https://registry.npmmirror.com/on-finished 120ms (cache miss)
+58 silly packumentCache full:http://registry.npmmirror.com/on-finished set size:6578 disposed:false
+59 http fetch GET 200 https://registry.npmmirror.com/mime-types 131ms (cache revalidated)
+60 silly packumentCache full:http://registry.npmmirror.com/mime-types set size:123243 disposed:false
+61 http fetch GET 200 https://registry.npmmirror.com/statuses 200ms (cache miss)
+62 silly packumentCache full:http://registry.npmmirror.com/statuses set size:7676 disposed:false
+63 http fetch GET 200 https://registry.npmmirror.com/etag 206ms (cache miss)
+64 silly packumentCache full:http://registry.npmmirror.com/etag set size:6177 disposed:false
+65 http fetch GET 200 https://registry.npmmirror.com/fresh 206ms (cache miss)
+66 silly packumentCache full:http://registry.npmmirror.com/fresh set size:7129 disposed:false
+67 http fetch GET 200 https://registry.npmmirror.com/http-errors 216ms (cache miss)
+68 silly packumentCache full:http://registry.npmmirror.com/http-errors set size:13920 disposed:false
+69 silly placeDep ROOT encodeurl@2.0.0 OK for: send@1.2.1 want: ^2.0.0
+70 silly placeDep ROOT escape-html@1.0.3 OK for: send@1.2.1 want: ^1.0.3
+71 silly placeDep ROOT etag@1.8.1 OK for: send@1.2.1 want: ^1.8.1
+72 silly placeDep ROOT fresh@2.0.0 OK for: send@1.2.1 want: ^2.0.0
+73 silly placeDep ROOT http-errors@2.0.1 OK for: send@1.2.1 want: ^2.0.1
+74 silly placeDep node_modules/send mime-types@3.0.2 OK for: send@1.2.1 want: ^3.0.2
+75 silly placeDep ROOT on-finished@2.4.1 OK for: send@1.2.1 want: ^2.4.1
+76 silly placeDep ROOT range-parser@1.2.1 OK for: send@1.2.1 want: ^1.2.1
+77 silly placeDep ROOT statuses@2.0.2 OK for: send@1.2.1 want: ^2.0.2
+78 silly fetch manifest depd@~2.0.0
+79 silly packumentCache full:http://registry.npmmirror.com/depd cache-miss
+80 silly fetch manifest inherits@~2.0.4
+81 silly packumentCache full:http://registry.npmmirror.com/inherits cache-miss
+82 silly fetch manifest setprototypeof@~1.2.0
+83 silly packumentCache full:http://registry.npmmirror.com/setprototypeof cache-miss
+84 silly fetch manifest statuses@~2.0.2
+85 silly packumentCache full:http://registry.npmmirror.com/statuses cache-hit
+86 silly fetch manifest toidentifier@~1.0.1
+87 silly packumentCache full:http://registry.npmmirror.com/toidentifier cache-miss
+88 silly fetch manifest mime-db@^1.54.0
+89 silly packumentCache full:http://registry.npmmirror.com/mime-db cache-miss
+90 silly fetch manifest ee-first@1.1.1
+91 silly packumentCache full:http://registry.npmmirror.com/ee-first cache-miss
+92 http fetch GET 200 https://registry.npmmirror.com/ee-first 67ms (cache miss)
+93 silly packumentCache full:http://registry.npmmirror.com/ee-first set size:3574 disposed:false
+94 http fetch GET 200 https://registry.npmmirror.com/toidentifier 69ms (cache miss)
+95 silly packumentCache full:http://registry.npmmirror.com/toidentifier set size:3571 disposed:false
+96 http fetch GET 200 https://registry.npmmirror.com/setprototypeof 70ms (cache miss)
+97 silly packumentCache full:http://registry.npmmirror.com/setprototypeof set size:3278 disposed:false
+98 http fetch GET 200 https://registry.npmmirror.com/mime-db 76ms (cache revalidated)
+99 silly packumentCache full:http://registry.npmmirror.com/mime-db set size:147903 disposed:false
+100 http fetch GET 200 https://registry.npmmirror.com/inherits 80ms (cache miss)
+101 silly packumentCache full:http://registry.npmmirror.com/inherits set size:3419 disposed:false
+102 http fetch GET 200 https://registry.npmmirror.com/depd 83ms (cache miss)
+103 silly packumentCache full:http://registry.npmmirror.com/depd set size:8763 disposed:false
+104 silly placeDep ROOT depd@2.0.0 OK for: http-errors@2.0.1 want: ~2.0.0
+105 silly placeDep ROOT inherits@2.0.4 OK for: http-errors@2.0.1 want: ~2.0.4
+106 silly placeDep ROOT setprototypeof@1.2.0 OK for: http-errors@2.0.1 want: ~1.2.0
+107 silly placeDep ROOT toidentifier@1.0.1 OK for: http-errors@2.0.1 want: ~1.0.1
+108 silly placeDep ROOT ee-first@1.1.1 OK for: on-finished@2.4.1 want: 1.1.1
+109 silly placeDep node_modules/send mime-db@1.54.0 OK for: mime-types@3.0.2 want: ^1.54.0
+110 silly reify moves {}
+111 silly audit bulk request {
+111 silly audit   '@astrojs/compiler': [ '2.13.1' ],
+111 silly audit   '@astrojs/internal-helpers': [ '0.7.5' ],
+111 silly audit   '@astrojs/markdown-remark': [ '6.3.10' ],
+111 silly audit   '@astrojs/mdx': [ '4.3.13' ],
+111 silly audit   '@astrojs/prism': [ '3.3.0' ],
+111 silly audit   '@astrojs/rss': [ '4.0.15' ],
+111 silly audit   '@astrojs/telemetry': [ '3.3.0' ],
+111 silly audit   '@babel/helper-string-parser': [ '7.27.1' ],
+111 silly audit   '@babel/helper-validator-identifier': [ '7.28.5' ],
+111 silly audit   '@babel/parser': [ '7.29.0' ],
+111 silly audit   '@babel/types': [ '7.29.0' ],
+111 silly audit   '@capsizecss/unpack': [ '4.0.0' ],
+111 silly audit   '@emnapi/runtime': [ '1.8.1' ],
+111 silly audit   '@esbuild/aix-ppc64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/android-arm': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/android-arm64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/android-x64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/darwin-arm64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/darwin-x64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/freebsd-arm64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/freebsd-x64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/linux-arm': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/linux-arm64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/linux-ia32': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/linux-loong64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/linux-mips64el': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/linux-ppc64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/linux-riscv64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/linux-s390x': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/linux-x64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/netbsd-arm64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/netbsd-x64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/openbsd-arm64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/openbsd-x64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/openharmony-arm64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/sunos-x64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/win32-arm64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/win32-ia32': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@esbuild/win32-x64': [ '0.27.3', '0.25.12' ],
+111 silly audit   '@img/colour': [ '1.1.0' ],
+111 silly audit   '@img/sharp-darwin-arm64': [ '0.34.5' ],
+111 silly audit   '@img/sharp-darwin-x64': [ '0.34.5' ],
+111 silly audit   '@img/sharp-libvips-darwin-arm64': [ '1.2.4' ],
+111 silly audit   '@img/sharp-libvips-darwin-x64': [ '1.2.4' ],
+111 silly audit   '@img/sharp-libvips-linux-arm': [ '1.2.4' ],
+111 silly audit   '@img/sharp-libvips-linux-arm64': [ '1.2.4' ],
+111 silly audit   '@img/sharp-libvips-linux-ppc64': [ '1.2.4' ],
+111 silly audit   '@img/sharp-libvips-linux-riscv64': [ '1.2.4' ],
+111 silly audit   '@img/sharp-libvips-linux-s390x': [ '1.2.4' ],
+111 silly audit   '@img/sharp-libvips-linux-x64': [ '1.2.4' ],
+111 silly audit   '@img/sharp-libvips-linuxmusl-arm64': [ '1.2.4' ],
+111 silly audit   '@img/sharp-libvips-linuxmusl-x64': [ '1.2.4' ],
+111 silly audit   '@img/sharp-linux-arm': [ '0.34.5' ],
+111 silly audit   '@img/sharp-linux-arm64': [ '0.34.5' ],
+111 silly audit   '@img/sharp-linux-ppc64': [ '0.34.5' ],
+111 silly audit   '@img/sharp-linux-riscv64': [ '0.34.5' ],
+111 silly audit   '@img/sharp-linux-s390x': [ '0.34.5' ],
+111 silly audit   '@img/sharp-linux-x64': [ '0.34.5' ],
+111 silly audit   '@img/sharp-linuxmusl-arm64': [ '0.34.5' ],
+111 silly audit   '@img/sharp-linuxmusl-x64': [ '0.34.5' ],
+111 silly audit   '@img/sharp-wasm32': [ '0.34.5' ],
+111 silly audit   '@img/sharp-win32-arm64': [ '0.34.5' ],
+111 silly audit   '@img/sharp-win32-ia32': [ '0.34.5' ],
+111 silly audit   '@img/sharp-win32-x64': [ '0.34.5' ],
+111 silly audit   '@jridgewell/sourcemap-codec': [ '1.5.5' ],
+111 silly audit   '@lit-labs/ssr-dom-shim': [ '1.5.1' ],
+111 silly audit   '@lit/reactive-element': [ '2.1.2' ],
+111 silly audit   '@mdx-js/mdx': [ '3.1.1' ],
+111 silly audit   '@oslojs/encoding': [ '1.1.0' ],
+111 silly audit   '@rollup/pluginutils': [ '5.3.0' ],
+111 silly audit   'estree-walker': [ '2.0.2', '3.0.3' ],
+111 silly audit   '@rollup/rollup-android-arm-eabi': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-android-arm64': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-darwin-arm64': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-darwin-x64': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-freebsd-arm64': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-freebsd-x64': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-arm-gnueabihf': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-arm-musleabihf': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-arm64-gnu': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-arm64-musl': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-loong64-gnu': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-loong64-musl': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-ppc64-gnu': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-ppc64-musl': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-riscv64-gnu': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-riscv64-musl': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-s390x-gnu': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-x64-gnu': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-linux-x64-musl': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-openbsd-x64': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-openharmony-arm64': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-win32-arm64-msvc': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-win32-ia32-msvc': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-win32-x64-gnu': [ '4.59.0' ],
+111 silly audit   '@rollup/rollup-win32-x64-msvc': [ '4.59.0' ],
+111 silly audit   '@shikijs/core': [ '3.23.0' ],
+111 silly audit   '@shikijs/engine-javascript': [ '3.23.0' ],
+111 silly audit   '@shikijs/engine-oniguruma': [ '3.23.0' ],
+111 silly audit   '@shikijs/langs': [ '3.23.0' ],
+111 silly audit   '@shikijs/themes': [ '3.23.0' ],
+111 silly audit   '@shikijs/types': [ '3.23.0' ],
+111 silly audit   '@shikijs/vscode-textmate': [ '10.0.2' ],
+111 silly audit   '@types/debug': [ '4.1.12' ],
+111 silly audit   '@types/dompurify': [ '3.0.5' ],
+111 silly audit   '@types/estree': [ '1.0.8' ],
+111 silly audit   '@types/estree-jsx': [ '1.0.5' ],
+111 silly audit   '@types/hast': [ '3.0.4' ],
+111 silly audit   '@types/marked': [ '5.0.2' ],
+111 silly audit   '@types/mdast': [ '4.0.4' ],
+111 silly audit   '@types/mdx': [ '2.0.13' ],
+111 silly audit   '@types/ms': [ '2.1.0' ],
+111 silly audit   '@types/nlcst': [ '2.0.3' ],
+111 silly audit   '@types/node': [ '25.3.3' ],
+111 silly audit   '@types/trusted-types': [ '2.0.7' ],
+111 silly audit   '@types/unist': [ '3.0.3', '2.0.11' ],
+111 silly audit   '@ungap/structured-clone': [ '1.3.0' ],
+111 silly audit   acorn: [ '8.16.0' ],
+111 silly audit   'acorn-jsx': [ '5.3.2' ],
+111 silly audit   'ansi-align': [ '3.0.1' ],
+111 silly audit   'ansi-regex': [ '5.0.1', '6.2.2' ],
+111 silly audit   'emoji-regex': [ '8.0.0', '10.6.0' ],
+111 silly audit   'string-width': [ '4.2.3', '7.2.0' ],
+111 silly audit   'strip-ansi': [ '6.0.1', '7.2.0' ],
+111 silly audit   'ansi-styles': [ '6.2.3' ],
+111 silly audit   anymatch: [ '3.1.3' ],
+111 silly audit   picomatch: [ '2.3.1', '4.0.3' ],
+111 silly audit   argparse: [ '2.0.1' ],
+111 silly audit   'aria-query': [ '5.3.2' ],
+111 silly audit   'array-iterate': [ '2.0.1' ],
+111 silly audit   astring: [ '1.9.0' ],
+111 silly audit   astro: [ '5.18.0' ],
+111 silly audit   asynckit: [ '0.4.0' ],
+111 silly audit   axios: [ '1.13.6' ],
+111 silly audit   'axobject-query': [ '4.1.0' ],
+111 silly audit   bail: [ '2.0.2' ],
+111 silly audit   'base-64': [ '1.0.0' ],
+111 silly audit   boolbase: [ '1.0.0' ],
+111 silly audit   boxen: [ '8.0.1' ],
+111 silly audit   'call-bind-apply-helpers': [ '1.0.2' ],
+111 silly audit   camelcase: [ '8.0.0' ],
+111 silly audit   ccount: [ '2.0.1' ],
+111 silly audit   chalk: [ '5.6.2' ],
+111 silly audit   'character-entities': [ '2.0.2' ],
+111 silly audit   'character-entities-html4': [ '2.1.0' ],
+111 silly audit   'character-entities-legacy': [ '3.0.0' ],
+111 silly audit   'character-reference-invalid': [ '2.0.1' ],
+111 silly audit   chokidar: [ '5.0.0' ],
+111 silly audit   'ci-info': [ '4.4.0' ],
+111 silly audit   'cli-boxes': [ '3.0.0' ],
+111 silly audit   clsx: [ '2.1.1' ],
+111 silly audit   'collapse-white-space': [ '2.1.0' ],
+111 silly audit   'combined-stream': [ '1.0.8' ],
+111 silly audit   'comma-separated-tokens': [ '2.0.3' ],
+111 silly audit   commander: [ '11.1.0' ],
+111 silly audit   'common-ancestor-path': [ '1.0.1' ],
+111 silly audit   cookie: [ '1.1.1' ],
+111 silly audit   'cookie-es': [ '1.2.2' ],
+111 silly audit   crossws: [ '0.3.5' ],
+111 silly audit   'css-select': [ '5.2.2' ],
+111 silly audit   'css-tree': [ '3.1.0', '2.2.1' ],
+111 silly audit   'css-what': [ '6.2.2' ],
+111 silly audit   cssesc: [ '3.0.0' ],
+111 silly audit   csso: [ '5.0.5' ],
+111 silly audit   'mdn-data': [ '2.0.28', '2.12.2' ],
+111 silly audit   debug: [ '4.4.3' ],
+111 silly audit   'decode-named-character-reference': [ '1.3.0' ],
+111 silly audit   defu: [ '6.1.4' ],
+111 silly audit   'delayed-stream': [ '1.0.0' ],
+111 silly audit   dequal: [ '2.0.3' ],
+111 silly audit   destr: [ '2.0.5' ],
+111 silly audit   'detect-libc': [ '2.1.2' ],
+111 silly audit   'deterministic-object-hash': [ '2.0.2' ],
+111 silly audit   devalue: [ '5.6.3' ],
+111 silly audit   devlop: [ '1.1.0' ],
+111 silly audit   diff: [ '8.0.3' ],
+111 silly audit   dlv: [ '1.1.3' ],
+111 silly audit   'dom-serializer': [ '2.0.0' ],
+111 silly audit   entities: [ '4.5.0', '6.0.1' ],
+111 silly audit   domelementtype: [ '2.3.0' ],
+111 silly audit   domhandler: [ '5.0.3' ],
+111 silly audit   dompurify: [ '3.3.1' ],
+111 silly audit   domutils: [ '3.2.2' ],
+111 silly audit   dset: [ '3.1.4' ],
+111 silly audit   'dunder-proto': [ '1.0.1' ],
+111 silly audit   'es-define-property': [ '1.0.1' ],
+111 silly audit   'es-errors': [ '1.3.0' ],
+111 silly audit   'es-module-lexer': [ '1.7.0' ],
+111 silly audit   'es-object-atoms': [ '1.1.1' ],
+111 silly audit   'es-set-tostringtag': [ '2.1.0' ],
+111 silly audit   'esast-util-from-estree': [ '2.0.0' ],
+111 silly audit   'esast-util-from-js': [ '2.0.1' ],
+111 silly audit   esbuild: [ '0.27.3', '0.25.12' ],
+111 silly audit   'escape-string-regexp': [ '5.0.0' ],
+111 silly audit   'estree-util-attach-comments': [ '3.0.0' ],
+111 silly audit   'estree-util-build-jsx': [ '3.0.1' ],
+111 silly audit   'estree-util-is-identifier-name': [ '3.0.0' ],
+111 silly audit   'estree-util-scope': [ '1.0.0' ],
+111 silly audit   'estree-util-to-js': [ '2.0.0' ],
+111 silly audit   'estree-util-visit': [ '2.0.0' ],
+111 silly audit   eventemitter3: [ '5.0.4' ],
+111 silly audit   extend: [ '3.0.2' ],
+111 silly audit   'fast-xml-builder': [ '1.0.0' ],
+111 silly audit   'fast-xml-parser': [ '5.4.1' ],
+111 silly audit   fdir: [ '6.5.0' ],
+111 silly audit   flattie: [ '1.1.1' ],
+111 silly audit   'follow-redirects': [ '1.15.11' ],
+111 silly audit   fontace: [ '0.4.1' ],
+111 silly audit   fontkitten: [ '1.0.2' ],
+111 silly audit   'form-data': [ '4.0.5' ],
+111 silly audit   fsevents: [ '2.3.3' ],
+111 silly audit   'function-bind': [ '1.1.2' ],
+111 silly audit   'get-east-asian-width': [ '1.5.0' ],
+111 silly audit   'get-intrinsic': [ '1.3.0' ],
+111 silly audit   'get-proto': [ '1.0.1' ],
+111 silly audit   giscus: [ '1.6.0' ],
+111 silly audit   'github-slugger': [ '2.0.0' ],
+111 silly audit   gopd: [ '1.2.0' ],
+111 silly audit   h3: [ '1.15.5' ],
+111 silly audit   'has-symbols': [ '1.1.0' ],
+111 silly audit   'has-tostringtag': [ '1.0.2' ],
+111 silly audit   hasown: [ '2.0.2' ],
+111 silly audit   'hast-util-from-html': [ '2.0.3' ],
+111 silly audit   'hast-util-from-parse5': [ '8.0.3' ],
+111 silly audit   'hast-util-is-element': [ '3.0.0' ],
+111 silly audit   'hast-util-parse-selector': [ '4.0.0' ],
+111 silly audit   'hast-util-raw': [ '9.1.0' ],
+111 silly audit   'hast-util-to-estree': [ '3.1.3' ],
+111 silly audit   'hast-util-to-html': [ '9.0.5' ],
+111 silly audit   'hast-util-to-jsx-runtime': [ '2.3.6' ],
+111 silly audit   'hast-util-to-parse5': [ '8.0.1' ],
+111 silly audit   'hast-util-to-text': [ '4.0.2' ],
+111 silly audit   'hast-util-whitespace': [ '3.0.0' ],
+111 silly audit   hastscript: [ '9.0.1' ],
+111 silly audit   'html-escaper': [ '3.0.3' ],
+111 silly audit   'html-void-elements': [ '3.0.0' ],
+111 silly audit   'http-cache-semantics': [ '4.2.0' ],
+111 silly audit   'import-meta-resolve': [ '4.2.0' ],
+111 silly audit   'inline-style-parser': [ '0.2.7' ],
+111 silly audit   'iron-webcrypto': [ '1.2.1' ],
+111 silly audit   'is-alphabetical': [ '2.0.1' ],
+111 silly audit   'is-alphanumerical': [ '2.0.1' ],
+111 silly audit   'is-decimal': [ '2.0.1' ],
+111 silly audit   'is-docker': [ '3.0.0' ],
+111 silly audit   'is-fullwidth-code-point': [ '3.0.0' ],
+111 silly audit   'is-hexadecimal': [ '2.0.1' ],
+111 silly audit   'is-inside-container': [ '1.0.0' ],
+111 silly audit   'is-plain-obj': [ '4.1.0' ],
+111 silly audit   'is-wsl': [ '3.1.1' ],
+111 silly audit   'js-yaml': [ '4.1.1' ],
+111 silly audit   kleur: [ '3.0.3' ],
+111 silly audit   lit: [ '3.3.2' ],
+111 silly audit   'lit-element': [ '4.2.2' ],
+111 silly audit   'lit-html': [ '3.3.2' ],
+111 silly audit   'longest-streak': [ '3.1.0' ],
+111 silly audit   'lru-cache': [ '11.2.6' ],
+111 silly audit   'magic-string': [ '0.30.21' ],
+111 silly audit   magicast: [ '0.5.2' ],
+111 silly audit   'markdown-extensions': [ '2.0.0' ],
+111 silly audit   'markdown-table': [ '3.0.4' ],
+111 silly audit   marked: [ '17.0.3' ],
+111 silly audit   'math-intrinsics': [ '1.1.0' ],
+111 silly audit   'mdast-util-definitions': [ '6.0.0' ],
+111 silly audit   'mdast-util-find-and-replace': [ '3.0.2' ],
+111 silly audit   'mdast-util-from-markdown': [ '2.0.3' ],
+111 silly audit   'mdast-util-gfm': [ '3.1.0' ],
+111 silly audit   'mdast-util-gfm-autolink-literal': [ '2.0.1' ],
+111 silly audit   'mdast-util-gfm-footnote': [ '2.1.0' ],
+111 silly audit   'mdast-util-gfm-strikethrough': [ '2.0.0' ],
+111 silly audit   'mdast-util-gfm-table': [ '2.0.0' ],
+111 silly audit   'mdast-util-gfm-task-list-item': [ '2.0.0' ],
+111 silly audit   'mdast-util-mdx': [ '3.0.0' ],
+111 silly audit   'mdast-util-mdx-expression': [ '2.0.1' ],
+111 silly audit   'mdast-util-mdx-jsx': [ '3.2.0' ],
+111 silly audit   'mdast-util-mdxjs-esm': [ '2.0.1' ],
+111 silly audit   'mdast-util-phrasing': [ '4.1.0' ],
+111 silly audit   'mdast-util-to-hast': [ '13.2.1' ],
+111 silly audit   'mdast-util-to-markdown': [ '2.1.2' ],
+111 silly audit   'mdast-util-to-string': [ '4.0.0' ],
+111 silly audit   micromark: [ '4.0.2' ],
+111 silly audit   'micromark-core-commonmark': [ '2.0.3' ],
+111 silly audit   'micromark-extension-gfm': [ '3.0.0' ],
+111 silly audit   'micromark-extension-gfm-autolink-literal': [ '2.1.0' ],
+111 silly audit   'micromark-extension-gfm-footnote': [ '2.1.0' ],
+111 silly audit   'micromark-extension-gfm-strikethrough': [ '2.1.0' ],
+111 silly audit   'micromark-extension-gfm-table': [ '2.1.1' ],
+111 silly audit   'micromark-extension-gfm-tagfilter': [ '2.0.0' ],
+111 silly audit   'micromark-extension-gfm-task-list-item': [ '2.1.0' ],
+111 silly audit   'micromark-extension-mdx-expression': [ '3.0.1' ],
+111 silly audit   'micromark-extension-mdx-jsx': [ '3.0.2' ],
+111 silly audit   'micromark-extension-mdx-md': [ '2.0.0' ],
+111 silly audit   'micromark-extension-mdxjs': [ '3.0.0' ],
+111 silly audit   'micromark-extension-mdxjs-esm': [ '3.0.0' ],
+111 silly audit   'micromark-factory-destination': [ '2.0.1' ],
+111 silly audit   'micromark-factory-label': [ '2.0.1' ],
+111 silly audit   'micromark-factory-mdx-expression': [ '2.0.3' ],
+111 silly audit   'micromark-factory-space': [ '2.0.1' ],
+111 silly audit   'micromark-factory-title': [ '2.0.1' ],
+111 silly audit   'micromark-factory-whitespace': [ '2.0.1' ],
+111 silly audit   'micromark-util-character': [ '2.1.1' ],
+111 silly audit   'micromark-util-chunked': [ '2.0.1' ],
+111 silly audit   'micromark-util-classify-character': [ '2.0.1' ],
+111 silly audit   'micromark-util-combine-extensions': [ '2.0.1' ],
+111 silly audit   'micromark-util-decode-numeric-character-reference': [ '2.0.2' ],
+111 silly audit   'micromark-util-decode-string': [ '2.0.1' ],
+111 silly audit   'micromark-util-encode': [ '2.0.1' ],
+111 silly audit   'micromark-util-events-to-acorn': [ '2.0.3' ],
+111 silly audit   'micromark-util-html-tag-name': [ '2.0.1' ],
+111 silly audit   'micromark-util-normalize-identifier': [ '2.0.1' ],
+111 silly audit   'micromark-util-resolve-all': [ '2.0.1' ],
+111 silly audit   'micromark-util-sanitize-uri': [ '2.0.1' ],
+111 silly audit   'micromark-util-subtokenize': [ '2.1.0' ],
+111 silly audit   'micromark-util-symbol': [ '2.0.1' ],
+111 silly audit   'micromark-util-types': [ '2.0.2' ],
+111 silly audit   'mime-db': [ '1.52.0', '1.54.0' ],
+111 silly audit   'mime-types': [ '2.1.35', '3.0.2' ],
+111 silly audit   mrmime: [ '2.0.1' ],
+111 silly audit   ms: [ '2.1.3' ],
+111 silly audit   nanoid: [ '3.3.11' ],
+111 silly audit   neotraverse: [ '0.6.18' ],
+111 silly audit   'nlcst-to-string': [ '4.0.0' ],
+111 silly audit   'node-fetch-native': [ '1.6.7' ],
+111 silly audit   'node-mock-http': [ '1.0.4' ],
+111 silly audit   'normalize-path': [ '3.0.0' ],
+111 silly audit   'nth-check': [ '2.1.1' ],
+111 silly audit   ofetch: [ '1.5.1' ],
+111 silly audit   ohash: [ '2.0.11' ],
+111 silly audit   'oniguruma-parser': [ '0.12.1' ],
+111 silly audit   'oniguruma-to-es': [ '4.3.4' ],
+111 silly audit   'p-limit': [ '6.2.0' ],
+111 silly audit   'p-queue': [ '8.1.1' ],
+111 silly audit   'p-timeout': [ '6.1.4' ],
+111 silly audit   'package-manager-detector': [ '1.6.0' ],
+111 silly audit   'parse-entities': [ '4.0.2' ],
+111 silly audit   'parse-latin': [ '7.0.0' ],
+111 silly audit   parse5: [ '7.3.0' ],
+111 silly audit   piccolore: [ '0.1.3' ],
+111 silly audit   picocolors: [ '1.1.1' ],
+111 silly audit   postcss: [ '8.5.6' ],
+111 silly audit   prismjs: [ '1.30.0' ],
+111 silly audit   prompts: [ '2.4.2' ],
+111 silly audit   'property-information': [ '7.1.0' ],
+111 silly audit   'proxy-from-env': [ '1.1.0' ],
+111 silly audit   radix3: [ '1.1.2' ],
+111 silly audit   readdirp: [ '5.0.0' ],
+111 silly audit   'recma-build-jsx': [ '1.0.0' ],
+111 silly audit   'recma-jsx': [ '1.0.1' ],
+111 silly audit   'recma-parse': [ '1.0.0' ],
+111 silly audit   'recma-stringify': [ '1.0.0' ],
+111 silly audit   regex: [ '6.1.0' ],
+111 silly audit   'regex-recursion': [ '6.0.2' ],
+111 silly audit   'regex-utilities': [ '2.3.0' ],
+111 silly audit   rehype: [ '13.0.2' ],
+111 silly audit   'rehype-parse': [ '9.0.1' ],
+111 silly audit   'rehype-raw': [ '7.0.0' ],
+111 silly audit   'rehype-recma': [ '1.0.0' ],
+111 silly audit   'rehype-stringify': [ '10.0.1' ],
+111 silly audit   'remark-gfm': [ '4.0.1' ],
+111 silly audit   'remark-mdx': [ '3.1.1' ],
+111 silly audit   'remark-parse': [ '11.0.0' ],
+111 silly audit   'remark-rehype': [ '11.1.2' ],
+111 silly audit   'remark-smartypants': [ '3.0.2' ],
+111 silly audit   'remark-stringify': [ '11.0.0' ],
+111 silly audit   retext: [ '9.0.0' ],
+111 silly audit   'retext-latin': [ '4.0.0' ],
+111 silly audit   'retext-smartypants': [ '6.2.0' ],
+111 silly audit   'retext-stringify': [ '4.0.0' ],
+111 silly audit   rollup: [ '4.59.0' ],
+111 silly audit   sax: [ '1.5.0' ],
+111 silly audit   semver: [ '7.7.4' ],
+111 silly audit   sharp: [ '0.34.5' ],
+111 silly audit   shiki: [ '3.23.0' ],
+111 silly audit   sisteransi: [ '1.0.5' ],
+111 silly audit   'smol-toml': [ '1.6.0' ],
+111 silly audit   'source-map': [ '0.7.6' ],
+111 silly audit   'source-map-js': [ '1.2.1' ],
+111 silly audit   'space-separated-tokens': [ '2.0.2' ],
+111 silly audit   'stringify-entities': [ '4.0.4' ],
+111 silly audit   strnum: [ '2.2.0' ],
+111 silly audit   'style-to-js': [ '1.1.21' ],
+111 silly audit   'style-to-object': [ '1.0.14' ],
+111 silly audit   svgo: [ '4.0.0' ],
+111 silly audit   'tiny-inflate': [ '1.0.3' ],
+111 silly audit   tinyexec: [ '1.0.2' ],
+111 silly audit   tinyglobby: [ '0.2.15' ],
+111 silly audit   'trim-lines': [ '3.0.1' ],
+111 silly audit   trough: [ '2.2.0' ],
+111 silly audit   tsconfck: [ '3.1.6' ],
+111 silly audit   tslib: [ '2.8.1' ],
+111 silly audit   'type-fest': [ '4.41.0' ],
+111 silly audit   typescript: [ '5.9.3' ],
+111 silly audit   ufo: [ '1.6.3' ],
+111 silly audit   ultrahtml: [ '1.6.0' ],
+111 silly audit   uncrypto: [ '0.1.3' ],
+111 silly audit   'undici-types': [ '7.18.2' ],
+111 silly audit   unified: [ '11.0.5' ],
+111 silly audit   unifont: [ '0.7.4' ],
+111 silly audit   'unist-util-find-after': [ '5.0.0' ],
+111 silly audit   'unist-util-is': [ '6.0.1' ],
+111 silly audit   'unist-util-modify-children': [ '4.0.0' ],
+111 silly audit   'unist-util-position': [ '5.0.0' ],
+111 silly audit   'unist-util-position-from-estree': [ '2.0.0' ],
+111 silly audit   'unist-util-remove-position': [ '5.0.0' ],
+111 silly audit   'unist-util-stringify-position': [ '4.0.0' ],
+111 silly audit   'unist-util-visit': [ '5.1.0' ],
+111 silly audit   'unist-util-visit-children': [ '3.0.0' ],
+111 silly audit   'unist-util-visit-parents': [ '6.0.2' ],
+111 silly audit   unstorage: [ '1.17.4' ],
+111 silly audit   vfile: [ '6.0.3' ],
+111 silly audit   'vfile-location': [ '5.0.3' ],
+111 silly audit   'vfile-message': [ '4.0.3' ],
+111 silly audit   vite: [ '6.4.1' ],
+111 silly audit   vitefu: [ '1.1.2' ],
+111 silly audit   'web-namespaces': [ '2.0.1' ],
+111 silly audit   'which-pm-runs': [ '1.1.0' ],
+111 silly audit   'widest-line': [ '5.0.0' ],
+111 silly audit   'wrap-ansi': [ '9.0.2' ],
+111 silly audit   'xxhash-wasm': [ '1.1.0' ],
+111 silly audit   'yargs-parser': [ '21.1.1' ],
+111 silly audit   'yocto-queue': [ '1.2.2' ],
+111 silly audit   'yocto-spinner': [ '0.2.3' ],
+111 silly audit   yoctocolors: [ '2.1.2' ],
+111 silly audit   zod: [ '3.25.76' ],
+111 silly audit   'zod-to-json-schema': [ '3.25.1' ],
+111 silly audit   'zod-to-ts': [ '1.2.0' ],
+111 silly audit   zwitch: [ '2.0.4' ],
+111 silly audit   '@astrojs/node': [ '9.5.4' ],
+111 silly audit   send: [ '1.2.1' ],
+111 silly audit   'server-destroy': [ '1.0.1' ],
+111 silly audit   encodeurl: [ '2.0.0' ],
+111 silly audit   'escape-html': [ '1.0.3' ],
+111 silly audit   etag: [ '1.8.1' ],
+111 silly audit   fresh: [ '2.0.0' ],
+111 silly audit   'http-errors': [ '2.0.1' ],
+111 silly audit   'on-finished': [ '2.4.1' ],
+111 silly audit   'range-parser': [ '1.2.1' ],
+111 silly audit   statuses: [ '2.0.2' ],
+111 silly audit   depd: [ '2.0.0' ],
+111 silly audit   inherits: [ '2.0.4' ],
+111 silly audit   setprototypeof: [ '1.2.0' ],
+111 silly audit   toidentifier: [ '1.0.1' ],
+111 silly audit   'ee-first': [ '1.1.1' ]
+111 silly audit }
+112 http cache setprototypeof@https://registry.npmmirror.com/setprototypeof/-/setprototypeof-1.2.0.tgz 0ms (cache hit)
+113 http cache toidentifier@https://registry.npmmirror.com/toidentifier/-/toidentifier-1.0.1.tgz 0ms (cache hit)
+114 http cache ee-first@https://registry.npmmirror.com/ee-first/-/ee-first-1.1.1.tgz 0ms (cache hit)
+115 http cache statuses@https://registry.npmmirror.com/statuses/-/statuses-2.0.2.tgz 0ms (cache hit)
+116 http cache range-parser@https://registry.npmmirror.com/range-parser/-/range-parser-1.2.1.tgz 0ms (cache hit)
+117 http cache http-errors@https://registry.npmmirror.com/http-errors/-/http-errors-2.0.1.tgz 0ms (cache hit)
+118 http cache inherits@https://registry.npmmirror.com/inherits/-/inherits-2.0.4.tgz 0ms (cache hit)
+119 http cache fresh@https://registry.npmmirror.com/fresh/-/fresh-2.0.0.tgz 0ms (cache hit)
+120 http cache escape-html@https://registry.npmmirror.com/escape-html/-/escape-html-1.0.3.tgz 0ms (cache hit)
+121 http cache etag@https://registry.npmmirror.com/etag/-/etag-1.8.1.tgz 0ms (cache hit)
+122 http cache @astrojs/node@https://registry.npmmirror.com/@astrojs/node/-/node-9.5.4.tgz 0ms (cache hit)
+123 http cache mime-db@https://registry.npmmirror.com/mime-db/-/mime-db-1.54.0.tgz 0ms (cache hit)
+124 http cache send@https://registry.npmmirror.com/send/-/send-1.2.1.tgz 0ms (cache hit)
+125 http cache encodeurl@https://registry.npmmirror.com/encodeurl/-/encodeurl-2.0.0.tgz 0ms (cache hit)
+126 http cache on-finished@https://registry.npmmirror.com/on-finished/-/on-finished-2.4.1.tgz 0ms (cache hit)
+127 http cache mime-types@https://registry.npmmirror.com/mime-types/-/mime-types-3.0.2.tgz 0ms (cache hit)
+128 http cache server-destroy@https://registry.npmmirror.com/server-destroy/-/server-destroy-1.0.1.tgz 0ms (cache hit)
+129 http cache depd@https://registry.npmmirror.com/depd/-/depd-2.0.0.tgz 0ms (cache hit)
+130 silly tarball no local data for setprototypeof@https://registry.npmmirror.com/setprototypeof/-/setprototypeof-1.2.0.tgz. Extracting by manifest.
+131 silly tarball no local data for toidentifier@https://registry.npmmirror.com/toidentifier/-/toidentifier-1.0.1.tgz. Extracting by manifest.
+132 silly tarball no local data for ee-first@https://registry.npmmirror.com/ee-first/-/ee-first-1.1.1.tgz. Extracting by manifest.
+133 silly tarball no local data for statuses@https://registry.npmmirror.com/statuses/-/statuses-2.0.2.tgz. Extracting by manifest.
+134 silly tarball no local data for range-parser@https://registry.npmmirror.com/range-parser/-/range-parser-1.2.1.tgz. Extracting by manifest.
+135 silly tarball no local data for http-errors@https://registry.npmmirror.com/http-errors/-/http-errors-2.0.1.tgz. Extracting by manifest.
+136 silly tarball no local data for inherits@https://registry.npmmirror.com/inherits/-/inherits-2.0.4.tgz. Extracting by manifest.
+137 silly tarball no local data for fresh@https://registry.npmmirror.com/fresh/-/fresh-2.0.0.tgz. Extracting by manifest.
+138 silly tarball no local data for escape-html@https://registry.npmmirror.com/escape-html/-/escape-html-1.0.3.tgz. Extracting by manifest.
+139 silly tarball no local data for etag@https://registry.npmmirror.com/etag/-/etag-1.8.1.tgz. Extracting by manifest.
+140 silly tarball no local data for @astrojs/node@https://registry.npmmirror.com/@astrojs/node/-/node-9.5.4.tgz. Extracting by manifest.
+141 silly tarball no local data for mime-db@https://registry.npmmirror.com/mime-db/-/mime-db-1.54.0.tgz. Extracting by manifest.
+142 silly tarball no local data for send@https://registry.npmmirror.com/send/-/send-1.2.1.tgz. Extracting by manifest.
+143 silly tarball no local data for encodeurl@https://registry.npmmirror.com/encodeurl/-/encodeurl-2.0.0.tgz. Extracting by manifest.
+144 silly tarball no local data for on-finished@https://registry.npmmirror.com/on-finished/-/on-finished-2.4.1.tgz. Extracting by manifest.
+145 silly tarball no local data for mime-types@https://registry.npmmirror.com/mime-types/-/mime-types-3.0.2.tgz. Extracting by manifest.
+146 silly tarball no local data for server-destroy@https://registry.npmmirror.com/server-destroy/-/server-destroy-1.0.1.tgz. Extracting by manifest.
+147 silly tarball no local data for depd@https://registry.npmmirror.com/depd/-/depd-2.0.0.tgz. Extracting by manifest.
+148 http fetch POST 404 https://registry.npmmirror.com/-/npm/v1/security/advisories/bulk 122ms (cache skip)
+149 verbose audit error HttpErrorGeneral: 404 Not Found - POST https://registry.npmmirror.com/-/npm/v1/security/advisories/bulk - [NOT_IMPLEMENTED] /-/npm/v1/security/* not implemented yet
+149 verbose audit error     at D:\Installed\Nodejs\node_modules\npm\node_modules\npm-registry-fetch\lib\check-response.js:103:15
+149 verbose audit error     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+149 verbose audit error     at async #getReport (D:\Installed\Nodejs\node_modules\npm\node_modules\@npmcli\arborist\lib\audit-report.js:275:19)
+149 verbose audit error     at async AuditReport.run (D:\Installed\Nodejs\node_modules\npm\node_modules\@npmcli\arborist\lib\audit-report.js:100:19) {
+149 verbose audit error   headers: [Object: null prototype] {
+149 verbose audit error     server: [ 'Tengine' ],
+149 verbose audit error     date: [ 'Mon, 02 Mar 2026 02:53:58 GMT' ],
+149 verbose audit error     'content-type': [ 'application/json' ],
+149 verbose audit error     'transfer-encoding': [ 'chunked' ],
+149 verbose audit error     connection: [ 'keep-alive' ],
+149 verbose audit error     'strict-transport-security': [ 'max-age=5184000' ],
+149 verbose audit error     via: [ 'kunlun1.cn7863[,404666]' ],
+149 verbose audit error     'timing-allow-origin': [ '*' ],
+149 verbose audit error     eagleid: [ '6f7cc29517724200380184217e' ],
+149 verbose audit error     'x-fetch-attempts': [ '1' ],
+149 verbose audit error     'x-local-cache-status': [ 'skip' ]
+149 verbose audit error   },
+149 verbose audit error   statusCode: 404,
+149 verbose audit error   code: 'E404',
+149 verbose audit error   method: 'POST',
+149 verbose audit error   uri: 'https://registry.npmmirror.com/-/npm/v1/security/advisories/bulk',
+149 verbose audit error   body: {
+149 verbose audit error     error: '[NOT_IMPLEMENTED] /-/npm/v1/security/* not implemented yet'
+149 verbose audit error   },
+149 verbose audit error   pkgid: undefined
+149 verbose audit error }
+150 silly audit error [object Object]
+151 silly audit report null
+152 http fetch GET 200 https://cdn.npmmirror.com/packages/ee-first/1.1.1/ee-first-1.1.1.tgz 152ms (cache miss)
+153 http fetch GET 200 https://cdn.npmmirror.com/packages/toidentifier/1.0.1/toidentifier-1.0.1.tgz 162ms (cache miss)
+154 http fetch GET 200 https://cdn.npmmirror.com/packages/range-parser/1.2.1/range-parser-1.2.1.tgz 164ms (cache miss)
+155 http fetch GET 200 https://cdn.npmmirror.com/packages/http-errors/2.0.1/http-errors-2.0.1.tgz 166ms (cache miss)
+156 http fetch GET 200 https://cdn.npmmirror.com/packages/setprototypeof/1.2.0/setprototypeof-1.2.0.tgz 169ms (cache miss)
+157 http fetch GET 200 https://cdn.npmmirror.com/packages/statuses/2.0.2/statuses-2.0.2.tgz 172ms (cache miss)
+158 http fetch GET 200 https://cdn.npmmirror.com/packages/mime-types/3.0.2/mime-types-3.0.2.tgz 172ms (cache miss)
+159 http fetch GET 200 https://cdn.npmmirror.com/packages/escape-html/1.0.3/escape-html-1.0.3.tgz 179ms (cache miss)
+160 http fetch GET 200 https://cdn.npmmirror.com/packages/depd/2.0.0/depd-2.0.0.tgz 180ms (cache miss)
+161 http fetch GET 200 https://cdn.npmmirror.com/packages/send/1.2.1/send-1.2.1.tgz 185ms (cache miss)
+162 http fetch GET 200 https://cdn.npmmirror.com/packages/inherits/2.0.4/inherits-2.0.4.tgz 197ms (cache miss)
+163 http fetch GET 200 https://cdn.npmmirror.com/packages/encodeurl/2.0.0/encodeurl-2.0.0.tgz 218ms (cache miss)
+164 http fetch GET 200 https://cdn.npmmirror.com/packages/mime-db/1.54.0/mime-db-1.54.0.tgz 225ms (cache miss)
+165 http fetch GET 200 https://cdn.npmmirror.com/packages/server-destroy/1.0.1/server-destroy-1.0.1.tgz 238ms (cache miss)
+166 http fetch GET 200 https://cdn.npmmirror.com/packages/etag/1.8.1/etag-1.8.1.tgz 241ms (cache miss)
+167 http fetch GET 200 https://cdn.npmmirror.com/packages/fresh/2.0.0/fresh-2.0.0.tgz 246ms (cache miss)
+168 http fetch GET 200 https://cdn.npmmirror.com/packages/%40astrojs/node/9.5.4/node-9.5.4.tgz 250ms (cache miss)
+169 http fetch GET 200 https://cdn.npmmirror.com/packages/on-finished/2.4.1/on-finished-2.4.1.tgz 250ms (cache miss)
+170 silly ADD node_modules/ee-first
+171 silly ADD node_modules/toidentifier
+172 silly ADD node_modules/setprototypeof
+173 silly ADD node_modules/inherits
+174 silly ADD node_modules/depd
+175 silly ADD node_modules/statuses
+176 silly ADD node_modules/range-parser
+177 silly ADD node_modules/on-finished
+178 silly ADD node_modules/http-errors
+179 silly ADD node_modules/fresh
+180 silly ADD node_modules/etag
+181 silly ADD node_modules/escape-html
+182 silly ADD node_modules/encodeurl
+183 silly ADD node_modules/server-destroy
+184 silly ADD node_modules/send
+185 silly ADD node_modules/send/node_modules/mime-db
+186 silly ADD node_modules/send/node_modules/mime-types
+187 silly ADD node_modules/@astrojs/node
+188 verbose cwd D:\OKay\OKay_Blog
+189 verbose os Windows_NT 10.0.26200
+190 verbose node v24.14.0
+191 verbose npm  v11.9.0
+192 verbose exit 0
+193 info ok

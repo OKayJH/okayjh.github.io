@@ -1,0 +1,2 @@
+
+15ca0b727b5a8f1619495b0ebe00f009655111aa	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/vfile-message","integrity":null,"time":1772414488044,"size":"262","metadata":{"time":1772414488044,"url":"http://registry.npmmirror.com/vfile-message","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/vfile-message"},"options":{"compress":true},"status":301}}

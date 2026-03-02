@@ -1,0 +1,2 @@
+
+a8914d33e5e294195cdde48266dafdd4458b69a3	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/axios","integrity":null,"time":1772417180383,"size":"262","metadata":{"time":1772417180383,"url":"http://registry.npmmirror.com/axios","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 02:06:20 GMT","location":"https://registry.npmmirror.com/axios"},"options":{"compress":true},"status":301}}

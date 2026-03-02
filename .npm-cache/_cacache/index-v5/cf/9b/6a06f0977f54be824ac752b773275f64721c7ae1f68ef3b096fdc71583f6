@@ -1,0 +1,2 @@
+
+7ca5bd6db7d6d2c899ff5069f5073eaeea6946a4	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/mrmime","integrity":null,"time":1772414487034,"size":"262","metadata":{"time":1772414487034,"url":"http://registry.npmmirror.com/mrmime","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/mrmime"},"options":{"compress":true},"status":301}}

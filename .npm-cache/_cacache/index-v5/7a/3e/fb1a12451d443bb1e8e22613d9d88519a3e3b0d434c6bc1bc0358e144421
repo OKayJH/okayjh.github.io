@@ -1,0 +1,2 @@
+
+55d56476f2180341a4dbb920f7ab06f315473cbb	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/regex","integrity":null,"time":1772414505443,"size":"262","metadata":{"time":1772414505443,"url":"http://registry.npmmirror.com/regex","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:44 GMT","location":"https://registry.npmmirror.com/regex"},"options":{"compress":true},"status":301}}

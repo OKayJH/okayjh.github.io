@@ -1,0 +1,2 @@
+
+e31fa29072f6de1b23c00dc51ab78afb5cdc1bcd	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/magicast","integrity":null,"time":1772414487033,"size":"262","metadata":{"time":1772414487033,"url":"http://registry.npmmirror.com/magicast","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/magicast"},"options":{"compress":true},"status":301}}

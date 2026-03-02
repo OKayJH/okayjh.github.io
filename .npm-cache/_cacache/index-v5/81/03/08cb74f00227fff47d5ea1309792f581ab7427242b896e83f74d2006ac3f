@@ -1,0 +1,2 @@
+
+c4d5c35b73dc1639febcce10e0945022353d84c3	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/hast-util-to-text","integrity":null,"time":1772414487752,"size":"262","metadata":{"time":1772414487752,"url":"http://registry.npmmirror.com/hast-util-to-text","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/hast-util-to-text"},"options":{"compress":true},"status":301}}

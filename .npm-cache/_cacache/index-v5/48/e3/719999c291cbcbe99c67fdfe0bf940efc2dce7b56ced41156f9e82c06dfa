@@ -1,0 +1,2 @@
+
+bcaf9725a90fb7fc925155b3909c376530097085	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/unist-util-is","integrity":null,"time":1772414488023,"size":"262","metadata":{"time":1772414488023,"url":"http://registry.npmmirror.com/unist-util-is","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/unist-util-is"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+faf172ead90275bb89b64ad13b862e77cf3b1050	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/prisma","integrity":null,"time":1772414495757,"size":"262","metadata":{"time":1772414495757,"url":"http://registry.npmmirror.com/prisma","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:35 GMT","location":"https://registry.npmmirror.com/prisma"},"options":{"compress":true},"status":301}}

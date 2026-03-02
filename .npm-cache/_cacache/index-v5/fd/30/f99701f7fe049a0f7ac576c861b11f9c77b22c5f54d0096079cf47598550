@@ -1,0 +1,2 @@
+
+8107429cb7b43257fb30c087a080809922bee253	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/character-reference-invalid","integrity":null,"time":1772414503373,"size":"262","metadata":{"time":1772414503373,"url":"http://registry.npmmirror.com/character-reference-invalid","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/character-reference-invalid"},"options":{"compress":true},"status":301}}

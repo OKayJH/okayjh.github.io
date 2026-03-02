@@ -1,0 +1,2 @@
+
+8efbf32d86ed0846d0555e316c0a8705e5ae1f36	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/lit-element","integrity":null,"time":1772414502320,"size":"262","metadata":{"time":1772414502320,"url":"http://registry.npmmirror.com/lit-element","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/lit-element"},"options":{"compress":true},"status":301}}

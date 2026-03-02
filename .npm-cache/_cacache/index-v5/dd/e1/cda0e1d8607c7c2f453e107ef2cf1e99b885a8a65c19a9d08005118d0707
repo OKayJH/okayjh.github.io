@@ -1,0 +1,2 @@
+
+8ee0032207df2e52d2523729f5948e347271b505	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/destr","integrity":null,"time":1772414501874,"size":"262","metadata":{"time":1772414501874,"url":"http://registry.npmmirror.com/destr","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:41 GMT","location":"https://registry.npmmirror.com/destr"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+5af4ee5c906f4820d82f1635c2daad395db8fc83	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/character-entities","integrity":null,"time":1772414503273,"size":"262","metadata":{"time":1772414503273,"url":"http://registry.npmmirror.com/character-entities","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/character-entities"},"options":{"compress":true},"status":301}}

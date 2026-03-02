@@ -1,0 +1,2 @@
+
+5505e16f0df421e851a9029bd97241eddfd52481	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/mdast-util-gfm","integrity":null,"time":1772414487977,"size":"262","metadata":{"time":1772414487977,"url":"http://registry.npmmirror.com/mdast-util-gfm","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/mdast-util-gfm"},"options":{"compress":true},"status":301}}

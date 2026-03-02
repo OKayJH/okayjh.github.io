@@ -1,0 +1,2 @@
+
+5763340df85d7ca77db719f63c703259c6337c53	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/stringify-entities","integrity":null,"time":1772414487969,"size":"262","metadata":{"time":1772414487969,"url":"http://registry.npmmirror.com/stringify-entities","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:27 GMT","location":"https://registry.npmmirror.com/stringify-entities"},"options":{"compress":true},"status":301}}

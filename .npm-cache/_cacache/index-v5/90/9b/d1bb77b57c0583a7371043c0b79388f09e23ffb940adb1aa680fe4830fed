@@ -1,0 +1,2 @@
+
+9ad787c9928d221f30a501c3ef16f13d608d8d5d	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/devalue","integrity":null,"time":1772414486928,"size":"262","metadata":{"time":1772414486928,"url":"http://registry.npmmirror.com/devalue","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/devalue"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+3db1615307f2e71bf5b5962c3f721b6513ba377c	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@azure%2fcosmos","integrity":null,"time":1772414489223,"size":"262","metadata":{"time":1772414489223,"url":"http://registry.npmmirror.com/@azure%2fcosmos","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:28 GMT","location":"https://registry.npmmirror.com/@azure%2fcosmos"},"options":{"compress":true},"status":301}}

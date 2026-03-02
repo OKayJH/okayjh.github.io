@@ -1,0 +1,2 @@
+
+6f8232397c2f653a78db923dcc463e8f777b9ee2	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/sass-embedded","integrity":null,"time":1772414500806,"size":"262","metadata":{"time":1772414500806,"url":"http://registry.npmmirror.com/sass-embedded","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:40 GMT","location":"https://registry.npmmirror.com/sass-embedded"},"options":{"compress":true},"status":301}}

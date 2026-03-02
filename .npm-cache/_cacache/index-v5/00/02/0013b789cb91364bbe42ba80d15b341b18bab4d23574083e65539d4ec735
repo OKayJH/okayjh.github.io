@@ -1,0 +1,2 @@
+
+2ec22af5f438ab8f8e48a8a4368354545ffbe965	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/micromark-factory-space","integrity":null,"time":1772414503271,"size":"262","metadata":{"time":1772414503271,"url":"http://registry.npmmirror.com/micromark-factory-space","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/micromark-factory-space"},"options":{"compress":true},"status":301}}

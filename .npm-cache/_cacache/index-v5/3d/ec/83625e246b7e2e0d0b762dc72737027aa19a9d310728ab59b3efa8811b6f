@@ -1,0 +1,2 @@
+
+6cc162273198d44b2372f608d7d382f89bca2900	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/range-parser","integrity":null,"time":1772420037564,"size":"262","metadata":{"time":1772420037564,"url":"http://registry.npmmirror.com/range-parser","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 02:53:57 GMT","location":"https://registry.npmmirror.com/range-parser"},"options":{"compress":true},"status":301}}

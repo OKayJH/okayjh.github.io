@@ -1,0 +1,2 @@
+
+53101acbc770d91eb91f443742f020446fa6750e	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/package-manager-detector","integrity":null,"time":1772414487067,"size":"262","metadata":{"time":1772414487067,"url":"http://registry.npmmirror.com/package-manager-detector","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/package-manager-detector"},"options":{"compress":true},"status":301}}

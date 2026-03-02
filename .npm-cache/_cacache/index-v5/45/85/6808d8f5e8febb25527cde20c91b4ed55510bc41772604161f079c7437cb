@@ -1,0 +1,2 @@
+
+c6f5d5c991bb73da76e3b3179c186df7eeb94058	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/magic-string","integrity":null,"time":1772414487032,"size":"262","metadata":{"time":1772414487032,"url":"http://registry.npmmirror.com/magic-string","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/magic-string"},"options":{"compress":true},"status":301}}

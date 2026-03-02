@@ -1,0 +1,2 @@
+
+e2a0d6a80c906eef84b5ba08ed1d38a84c60a6dd	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/domutils","integrity":null,"time":1772414505871,"size":"262","metadata":{"time":1772414505871,"url":"http://registry.npmmirror.com/domutils","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:45 GMT","location":"https://registry.npmmirror.com/domutils"},"options":{"compress":true},"status":301}}

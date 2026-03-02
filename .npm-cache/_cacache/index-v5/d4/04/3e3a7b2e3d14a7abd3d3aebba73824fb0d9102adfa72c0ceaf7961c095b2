@@ -1,0 +1,2 @@
+
+e57a41c824febff4b7614ad6f2d312d0dc5e645f	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/micromark-factory-label","integrity":null,"time":1772414503471,"size":"262","metadata":{"time":1772414503471,"url":"http://registry.npmmirror.com/micromark-factory-label","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/micromark-factory-label"},"options":{"compress":true},"status":301}}

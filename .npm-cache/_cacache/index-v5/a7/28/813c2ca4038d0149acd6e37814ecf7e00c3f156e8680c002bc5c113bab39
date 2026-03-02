@@ -1,0 +1,2 @@
+
+2fd86856c5a9db923b82c6bc558e854ac656a6c1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@babel%2fhelper-validator-identifier","integrity":null,"time":1772414503085,"size":"262","metadata":{"time":1772414503084,"url":"http://registry.npmmirror.com/@babel%2fhelper-validator-identifier","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:42 GMT","location":"https://registry.npmmirror.com/@babel%2fhelper-validator-identifier"},"options":{"compress":true},"status":301}}

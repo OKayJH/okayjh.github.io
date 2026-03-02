@@ -1,0 +1,2 @@
+
+6ff331af432b155bbdc51ef854817b8cda8d2340	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/get-proto","integrity":null,"time":1772417181078,"size":"262","metadata":{"time":1772417181078,"url":"http://registry.npmmirror.com/get-proto","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 02:06:20 GMT","location":"https://registry.npmmirror.com/get-proto"},"options":{"compress":true},"status":301}}

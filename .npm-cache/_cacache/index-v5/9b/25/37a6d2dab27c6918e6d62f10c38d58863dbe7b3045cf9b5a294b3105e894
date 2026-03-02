@@ -1,0 +1,2 @@
+
+5415d20d51d39568aa8e3d80cf6985624050d364	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/flattie","integrity":null,"time":1772414486990,"size":"262","metadata":{"time":1772414486990,"url":"http://registry.npmmirror.com/flattie","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Mon, 02 Mar 2026 01:21:26 GMT","location":"https://registry.npmmirror.com/flattie"},"options":{"compress":true},"status":301}}
