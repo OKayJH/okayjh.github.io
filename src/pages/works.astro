@@ -1,0 +1,475 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="3D 展厅 | OKay's Blog">
+    <!-- Import Google's model-viewer component -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+    <main class="works-main">
+        <header class="works-header">
+            <a href="/" class="back-link">
+                <span class="material-icons-round">arrow_back</span> 返回主页
+            </a>
+            <h1 class="works-title">
+                <span class="material-icons-round">view_in_ar</span> 硬件作品展厅
+            </h1>
+            <p class="works-subtitle">拖拽旋转，滚轮缩放，沉浸式探索我的开源硬件与 3D 设计</p>
+        </header>
+
+        <section class="showroom-container">
+            <!-- 左侧模型选择列表 -->
+            <div class="model-list">
+                <h3 class="list-heading">精选项目</h3>
+                <button class="model-btn active" data-src="/models/pocket3.glb" data-title="DJI Pocket 3" data-desc="大疆创新 (DJI) 推出的小巧云台相机，拥有 1 英寸 CMOS 和出色的稳定性能。此处展示的是该设备的 3D 模型高精度还原。">
+                    <div class="model-icon"><span class="material-icons-round" style="color: #ea4335;">videocam</span></div>
+                    <div class="model-info">
+                        <span class="model-name">Pocket 3 云台相机</span>
+                        <span class="model-tag highlight" style="background: rgba(234, 67, 53, 0.1); color: #ea4335;">摄影设备</span>
+                    </div>
+                </button>
+                
+                <button class="model-btn" data-src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" data-title="RK3588 核心板 (示例)" data-desc="基于 Rockchip RK3588 的高性能核心板，板载 8GB LPDDR4X。支持 8K 视频解码。">
+                    <div class="model-icon"><span class="material-icons-round">memory</span></div>
+                    <div class="model-info">
+                        <span class="model-name">RK3588 核心板</span>
+                        <span class="model-tag highlight">示例模型</span>
+                    </div>
+                </button>
+
+                <button class="model-btn" data-src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" data-title="诱骗 PD 充电器 (示例)" data-desc="基于 CH224Q 芯片，支持最高 20V 诱骗输出，体积小巧的调试神器。">
+                    <div class="model-icon"><span class="material-icons-round">electric_bolt</span></div>
+                    <div class="model-info">
+                        <span class="model-name">PD 诱骗器</span>
+                        <span class="model-tag">示例模型</span>
+                    </div>
+                </button>
+
+                <!-- 新增幼年狸花猫交互模型作为彩蛋宠物 -->
+                <button class="model-btn" data-src="https://modelviewer.dev/shared-assets/models/RobotExpressive.glb" data-title="赛博宠物：小狸花猫 (互动示例)" data-desc="这是一只可爱的赛博狸花猫宝宝示例。在屏幕上拖拽可以和它互动，它还会做各种小动作呢！">
+                    <div class="model-icon"><span class="material-icons-round" style="color: #ff9800;">pets</span></div>
+                    <div class="model-info">
+                        <span class="model-name">宠物狸花猫</span>
+                        <span class="model-tag highlight" style="background: rgba(255, 152, 0, 0.1); color: #ff9800;">互动伙伴</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- 右侧 3D 互动展示区 -->
+            <div class="viewer-wrapper">
+                <model-viewer 
+                    id="main-viewer"
+                    src="/models/pocket3.glb"
+                    alt="3D 模型展示 - DJI Pocket 3"
+                    camera-controls 
+                    auto-rotate
+                    autoplay
+                    animation-crossfade-duration="0.5"
+                    rotation-per-second="30deg"
+                    shadow-intensity="1.5"
+                    exposure="1"
+                    environment-image="neutral"
+                    class="glass-viewer"
+                >
+                    <!-- 自定义加载进度条 -->
+                    <div class="progress-bar hide" slot="progress-bar">
+                        <div class="update-bar"></div>
+                    </div>
+                    
+                    <!-- 提示文字 -->
+                    <div id="ar-prompt">
+                        <span class="material-icons-round">touch_app</span> 交互体验
+                    </div>
+                </model-viewer>
+
+                <!-- 模型信息卡片浮层 -->
+                <div class="model-details-card glass-panel">
+                    <h2 id="overlay-title">DJI Pocket 3</h2>
+                    <p id="overlay-desc">大疆创新 (DJI) 推出的小巧云台相机，拥有 1 英寸 CMOS 和出色的稳定性能。此处展示的是该设备的 3D 模型高精度还原。</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <style>
+        .works-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 20px 60px; /* 留出顶部 Header 空间 */
+            min-height: calc(100vh - 150px);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .works-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .back-link {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: var(--bg-secondary);
+            color: var(--text);
+            transform: translateY(-50%) translateX(-4px);
+        }
+
+        .works-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .works-title .material-icons-round {
+            font-size: 2.5rem;
+            color: var(--accent);
+            -webkit-text-fill-color: initial;
+        }
+
+        .works-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .showroom-container {
+            display: flex;
+            gap: 24px;
+            height: 600px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 深色模式下的阴影 */
+        [data-theme='dark'] .showroom-container {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            background: rgba(30, 30, 35, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* 左侧列表 */
+        .model-list {
+            flex: 0 0 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* 自定义滚动条 */
+        .model-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .model-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .list-heading {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .model-btn {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .model-btn:hover {
+            background: var(--bg-secondary);
+            transform: translateX(4px);
+        }
+
+        .model-btn.active {
+            background: var(--surface);
+            border: 1px solid var(--accent);
+            box-shadow: 0 4px 12px rgba(0, 152, 255, 0.15);
+        }
+
+        .model-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: 0.3s;
+        }
+
+        .model-btn.active .model-icon {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .model-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .model-name {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .model-tag {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: var(--bg);
+            padding: 2px 8px;
+            border-radius: 4px;
+            width: fit-content;
+        }
+
+        .model-tag.highlight {
+            color: var(--accent);
+            background: rgba(0, 152, 255, 0.1);
+        }
+
+        /* 右侧 3D 区域 */
+        .viewer-wrapper {
+            flex: 1;
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+        }
+
+        .glass-viewer {
+            width: 100%;
+            height: 100%;
+            --poster-color: transparent;
+            background-color: transparent;
+        }
+
+        /* 模型加载进度条 */
+        .progress-bar {
+            display: block;
+            width: 33%;
+            height: 10%;
+            max-height: 4px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate3d(-50%, -50%, 0);
+            border-radius: 4px;
+            box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
+            background-color: var(--border);
+            transition: visibility 0.3s;
+        }
+
+        .progress-bar.hide {
+            visibility: hidden;
+            transition: visibility 0.3s;
+        }
+
+        .update-bar {
+            background-color: var(--accent);
+            width: 0%;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        #ar-prompt {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(4px);
+            pointer-events: none;
+            animation: pulse 2s infinite;
+        }
+
+        /* 信息卡片 */
+        .model-details-card {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            right: 24px;
+            padding: 24px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s;
+        }
+
+        [data-theme='dark'] .model-details-card {
+            background: rgba(30, 30, 35, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            color: var(--text);
+        }
+
+        .model-details-card h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .model-details-card p {
+            margin: 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        /* 修改卡片切换时的动画类 */
+        .card-animating {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 800px) {
+            .showroom-container {
+                flex-direction: column;
+                height: auto;
+                min-height: 800px;
+            }
+            .model-list {
+                flex: none;
+                max-height: 200px;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+            .model-btn {
+                min-width: 260px;
+            }
+            .viewer-wrapper {
+                height: 500px;
+            }
+        }
+    </style>
+
+    <script is:inline>
+        document.addEventListener('DOMContentLoaded', () => {
+            const viewer = document.querySelector('#main-viewer');
+            const btns = document.querySelectorAll('.model-btn');
+            const titleEl = document.getElementById('overlay-title');
+            const descEl = document.getElementById('overlay-desc');
+            const cardEl = document.querySelector('.model-details-card');
+
+            // 进度条逻辑
+            viewer.addEventListener('progress', (event) => {
+                const progressBar = event.target.querySelector('.progress-bar');
+                const updateBar = event.target.querySelector('.update-bar');
+                updateBar.style.width = `${event.detail.totalProgress * 100}%`;
+                if (event.detail.totalProgress === 1) {
+                    progressBar.classList.add('hide');
+                } else {
+                    progressBar.classList.remove('hide');
+                    if (event.detail.totalProgress === 0) {
+                        updateBar.style.width = '0%';
+                    }
+                }
+            });
+
+            // 切换模型加载逻辑
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active state
+                    btns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Data
+                    const src = btn.getAttribute('data-src');
+                    const title = btn.getAttribute('data-title');
+                    const desc = btn.getAttribute('data-desc');
+
+                    // Animate card out
+                    cardEl.classList.add('card-animating');
+                    
+                    // Switch model source
+                    viewer.src = src;
+
+                    // Re-enable auto-rotate if user stopped it by interacting previously
+                    viewer.autoRotate = true;
+
+                    // Update Text after animation out
+                    setTimeout(() => {
+                        titleEl.textContent = title;
+                        descEl.textContent = desc;
+                        // Animate card in
+                        cardEl.classList.remove('card-animating');
+                    }, 300);
+                });
+            });
+            
+            // Interaction disables auto-rotate to let user explore
+            viewer.addEventListener('mousedown', () => viewer.autoRotate = false);
+            viewer.addEventListener('touchstart', () => viewer.autoRotate = false);
+        });
+    </script>
+</Layout>
