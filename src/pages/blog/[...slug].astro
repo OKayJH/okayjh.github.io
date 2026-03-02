@@ -140,7 +140,7 @@ const { Content } = await post.render();
     display: block;
   }
 
-  /* Markdown body styles to mimic standard readable formats */
+  /* Markdown body styles */
   :global(.markdown-body h2) {
     font-size: 1.75rem;
     margin-top: 3rem;
@@ -165,6 +165,29 @@ const { Content } = await post.render();
     border-radius: 8px;
     margin: 1.5rem 0;
     border: 1px solid var(--border-color);
+    cursor: zoom-in;
+    transition: transform 0.2s ease;
+  }
+  :global(.markdown-body img:hover) {
+    transform: scale(1.01);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  /* Image Zoom Overlay */
+  :global(#image-zoom-overlay) {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 100000; display: none; justify-content: center; align-items: center;
+    cursor: zoom-out; opacity: 0; transition: opacity 0.3s ease;
+  }
+  :global(#image-zoom-overlay.active) {
+    display: flex; opacity: 1;
+  }
+  :global(#image-zoom-overlay img) {
+    max-width: 90vw; max-height: 90vh;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-radius: 8px;
+    cursor: grab; transition: transform 0.1s ease-out;
+    transform-origin: center center;
   }
 
   :global(.markdown-body code:not(pre code)) {
@@ -176,18 +199,106 @@ const { Content } = await post.render();
     font-size: 0.85em;
   }
 
+  /* Code block - light background & line numbers */
   :global(.markdown-body pre) {
-    padding: 1.25rem;
+    position: relative;
+    padding: 1.25rem 0 1.25rem 0; /* removed side padding for line numbers */
     border-radius: 8px;
     overflow-x: auto;
     margin: 1.5rem 0;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e1e4e8;
+    background: #f6f8fa !important;
   }
 
   :global(.markdown-body pre code) {
     font-family: var(--font-mono);
-    font-size: 0.9em;
+    font-size: 0.85em;
+    display: inline-block;
+    min-width: 100%;
+    counter-reset: step;
+    counter-increment: step 0;
+  }
+
+  :global(.markdown-body pre code .line) {
+    display: block; /* makes each line fill the container */
+    padding-right: 1.25rem; /* right padding restored */
+  }
+
+  :global(.markdown-body pre code .line::before) {
+    content: counter(step);
+    counter-increment: step;
+    width: 2.5rem;
+    margin-right: 1rem;
+    display: inline-block;
+    text-align: right;
+    color: rgba(115,138,148,.4);
+    user-select: none;
+    border-right: 1px solid #e1e4e8;
+    padding-right: 0.8em;
+  }
+
+  /* Copy button - floating top-right */
+  :global(.code-copy-btn) {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    color: #555;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+    z-index: 2;
+  }
+  :global(.markdown-body pre:hover .code-copy-btn) {
+    opacity: 1;
+  }
+  :global(.code-copy-btn:hover) {
+    background: #fff;
+    border-color: #999;
+  }
+  :global(.code-copy-btn.copied) {
+    color: #1a7f37;
+    border-color: #1a7f37;
+    opacity: 1;
+    background: #dafbe1;
+  }
+
+  /* Collapsed code block */
+  :global(.markdown-body pre.collapsed) {
+    max-height: 250px;
+    overflow: hidden;
+  }
+  :global(.markdown-body pre.collapsed::after) {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(transparent, #f6f8fa);
+    pointer-events: none;
+  }
+  :global(.code-toggle-btn) {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 6px;
+    background: #eef1f5;
+    border: 1px solid #e1e4e8;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    font-size: 0.8rem;
+    color: #555;
+    cursor: pointer;
+    margin-top: -8px;
+    margin-bottom: 1.5rem;
+    transition: 0.2s;
+  }
+  :global(.code-toggle-btn:hover) {
+    background: #dfe3e8;
+    color: #333;
   }
 
   :global(.markdown-body blockquote) {
@@ -214,3 +325,153 @@ const { Content } = await post.render();
     to { opacity: 1; transform: translateY(0); }
   }
 </style>
+
+<script is:inline>
+  function setupCodeBlocks() {
+    var pres = document.querySelectorAll('.markdown-body pre');
+    for (var i = 0; i < pres.length; i++) {
+      var pre = pres[i];
+      // Skip if already processed
+      if (pre.querySelector('.code-copy-btn')) continue;
+
+      // Add copy button
+      var copyBtn = document.createElement('button');
+      copyBtn.className = 'code-copy-btn';
+      copyBtn.textContent = '复制';
+      pre.style.position = 'relative';
+      pre.appendChild(copyBtn);
+
+      (function(btn, p) {
+        btn.addEventListener('click', function() {
+          var code = p.querySelector('code');
+          var text = code ? code.textContent : p.textContent;
+          navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制 ✓';
+            btn.classList.add('copied');
+            setTimeout(function() {
+              btn.textContent = '复制';
+              btn.classList.remove('copied');
+            }, 2000);
+          });
+        });
+      })(copyBtn, pre);
+
+      // Collapse long code blocks
+      if (pre.scrollHeight > 300) {
+        pre.classList.add('collapsed');
+        var toggleBtn = document.createElement('button');
+        toggleBtn.className = 'code-toggle-btn';
+        toggleBtn.textContent = '▼ 展开代码';
+
+        if (pre.nextSibling) {
+          pre.parentNode.insertBefore(toggleBtn, pre.nextSibling);
+        } else {
+          pre.parentNode.appendChild(toggleBtn);
+        }
+
+        (function(tbtn, p) {
+          tbtn.addEventListener('click', function() {
+            p.classList.toggle('collapsed');
+            tbtn.textContent = p.classList.contains('collapsed') ? '▼ 展开代码' : '▲ 收起代码';
+          });
+        })(toggleBtn, pre);
+      }
+    }
+  }
+
+  function setupImageZoom() {
+    var overlay = document.getElementById('image-zoom-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'image-zoom-overlay';
+      overlay.innerHTML = '<img src="" alt="Zoomed Image" id="zoomed-image" draggable="false" />';
+      document.body.appendChild(overlay);
+    }
+    
+    var zoomedImg = document.getElementById('zoomed-image');
+    var isDragging = false;
+    var startX, startY;
+    var translateX = 0, translateY = 0;
+    var scale = 1;
+
+    function resetZoom() {
+      scale = 1; translateX = 0; translateY = 0;
+      updateTransform();
+    }
+    function updateTransform() {
+      zoomedImg.style.transform = 'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scale + ')';
+    }
+
+    // Close overlay
+    overlay.addEventListener('click', function(e) {
+      if (e.target !== zoomedImg) {
+        overlay.classList.remove('active');
+        setTimeout(function() { overlay.style.display = 'none'; }, 300);
+      }
+    });
+
+    // Attach click to article images
+    var imgs = document.querySelectorAll('.markdown-body img:not(#zoomed-image)');
+    for (var i = 0; i < imgs.length; i++) {
+        // Skip previously attached images by adding a flag
+        if (imgs[i].dataset.zoomAttached) continue;
+        imgs[i].dataset.zoomAttached = "true";
+
+        imgs[i].addEventListener('click', function(e) {
+            e.stopPropagation();
+            zoomedImg.src = e.target.src;
+            resetZoom();
+            overlay.style.display = 'flex';
+            setTimeout(function() { overlay.classList.add('active'); }, 10);
+        });
+    }
+
+    // Mouse wheel zoom
+    overlay.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      var zoomSensitivity = 0.05;
+      var delta = e.deltaY > 0 ? -1 : 1;
+      scale += delta * zoomSensitivity * (scale * 0.5 + 0.5); // smoother scaling
+      scale = Math.max(0.5, Math.min(scale, 8)); // limit scale
+      updateTransform();
+    }, { passive: false });
+
+    // Drag to pan
+    zoomedImg.addEventListener('mousedown', function(e) {
+      isDragging = true;
+      startX = e.clientX - translateX;
+      startY = e.clientY - translateY;
+      zoomedImg.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+
+    window.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      translateX = e.clientX - startX;
+      translateY = e.clientY - startY;
+      updateTransform();
+    });
+
+    window.addEventListener('mouseup', function() {
+      if (isDragging) {
+        isDragging = false;
+        zoomedImg.style.cursor = 'grab';
+      }
+    });
+  }
+
+  // Run on initial load and on Astro page transitions
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        setupCodeBlocks();
+        setupImageZoom();
+    });
+  } else {
+    setupCodeBlocks();
+    setupImageZoom();
+  }
+  document.addEventListener('astro:page-load', function() {
+      setupCodeBlocks();
+      setupImageZoom();
+  });
+</script>

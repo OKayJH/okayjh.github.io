@@ -276,6 +276,88 @@
             background: #fc5531; border: none; color: #fff;
         }
         .dialog-confirm:hover { background: #e84a2a; }
+
+        /* Sync status toast */
+        .sync-toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #1a1a2e; color: #fff; padding: 12px 24px;
+            border-radius: 12px; font-size: 0.9rem; font-weight: 500;
+            display: none; align-items: center; gap: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            z-index: 10000; min-width: 300px; max-width: 90vw;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .sync-toast.show { display: flex; animation: toast-in 0.3s ease; }
+        .sync-toast.hide { animation: toast-out 0.3s ease forwards; }
+        .sync-toast .toast-icon { font-size: 20px; flex-shrink: 0; }
+        .sync-toast .toast-text { flex: 1; }
+        .sync-toast .toast-steps {
+            display: flex; gap: 4px; margin-top: 6px;
+        }
+        .sync-toast .step-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(255,255,255,0.2); transition: 0.3s;
+        }
+        .sync-toast .step-dot.done { background: #4caf50; }
+        .sync-toast .step-dot.active { background: #2196f3; animation: pulse-dot 1s infinite; }
+        .sync-toast .step-dot.error { background: #f44336; }
+        .sync-toast.success { background: #1b5e20; }
+        .sync-toast.error { background: #b71c1c; }
+        @keyframes toast-in {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        @keyframes toast-out {
+            from { opacity: 1; transform: translateX(-50%) translateY(0); }
+            to { opacity: 0; transform: translateX(-50%) translateY(20px); display: none; }
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+        }
+
+        /* Settings bar */
+        .settings-bar {
+            display: flex; gap: 24px; padding: 10px 20px;
+            background: #f9f9fb; border-bottom: 1px solid #e8e8e8;
+            align-items: flex-start; flex-wrap: wrap;
+        }
+        .setting-group { display: flex; flex-direction: column; gap: 6px; }
+        .setting-label { font-size: 0.75rem; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .cover-area {
+            position: relative; width: 180px; height: 100px;
+            border: 2px dashed #ccc; border-radius: 8px;
+            cursor: pointer; overflow: hidden; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cover-area:hover { border-color: var(--accent); background: #f0f7ff; }
+        .cover-placeholder {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 4px; color: #999; font-size: 0.8rem;
+        }
+        .cover-placeholder .material-icons-round { font-size: 28px; color: #bbb; }
+        #cover-preview {
+            width: 100%; height: 100%; object-fit: cover;
+            position: absolute; top: 0; left: 0;
+        }
+        .cover-remove {
+            position: absolute; top: 4px; right: 4px;
+            background: rgba(0,0,0,0.6); border: none; color: #fff;
+            border-radius: 50%; width: 24px; height: 24px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; z-index: 2;
+        }
+        .cover-remove:hover { background: rgba(220,50,50,0.9); }
+        .cover-remove .material-icons-round { font-size: 16px; }
+        .category-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .cat-chip {
+            padding: 5px 14px; border-radius: 20px; font-size: 0.8rem;
+            font-weight: 600; border: 1px solid #ddd; background: #fff;
+            color: #666; cursor: pointer; transition: 0.2s;
+        }
+        .cat-chip:hover { border-color: var(--accent); color: var(--accent); }
+        .cat-chip.active {
+            background: var(--accent); color: #fff; border-color: var(--accent);
+        }
     </style>
 </head>
 <body>
@@ -291,6 +373,35 @@
         <div class="header-right">
             <button class="btn btn-draft" id="btn-save" title="暂存为草稿，前端不显示">暂存稿件</button>
             <button class="btn btn-publish" id="btn-publish" title="立即发布并推送到 GitHub">发布文章</button>
+        </div>
+    </div>
+
+    <!-- ===== Article Settings Bar ===== -->
+    <div class="settings-bar">
+        <div class="setting-group">
+            <label class="setting-label">封面图片</label>
+            <div class="cover-area" id="cover-area">
+                <div class="cover-placeholder" id="cover-placeholder">
+                    <span class="material-icons-round">add_photo_alternate</span>
+                    <span>上传封面</span>
+                </div>
+                <img id="cover-preview" src="" alt="封面预览" style="display:none;">
+                <button class="cover-remove" id="cover-remove" title="移除封面" style="display:none;">
+                    <span class="material-icons-round">close</span>
+                </button>
+                <input type="file" id="cover-upload" accept="image/*" style="display:none;">
+            </div>
+        </div>
+        <div class="setting-group">
+            <label class="setting-label">文章类别</label>
+            <div class="category-chips" id="category-chips">
+                <button class="cat-chip active" data-cat="技术">技术</button>
+                <button class="cat-chip" data-cat="AI">AI</button>
+                <button class="cat-chip" data-cat="嵌入式">嵌入式</button>
+                <button class="cat-chip" data-cat="PCB">PCB</button>
+                <button class="cat-chip" data-cat="开发板">开发板</button>
+                <button class="cat-chip" data-cat="Linux">Linux</button>
+            </div>
         </div>
     </div>
 
@@ -354,6 +465,20 @@
         </div>
     </div>
 
+    <!-- ===== Sync Status Toast ===== -->
+    <div class="sync-toast" id="sync-toast">
+        <span class="material-icons-round toast-icon" id="toast-icon">sync</span>
+        <div>
+            <div class="toast-text" id="toast-text">正在处理...</div>
+            <div class="toast-steps" id="toast-steps">
+                <div class="step-dot" id="step-save"></div>
+                <div class="step-dot" id="step-sync"></div>
+                <div class="step-dot" id="step-push"></div>
+                <div class="step-dot" id="step-done"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== Link Dialog ===== -->
     <div class="dialog-overlay" id="link-dialog">
         <div class="dialog-box">
@@ -389,9 +514,64 @@
         const slugInput = document.getElementById('slug-input') as HTMLInputElement;
         const charCount = document.getElementById('char-count');
         const lineCount = document.getElementById('line-count');
+        const coverPreview = document.getElementById('cover-preview') as HTMLImageElement;
+        const coverPlaceholder = document.getElementById('cover-placeholder') as HTMLDivElement;
+        const coverRemoveBtn = document.getElementById('cover-remove') as HTMLButtonElement;
+        const coverUploadInput = document.getElementById('cover-upload') as HTMLInputElement;
+        const coverArea = document.getElementById('cover-area') as HTMLDivElement;
 
+        let coverUrl = ''; // stores the cover image URL
         let initialIsEdit = false;
         let originalSlug = '';
+
+        // --- Cover Image Handlers ---
+        coverArea.addEventListener('click', () => coverUploadInput.click());
+        coverUploadInput.addEventListener('change', async (e: Event) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const base64 = ev.target?.result as string;
+                try {
+                    const res = await fetch('/api/uploadImage', {
+                        method: 'POST',
+                        body: JSON.stringify({ base64, filename: `cover-${Date.now()}.${file.name.split('.').pop()}` }),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const d = await res.json();
+                    if (d.success) {
+                        coverUrl = d.url;
+                        coverPreview.src = coverUrl;
+                        coverPreview.style.display = 'block';
+                        coverPlaceholder.style.display = 'none';
+                        coverRemoveBtn.style.display = 'flex';
+                    } else {
+                        alert('封面上传失败: ' + d.error);
+                    }
+                } catch (err: any) {
+                    alert('封面上传失败: ' + err.message);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+        coverRemoveBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            coverUrl = '';
+            coverPreview.style.display = 'none';
+            coverPlaceholder.style.display = 'flex';
+            coverRemoveBtn.style.display = 'none';
+        });
+
+        // --- Category Chip Handlers ---
+        document.querySelectorAll('.cat-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                // Toggle: if clicking active chip, deactivate; else activate (allow multi-select)
+                chip.classList.toggle('active');
+                // Ensure at least one is selected
+                const anyActive = document.querySelector('.cat-chip.active');
+                if (!anyActive) chip.classList.add('active'); // re-activate if none left
+            });
+        });
 
         // --- Marked Config ---
         marked.setOptions({ breaks: true, gfm: true });
@@ -547,6 +727,22 @@
                         slugInput.value = editSlug;
                         slugInput.disabled = true;
                         mdInput.value = data.content;
+                        // Load cover
+                        if (data.cover) {
+                            coverUrl = data.cover;
+                            coverPreview.src = coverUrl;
+                            coverPreview.style.display = 'block';
+                            coverPlaceholder.style.display = 'none';
+                            coverRemoveBtn.style.display = 'flex';
+                        }
+                        // Load tags/category
+                        if (data.tags && data.tags.length > 0) {
+                            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+                            data.tags.forEach((tag: string) => {
+                                const chip = document.querySelector(`.cat-chip[data-cat="${tag}"]`);
+                                if (chip) chip.classList.add('active');
+                            });
+                        }
                         updatePreview();
                     }
                 })
@@ -645,10 +841,79 @@
         }
 
         // --- Save Article ---
+        // Helper: get selected categories
+        function getSelectedTags(): string[] {
+            const tags: string[] = [];
+            document.querySelectorAll('.cat-chip.active').forEach(c => {
+                tags.push(c.getAttribute('data-cat') || '');
+            });
+            return tags.filter(Boolean);
+        }
+
+        // Helper: generate default cover canvas if no cover selected
+        function generateDefaultCover(title: string): string {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800; canvas.height = 400;
+            const ctx = canvas.getContext('2d')!;
+            // Gradient background based on title hash
+            let hash = 0;
+            for (let i = 0; i < title.length; i++) hash = title.charCodeAt(i) + ((hash << 5) - hash);
+            const hue1 = Math.abs(hash % 360);
+            const hue2 = (hue1 + 40) % 360;
+            const grad = ctx.createLinearGradient(0, 0, 800, 400);
+            grad.addColorStop(0, `hsl(${hue1}, 70%, 65%)`);
+            grad.addColorStop(1, `hsl(${hue2}, 60%, 55%)`);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 800, 400);
+            // Title text
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.font = 'bold 36px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            // Word wrap
+            const maxWidth = 700;
+            const words = title.split('');
+            let lines: string[] = [];
+            let currentLine = '';
+            for (const char of words) {
+                const test = currentLine + char;
+                if (ctx.measureText(test).width > maxWidth) {
+                    lines.push(currentLine);
+                    currentLine = char;
+                } else {
+                    currentLine = test;
+                }
+            }
+            if (currentLine) lines.push(currentLine);
+            const lineHeight = 48;
+            const startY = 200 - ((lines.length - 1) * lineHeight) / 2;
+            lines.forEach((line, i) => {
+                ctx.fillText(line, 400, startY + i * lineHeight);
+            });
+            return canvas.toDataURL('image/png');
+        }
+
         async function saveArticle(isDraft: boolean) {
             const title = titleInput.value.trim();
-            const slug = slugInput.value.trim(); // optional now
+            const slug = slugInput.value.trim();
             if (!title) { alert('标题不能为空'); return; }
+
+            // If no cover, generate a default one and upload it
+            let finalCover = coverUrl;
+            if (!finalCover) {
+                const defaultBase64 = generateDefaultCover(title);
+                try {
+                    const upRes = await fetch('/api/uploadImage', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ base64: defaultBase64, filename: `cover-${Date.now()}.png` })
+                    });
+                    const upData = await upRes.json();
+                    if (upData.success) finalCover = upData.url;
+                } catch { /* use empty cover if upload fails */ }
+            }
+
+            const tags = getSelectedTags();
 
             try {
                 showLoading(isDraft ? '正在保存草稿...' : '正在保存文件...');
@@ -656,7 +921,8 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        slug, title, content: mdInput.value, isDraft, isEdit: initialIsEdit
+                        slug, title, content: mdInput.value, isDraft, isEdit: initialIsEdit,
+                        cover: finalCover, tags
                     })
                 });
                 const data = await res.json();
@@ -675,31 +941,97 @@
             }
         }
 
+        // --- Sync Toast ---
+        const syncToast = document.getElementById('sync-toast')!;
+        const toastIcon = document.getElementById('toast-icon')!;
+        const toastText = document.getElementById('toast-text')!;
+        const stepDots = {
+            save: document.getElementById('step-save')!,
+            sync: document.getElementById('step-sync')!,
+            push: document.getElementById('step-push')!,
+            done: document.getElementById('step-done')!
+        };
+
+        function showToast(text: string, icon: string, step?: string) {
+            syncToast.className = 'sync-toast show';
+            toastIcon.textContent = icon;
+            toastText.textContent = text;
+            if (step) {
+                // Mark previous steps as done
+                const order = ['save', 'sync', 'push', 'done'];
+                const idx = order.indexOf(step);
+                order.forEach((s, i) => {
+                    stepDots[s as keyof typeof stepDots].className = 
+                        i < idx ? 'step-dot done' : i === idx ? 'step-dot active' : 'step-dot';
+                });
+            }
+        }
+        function toastSuccess(text: string) {
+            syncToast.className = 'sync-toast show success';
+            toastIcon.textContent = 'check_circle';
+            toastText.textContent = text;
+            Object.values(stepDots).forEach(d => d.className = 'step-dot done');
+            setTimeout(() => { syncToast.className = 'sync-toast hide'; }, 4000);
+        }
+        function toastError(text: string) {
+            syncToast.className = 'sync-toast show error';
+            toastIcon.textContent = 'error';
+            toastText.textContent = text;
+            const activeDot = document.querySelector('.step-dot.active');
+            if (activeDot) activeDot.className = 'step-dot error';
+            setTimeout(() => { syncToast.className = 'sync-toast hide'; }, 5000);
+        }
+        function hideToast() {
+            syncToast.className = 'sync-toast hide';
+        }
+
         // --- Button Events ---
         document.getElementById('btn-save')?.addEventListener('click', () => saveArticle(true));
 
         document.getElementById('btn-publish')?.addEventListener('click', async () => {
+            let publishing = true;
+            // Catch the Vite HMR reload by hooking beforeunload purely to show UI, NOT blocking
+            const informReload = () => {
+                if (publishing) {
+                    document.body.innerHTML = '<div style="display:flex;height:100vh;width:100vw;align-items:center;justify-content:center;background:#1a1a2e;color:#fff;font-size:1.5rem;flex-direction:column;gap:20px;"><div class="spinner"></div><div>正在后台同步至 GitHub，请勿关闭页面...</div></div>';
+                }
+            };
+            window.addEventListener('beforeunload', informReload);
+            
             try {
+                showToast('正在保存文章...', 'save', 'save');
                 await saveArticle(false);
-                showLoading('正在同步至 GitHub... 这个过程可能需要一段时间');
-                // Wait for Astro content watcher to settle before running git
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                showToast('等待文件系统同步...', 'hourglass_empty', 'sync');
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                showToast('正在推送至 GitHub...', 'cloud_upload', 'push');
                 const pRes = await fetch('/api/publish', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ title: titleInput.value, originalSlug: initialIsEdit ? originalSlug : null })
                 });
                 const pData = await pRes.json();
-                hideLoading();
+                
+                publishing = false;
+                window.removeEventListener('beforeunload', informReload);
+                
                 if (pData.success) {
-                    const successOverlay = document.getElementById('success-overlay');
-                    const successBox = successOverlay?.querySelector('.success-box') as HTMLElement;
-                    if (successOverlay) successOverlay.style.display = 'flex';
-                    if (successBox) successBox.style.display = 'block';
+                    toastSuccess('✅ 发布成功！已同步至 GitHub');
+                    setTimeout(() => {
+                        const successOverlay = document.getElementById('success-overlay');
+                        const successBox = successOverlay?.querySelector('.success-box') as HTMLElement;
+                        if (successOverlay) successOverlay.style.display = 'flex';
+                        if (successBox) successBox.style.display = 'block';
+                    }, 1500);
                 } else {
-                    alert('同步至 GitHub 失败: ' + pData.error);
+                    toastError('同步失败: ' + pData.error);
                 }
-            } catch (e) { /* handled in saveArticle */ }
+            } catch (e: any) {
+                publishing = false;
+                window.removeEventListener('beforeunload', informReload);
+                toastError('发布失败: ' + (e.message || '未知错误'));
+            }
         });
 
         document.getElementById('btn-go-home')?.addEventListener('click', () => {

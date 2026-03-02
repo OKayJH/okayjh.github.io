@@ -45,6 +45,7 @@ export const GET: APIRoute = async ({ request }) => {
         let title = '';
         let description = '';
         let cover = '';
+        let tags: string[] = [];
 
         if (match) {
             frontmatterRaw = match[1];
@@ -58,6 +59,13 @@ export const GET: APIRoute = async ({ request }) => {
 
             const coverMatch = frontmatterRaw.match(/cover:\s*(.*)/);
             if (coverMatch) cover = coverMatch[1].replace(/^["']|["']$/g, '');
+
+            // Parse tags
+            const tagsMatch = frontmatterRaw.match(/tags:\s*\n((?:\s+-\s+.*\n?)*)/);
+            if (tagsMatch) {
+                const tagLines = tagsMatch[1].trim().split('\n');
+                tags = tagLines.map(l => l.replace(/^\s*-\s*/, '').trim()).filter(Boolean);
+            }
         }
 
         return new Response(JSON.stringify({
@@ -66,6 +74,7 @@ export const GET: APIRoute = async ({ request }) => {
             title,
             description,
             cover,
+            tags,
             content: bodyContent,
             raw: rawContent,
             isDraft
