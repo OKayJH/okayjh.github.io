@@ -1,0 +1,722 @@
+---
+// src/pages/editor.astro
+export const prerender = false;
+---
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Markdown Editor - OKay Blog</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fira+Code&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1e1e1e;
+            --surface: #252526;
+            --border: #3c3c3c;
+            --text: #d4d4d4;
+            --accent: #007acc;
+            --toolbar-bg: #2d2d2d;
+            --hover: #3a3d41;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ===== Top Header Bar ===== */
+        .editor-header {
+            height: 50px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .back-btn {
+            background: none; border: none; color: var(--text); cursor: pointer;
+            display: flex; align-items: center; padding: 4px;
+            border-radius: 4px; transition: 0.2s;
+        }
+        .back-btn:hover { color: #fff; background: var(--hover); }
+        .title-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #fff;
+            padding: 6px 4px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            outline: none;
+            transition: 0.2s border;
+            flex: 1;
+            max-width: 400px;
+        }
+        .title-input:focus { border-bottom-color: var(--accent); }
+        .title-input::placeholder { color: #666; font-weight: 400; }
+        .slug-input {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: #aaa;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            outline: none;
+            width: 220px;
+            transition: 0.2s border;
+        }
+        .slug-input:focus { border-color: var(--accent); color: #fff; }
+        .header-right { display: flex; gap: 10px; align-items: center; }
+        .btn {
+            padding: 7px 18px; border: none; border-radius: 6px;
+            font-weight: 600; cursor: pointer; transition: 0.2s;
+            font-size: 0.85rem;
+        }
+        .btn-draft { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-draft:hover { background: var(--hover); color: #fff; }
+        .btn-publish { background: var(--accent); color: #fff; }
+        .btn-publish:hover { background: #0098ff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,122,204,0.4); }
+
+        /* ===== Toolbar (CSDN-style rich toolbar) ===== */
+        .toolbar {
+            height: 42px;
+            background: var(--toolbar-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 2px;
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+        .toolbar-divider {
+            width: 1px; height: 20px; background: var(--border); margin: 0 6px; flex-shrink: 0;
+        }
+        .tool-btn {
+            background: transparent;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            border-radius: 4px;
+            min-width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+            transition: 0.15s;
+        }
+        .tool-btn .material-icons-round { font-size: 20px; }
+        .tool-btn:hover { background: var(--hover); color: #fff; }
+        .tool-btn::after {
+            content: attr(data-tip);
+            position: absolute;
+            top: 38px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111;
+            color: #eee;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.15s;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .tool-btn:hover::after { opacity: 1; }
+
+        /* ===== Main Editor Area (Split Pane) ===== */
+        .editor-main {
+            display: flex;
+            flex: 1;
+            min-height: 0; /* crucial for flex children to scroll */
+        }
+
+        /* Left: Markdown Input */
+        .editor-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            min-width: 0;
+        }
+        .md-input {
+            flex: 1;
+            width: 100%;
+            background: var(--bg);
+            color: #d4d4d4;
+            border: none;
+            padding: 24px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            resize: none;
+            outline: none;
+            tab-size: 4;
+        }
+        .md-input::placeholder { color: #555; }
+
+        /* Right: Live Preview */
+        .preview-pane {
+            flex: 1;
+            overflow-y: auto;
+            background: #fff;
+            color: #333;
+            padding: 24px 36px;
+            min-width: 0;
+        }
+        /* Nice preview styles */
+        .preview-pane h1 { font-size: 1.8em; margin: 0.6em 0 0.4em; color: #111; border-bottom: 2px solid #eaecef; padding-bottom: 6px; }
+        .preview-pane h2 { font-size: 1.5em; margin: 0.5em 0 0.3em; color: #222; border-bottom: 1px solid #eaecef; padding-bottom: 4px; }
+        .preview-pane h3 { font-size: 1.25em; margin: 0.5em 0 0.3em; color: #333; }
+        .preview-pane p { margin-bottom: 14px; line-height: 1.75; }
+        .preview-pane a { color: var(--accent); text-decoration: none; }
+        .preview-pane a:hover { text-decoration: underline; }
+        .preview-pane pre { background: #f6f8fa; padding: 16px; border-radius: 6px; overflow-x: auto; margin: 12px 0; border: 1px solid #e1e4e8; }
+        .preview-pane code { font-family: 'Fira Code', monospace; background: #f0f2f5; padding: 2px 5px; border-radius: 3px; font-size: 85%; color: #e83e8c; }
+        .preview-pane pre code { background: none; color: inherit; padding: 0; }
+        .preview-pane img { max-width: 100%; border-radius: 8px; margin: 12px 0; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+        .preview-pane blockquote { border-left: 4px solid #dfe2e5; padding: 8px 16px; color: #6a737d; margin: 12px 0; background: #f8f9fa; border-radius: 0 4px 4px 0; }
+        .preview-pane ul, .preview-pane ol { padding-left: 2em; margin-bottom: 14px; }
+        .preview-pane li { margin-bottom: 4px; line-height: 1.6; }
+        .preview-pane table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+        .preview-pane th, .preview-pane td { border: 1px solid #dfe2e5; padding: 8px 12px; text-align: left; }
+        .preview-pane th { background: #f6f8fa; font-weight: 600; }
+        .preview-pane hr { border: none; border-top: 2px solid #eaecef; margin: 20px 0; }
+        .preview-pane .preview-placeholder { color: #bbb; text-align: center; margin-top: 40%; font-size: 1.2rem; }
+
+        /* ===== Bottom Status Bar ===== */
+        .status-bar {
+            height: 28px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 0.75rem;
+            color: #888;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        /* ===== Overlays ===== */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.8); z-index: 1000;
+            display: none; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.2);
+            border-top: 4px solid var(--accent); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .success-box {
+            background: var(--surface); padding: 40px 50px; border-radius: 12px; text-align: center;
+            border: 1px solid var(--border);
+        }
+        .success-box .material-icons-round { font-size: 56px; color: #4caf50; margin-bottom: 16px; }
+        .success-box h2 { color: #fff; margin-bottom: 20px; }
+
+        /* ===== Link Dialog ===== */
+        .dialog-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); z-index: 900;
+            display: none; align-items: center; justify-content: center;
+        }
+        .dialog-box {
+            background: #fff; border-radius: 12px; padding: 28px 32px;
+            width: 480px; max-width: 90vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .dialog-box h3 {
+            color: #333; font-size: 1.1rem; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .dialog-box h3 .close-btn {
+            background: none; border: none; cursor: pointer; color: #999;
+            font-size: 1.4rem; line-height: 1; transition: 0.2s;
+        }
+        .dialog-box h3 .close-btn:hover { color: #333; }
+        .dialog-box label {
+            display: block; color: #666; font-size: 0.85rem; margin-bottom: 6px; font-weight: 500;
+        }
+        .dialog-box input[type='text'] {
+            width: 100%; padding: 10px 12px; border: 1px solid #ddd;
+            border-radius: 8px; font-size: 0.95rem; outline: none;
+            transition: 0.2s border; margin-bottom: 16px;
+        }
+        .dialog-box input[type='text']:focus { border-color: var(--accent); }
+        .dialog-actions {
+            display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;
+        }
+        .dialog-actions button {
+            padding: 8px 24px; border-radius: 20px; font-weight: 600;
+            cursor: pointer; transition: 0.2s; font-size: 0.9rem;
+        }
+        .dialog-cancel {
+            background: #f5f5f5; border: 1px solid #ddd; color: #666;
+        }
+        .dialog-cancel:hover { background: #eee; }
+        .dialog-confirm {
+            background: #fc5531; border: none; color: #fff;
+        }
+        .dialog-confirm:hover { background: #e84a2a; }
+    </style>
+</head>
+<body>
+    <!-- ===== Header ===== -->
+    <div class="editor-header">
+        <div class="header-left">
+            <button class="back-btn" id="back-btn" title="返回主页">
+                <span class="material-icons-round">arrow_back</span>
+            </button>
+            <input type="text" class="title-input" id="title-input" placeholder="请输入文章标题...">
+            <input type="text" class="slug-input" id="slug-input" placeholder="英文别名 (可选, 自动生成)">
+        </div>
+        <div class="header-right">
+            <button class="btn btn-draft" id="btn-save" title="暂存为草稿，前端不显示">暂存稿件</button>
+            <button class="btn btn-publish" id="btn-publish" title="立即发布并推送到 GitHub">发布文章</button>
+        </div>
+    </div>
+
+    <!-- ===== Toolbar ===== -->
+    <div class="toolbar" id="toolbar">
+        <button class="tool-btn" data-tip="加粗 Ctrl+B" data-prefix="**" data-suffix="**"><span class="material-icons-round">format_bold</span></button>
+        <button class="tool-btn" data-tip="斜体 Ctrl+I" data-prefix="*" data-suffix="*"><span class="material-icons-round">format_italic</span></button>
+        <button class="tool-btn" data-tip="删除线" data-prefix="~~" data-suffix="~~"><span class="material-icons-round">strikethrough_s</span></button>
+        <div class="toolbar-divider"></div>
+        <button class="tool-btn" data-tip="一级标题" data-prefix="# " data-suffix=""><span class="material-icons-round">looks_one</span></button>
+        <button class="tool-btn" data-tip="二级标题" data-prefix="## " data-suffix=""><span class="material-icons-round">looks_two</span></button>
+        <button class="tool-btn" data-tip="三级标题" data-prefix="### " data-suffix=""><span class="material-icons-round">looks_3</span></button>
+        <div class="toolbar-divider"></div>
+        <button class="tool-btn" data-tip="无序列表" data-prefix="- " data-suffix=""><span class="material-icons-round">format_list_bulleted</span></button>
+        <button class="tool-btn" data-tip="有序列表" data-prefix="1. " data-suffix=""><span class="material-icons-round">format_list_numbered</span></button>
+        <button class="tool-btn" data-tip="任务列表" data-prefix="- [ ] " data-suffix=""><span class="material-icons-round">checklist</span></button>
+        <div class="toolbar-divider"></div>
+        <button class="tool-btn" data-tip="引用块" data-prefix="> " data-suffix=""><span class="material-icons-round">format_quote</span></button>
+        <button class="tool-btn" data-tip="行内代码" data-prefix="`" data-suffix="`"><span class="material-icons-round">code</span></button>
+        <button class="tool-btn" data-tip="代码块" data-prefix="```\n" data-suffix="\n```" data-newline="true"><span class="material-icons-round">integration_instructions</span></button>
+        <div class="toolbar-divider"></div>
+        <button class="tool-btn" data-tip="插入链接" data-action="link"><span class="material-icons-round">link</span></button>
+        <button class="tool-btn" data-tip="插入图片" data-action="image"><span class="material-icons-round">image</span></button>
+        <button class="tool-btn" data-tip="插入表格" data-action="table"><span class="material-icons-round">table_chart</span></button>
+        <div class="toolbar-divider"></div>
+        <button class="tool-btn" data-tip="水平分割线" data-prefix="\n---\n" data-suffix=""><span class="material-icons-round">horizontal_rule</span></button>
+        <input type="file" id="img-upload" accept="image/*" style="display: none;">
+    </div>
+
+    <!-- ===== Split Editor ===== -->
+    <div class="editor-main">
+        <div class="editor-pane">
+            <textarea id="md-input" class="md-input" placeholder="在这里书写 Markdown 内容...&#10;&#10;支持 GFM 语法，右侧实时预览。"></textarea>
+        </div>
+        <div class="preview-pane" id="preview-pane">
+            <div class="preview-placeholder">✍️ 右侧将实时预览 Markdown 渲染效果</div>
+        </div>
+    </div>
+
+    <!-- ===== Status Bar ===== -->
+    <div class="status-bar">
+        <span id="char-count">Markdown · 0 字符</span>
+        <span id="line-count">0 行</span>
+    </div>
+
+    <!-- ===== Loading Overlay ===== -->
+    <div class="overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div style="font-size: 1.1rem; font-weight: 500; color: #ccc;" id="loading-text">正在处理...</div>
+    </div>
+
+    <!-- ===== Success Overlay ===== -->
+    <div class="overlay" id="success-overlay" style="background: rgba(0,0,0,0.9);">
+        <div class="success-box">
+            <span class="material-icons-round">check_circle</span>
+            <h2>发布成功！</h2>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="btn btn-draft" id="btn-go-home">返回主页</button>
+                <button class="btn btn-publish" id="btn-view-article">查看文章</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Link Dialog ===== -->
+    <div class="dialog-overlay" id="link-dialog">
+        <div class="dialog-box">
+            <h3>插入链接 <button class="close-btn" id="link-dialog-close">&times;</button></h3>
+            <label for="link-url-input">链接地址</label>
+            <input type="text" id="link-url-input" placeholder="请输入链接地址，如 https://example.com">
+            <label for="link-desc-input">链接描述</label>
+            <input type="text" id="link-desc-input" placeholder="请输入链接描述">
+            <div class="dialog-actions">
+                <button class="dialog-cancel" id="link-cancel">取消</button>
+                <button class="dialog-confirm" id="link-confirm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Script: use is:inline so it runs immediately with access to DOM ===== -->
+    <script is:inline>
+        // Auth check
+        if (localStorage.getItem('okay_dev_mode') !== 'true') {
+            window.location.href = '/';
+        }
+    </script>
+
+    <!-- ===== Main Logic: bundled by Astro to get npm imports ===== -->
+    <script>
+        import { marked } from 'marked';
+        import DOMPurify from 'dompurify';
+
+        // --- DOM Elements ---
+        const mdInput = document.getElementById('md-input') as HTMLTextAreaElement;
+        const previewPane = document.getElementById('preview-pane') as HTMLDivElement;
+        const titleInput = document.getElementById('title-input') as HTMLInputElement;
+        const slugInput = document.getElementById('slug-input') as HTMLInputElement;
+        const charCount = document.getElementById('char-count');
+        const lineCount = document.getElementById('line-count');
+
+        let initialIsEdit = false;
+        let originalSlug = '';
+
+        // --- Marked Config ---
+        marked.setOptions({ breaks: true, gfm: true });
+
+        // --- Preview ---
+        function updatePreview() {
+            const val = mdInput.value;
+            if (!val.trim()) {
+                previewPane.innerHTML = '<div class="preview-placeholder">✍️ 右侧将实时预览 Markdown 渲染效果</div>';
+            } else {
+                const html = marked.parse(val) as string;
+                previewPane.innerHTML = DOMPurify.sanitize(html);
+            }
+            // Update status bar
+            if (charCount) charCount.textContent = `Markdown · ${val.length} 字符`;
+            if (lineCount) lineCount.textContent = `${val.split('\n').length} 行`;
+        }
+
+        mdInput.addEventListener('input', updatePreview);
+
+        // --- Insert Syntax Helper ---
+        function insertSyntax(prefix: string, suffix: string) {
+            const start = mdInput.selectionStart;
+            const end = mdInput.selectionEnd;
+            const text = mdInput.value;
+            const selected = text.substring(start, end) || '';
+
+            // Handle escaped newlines from data attributes
+            const realPrefix = prefix.replace(/\\n/g, '\n');
+            const realSuffix = suffix.replace(/\\n/g, '\n');
+
+            const replacement = realPrefix + (selected || '文本') + realSuffix;
+            mdInput.value = text.substring(0, start) + replacement + text.substring(end);
+            mdInput.focus();
+
+            // Position cursor
+            const cursorPos = start + realPrefix.length;
+            const selectEnd = cursorPos + (selected || '文本').length;
+            mdInput.selectionStart = cursorPos;
+            mdInput.selectionEnd = selectEnd;
+
+            updatePreview();
+        }
+
+        // --- Toolbar Buttons ---
+        document.querySelectorAll('#toolbar .tool-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.getAttribute('data-action');
+                const prefix = btn.getAttribute('data-prefix');
+                const suffix = btn.getAttribute('data-suffix');
+
+                if (action === 'image') {
+                    document.getElementById('img-upload')?.click();
+                } else if (action === 'table') {
+                    const tableTemplate = '\n| 列1 | 列2 | 列3 |\n| --- | --- | --- |\n| 内容 | 内容 | 内容 |\n';
+                    const start = mdInput.selectionStart;
+                    const text = mdInput.value;
+                    mdInput.value = text.substring(0, start) + tableTemplate + text.substring(start);
+                    mdInput.focus();
+                    updatePreview();
+                } else if (action === 'link') {
+                    openLinkDialog();
+                } else if (prefix !== null) {
+                    insertSyntax(prefix || '', suffix || '');
+                }
+            });
+        });
+
+        // --- Link Dialog Logic ---
+        const linkDialog = document.getElementById('link-dialog') as HTMLDivElement;
+        const linkUrlInput = document.getElementById('link-url-input') as HTMLInputElement;
+        const linkDescInput = document.getElementById('link-desc-input') as HTMLInputElement;
+
+        function openLinkDialog() {
+            linkUrlInput.value = '';
+            linkDescInput.value = '';
+            linkDialog.style.display = 'flex';
+            // Auto-detect URL from clipboard
+            navigator.clipboard.readText().then(text => {
+                if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
+                    linkUrlInput.value = text;
+                    linkDescInput.focus(); // jump to description since URL was auto-filled
+                } else {
+                    linkUrlInput.focus();
+                }
+            }).catch(() => {
+                linkUrlInput.focus();
+            });
+        }
+
+        function closeLinkDialog() {
+            linkDialog.style.display = 'none';
+        }
+
+        function confirmLink() {
+            const url = linkUrlInput.value.trim();
+            const desc = linkDescInput.value.trim() || url;
+            if (!url) { alert('请输入链接地址'); return; }
+
+            const linkMd = `[${desc}](${url})`;
+            const start = mdInput.selectionStart;
+            const text = mdInput.value;
+            mdInput.value = text.substring(0, start) + linkMd + text.substring(start);
+            mdInput.focus();
+            mdInput.selectionStart = mdInput.selectionEnd = start + linkMd.length;
+            updatePreview();
+            closeLinkDialog();
+        }
+
+        document.getElementById('link-dialog-close')?.addEventListener('click', closeLinkDialog);
+        document.getElementById('link-cancel')?.addEventListener('click', closeLinkDialog);
+        document.getElementById('link-confirm')?.addEventListener('click', confirmLink);
+        // Close dialog on overlay click
+        linkDialog?.addEventListener('click', (e) => {
+            if (e.target === linkDialog) closeLinkDialog();
+        });
+        // Enter key confirms
+        linkDescInput?.addEventListener('keydown', (e: KeyboardEvent) => {
+            if (e.key === 'Enter') { e.preventDefault(); confirmLink(); }
+        });
+        linkUrlInput?.addEventListener('keydown', (e: KeyboardEvent) => {
+            if (e.key === 'Enter') { e.preventDefault(); linkDescInput.focus(); }
+        });
+
+        // --- Keyboard Shortcuts ---
+        mdInput.addEventListener('keydown', (e: KeyboardEvent) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'b') { e.preventDefault(); insertSyntax('**', '**'); }
+                if (e.key === 'i') { e.preventDefault(); insertSyntax('*', '*'); }
+                if (e.key === 's') { e.preventDefault(); saveArticle(true); }
+            }
+            // Tab support
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = mdInput.selectionStart;
+                const text = mdInput.value;
+                mdInput.value = text.substring(0, start) + '    ' + text.substring(mdInput.selectionEnd);
+                mdInput.selectionStart = mdInput.selectionEnd = start + 4;
+            }
+        });
+
+        // --- Load existing article for editing ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const editSlug = urlParams.get('edit');
+        if (editSlug) {
+            initialIsEdit = true;
+            originalSlug = editSlug;
+            fetch(`/api/getArticle?slug=${editSlug}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        titleInput.value = data.title;
+                        slugInput.value = editSlug;
+                        slugInput.disabled = true;
+                        mdInput.value = data.content;
+                        updatePreview();
+                    }
+                })
+                .catch(err => console.error('Failed to load article:', err));
+        }
+
+        // --- Image Upload ---
+        document.getElementById('img-upload')?.addEventListener('change', (e: Event) => {
+            const input = e.target as HTMLInputElement;
+            const file = input.files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const base64 = ev.target?.result as string;
+                try {
+                    const res = await fetch('/api/uploadImage', {
+                        method: 'POST',
+                        body: JSON.stringify({ base64, filename: file.name }),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const d = await res.json();
+                    if (d.success) {
+                        const start = mdInput.selectionStart;
+                        const text = mdInput.value;
+                        const imgMd = `![${file.name}](${d.url})`;
+                        mdInput.value = text.substring(0, start) + imgMd + text.substring(start);
+                        mdInput.focus();
+                        updatePreview();
+                    } else {
+                        alert('上传失败: ' + d.error);
+                    }
+                } catch (err: any) {
+                    alert('上传失败: ' + err.message);
+                }
+            };
+            reader.readAsDataURL(file);
+            input.value = ''; // reset so same file can be re-uploaded
+        });
+
+        // --- Paste Image from Clipboard ---
+        mdInput.addEventListener('paste', async (e: ClipboardEvent) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.startsWith('image/')) {
+                    e.preventDefault();
+                    const file = items[i].getAsFile();
+                    if (!file) continue;
+
+                    const reader = new FileReader();
+                    reader.onload = async (ev) => {
+                        const base64 = ev.target?.result as string;
+                        const filename = `paste-${Date.now()}.png`;
+                        try {
+                            showLoading('正在上传粘贴的图片...');
+                            const res = await fetch('/api/uploadImage', {
+                                method: 'POST',
+                                body: JSON.stringify({ base64, filename }),
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+                            const d = await res.json();
+                            hideLoading();
+                            if (d.success) {
+                                const start = mdInput.selectionStart;
+                                const text = mdInput.value;
+                                const imgMd = `![image](${d.url})`;
+                                mdInput.value = text.substring(0, start) + imgMd + text.substring(start);
+                                mdInput.focus();
+                                updatePreview();
+                            } else {
+                                alert('图片上传失败: ' + d.error);
+                            }
+                        } catch (err: any) {
+                            hideLoading();
+                            alert('图片上传失败: ' + err.message);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                    break; // only handle first image
+                }
+            }
+        });
+
+        // --- Loading / Success Overlays ---
+        function showLoading(text: string) {
+            const overlay = document.getElementById('loading-overlay');
+            const overlayText = document.getElementById('loading-text');
+            if (overlay) overlay.style.display = 'flex';
+            if (overlayText) overlayText.textContent = text;
+        }
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        // --- Save Article ---
+        async function saveArticle(isDraft: boolean) {
+            const title = titleInput.value.trim();
+            const slug = slugInput.value.trim(); // optional now
+            if (!title) { alert('标题不能为空'); return; }
+
+            try {
+                showLoading(isDraft ? '正在保存草稿...' : '正在保存文件...');
+                const res = await fetch('/api/saveArticle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        slug, title, content: mdInput.value, isDraft, isEdit: initialIsEdit
+                    })
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+
+                if (isDraft) {
+                    hideLoading();
+                    alert('✅ 草稿已成功保存！');
+                    window.location.href = '/';
+                }
+                return data;
+            } catch (e: any) {
+                hideLoading();
+                alert('保存失败: ' + e.message);
+                throw e;
+            }
+        }
+
+        // --- Button Events ---
+        document.getElementById('btn-save')?.addEventListener('click', () => saveArticle(true));
+
+        document.getElementById('btn-publish')?.addEventListener('click', async () => {
+            try {
+                await saveArticle(false);
+                showLoading('正在同步至 GitHub... 这个过程可能需要一段时间');
+                // Wait for Astro content watcher to settle before running git
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                const pRes = await fetch('/api/publish', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: titleInput.value, originalSlug: initialIsEdit ? originalSlug : null })
+                });
+                const pData = await pRes.json();
+                hideLoading();
+                if (pData.success) {
+                    const successOverlay = document.getElementById('success-overlay');
+                    const successBox = successOverlay?.querySelector('.success-box') as HTMLElement;
+                    if (successOverlay) successOverlay.style.display = 'flex';
+                    if (successBox) successBox.style.display = 'block';
+                } else {
+                    alert('同步至 GitHub 失败: ' + pData.error);
+                }
+            } catch (e) { /* handled in saveArticle */ }
+        });
+
+        document.getElementById('btn-go-home')?.addEventListener('click', () => {
+            window.location.href = '/';
+        });
+        document.getElementById('btn-view-article')?.addEventListener('click', () => {
+            window.location.href = `/blog/${slugInput.value}`;
+        });
+
+        // --- Back Button ---
+        document.getElementById('back-btn')?.addEventListener('click', () => {
+            if (mdInput.value.trim() && !confirm('确定要离开吗？未保存的内容会丢失。')) return;
+            window.location.href = '/';
+        });
+
+        // --- Initial Preview ---
+        updatePreview();
+    </script>
+</body>
+</html>

@@ -1,10 +1,12 @@
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
+import node from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://okayjh.github.io', // 替换为真实的部署地址
+  site: 'https://okayjh.github.io',
+  adapter: node({ mode: 'standalone' }),
   integrations: [mdx()],
   markdown: {
     shikiConfig: {

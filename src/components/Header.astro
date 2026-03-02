@@ -15,7 +15,14 @@
                 <div class="search-results" id="search-results"></div>
             </div>
         </div>
-        <div class="nav-right">
+        <div class="nav-right" style="gap: 12px; align-items: center;">
+            <a href="/editor" class="nav-create-btn" id="nav-create-btn" title="发布新文章" data-astro-reload>
+                <span class="material-icons-round" style="font-size: 15px;">add</span>
+                创作
+            </a>
+            <button class="nav-exit-dev-btn" id="nav-exit-dev-btn" title="退出开发者模式">
+                退出
+            </button>
             <button class="theme-toggle" id="theme-toggle" title="切换主题">
                 <span class="material-icons-round" id="theme-icon">dark_mode</span>
             </button>
@@ -27,10 +34,51 @@
     </div>
 </nav>
 
+<style>
+    .nav-create-btn {
+        display: none; /* hidden by default */
+        align-items: center;
+        gap: 4px;
+        background: var(--accent);
+        color: #fff;
+        padding: 5px 12px;
+        border-radius: 16px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s, transform 0.1s;
+        box-shadow: 0 2px 6px rgba(0, 122, 204, 0.3);
+        white-space: nowrap;
+    }
+    .nav-create-btn:hover {
+        background: #0098ff;
+        transform: translateY(-1px);
+    }
+    .nav-exit-dev-btn {
+        display: none; /* hidden by default */
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        white-space: nowrap;
+    }
+    .nav-exit-dev-btn:hover {
+        background: var(--surface);
+        color: var(--text);
+    }
+</style>
+
 <script>
-    const setupThemeToggle = () => {
+    const setupHeader = () => {
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
+        const createBtn = document.getElementById('nav-create-btn');
+        const exitDevBtn = document.getElementById('nav-exit-dev-btn');
         
         const updateIcon = (theme: string) => {
             if(themeIcon) {
@@ -59,8 +107,32 @@
                 }
             });
         }
+
+        // Dev Mode UI Logic
+        const checkDevMode = () => {
+            const isDev = localStorage.getItem('okay_dev_mode') === 'true';
+            if (isDev) {
+                if(createBtn) createBtn.style.display = 'flex';
+                if(exitDevBtn) exitDevBtn.style.display = 'block';
+            } else {
+                if(createBtn) createBtn.style.display = 'none';
+                if(exitDevBtn) exitDevBtn.style.display = 'none';
+            }
+        };
+
+        checkDevMode();
+        window.addEventListener('dev-mode-changed', checkDevMode);
+
+        if (exitDevBtn) {
+            exitDevBtn.addEventListener('click', () => {
+                localStorage.removeItem('okay_dev_mode');
+                document.body.classList.remove('dev-mode-active');
+                checkDevMode();
+                window.dispatchEvent(new Event('dev-mode-changed')); // Notify others
+            });
+        }
     };
 
-    setupThemeToggle();
-    document.addEventListener('astro:page-load', setupThemeToggle);
+    setupHeader();
+    document.addEventListener('astro:page-load', setupHeader);
 </script>

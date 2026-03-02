@@ -8,14 +8,15 @@ const allPosts = await getCollection('blog', ({ data }) => {
   return import.meta.env.PROD ? data.draft !== true : true;
 });
 
-// 只需要正式文章即可
+// 只需要正式文章即可 (in dev mode, all are passed down)
 const processedPosts = allPosts.map(p => ({
   title: p.data.title,
   date: p.data.date.toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\//g, '-'),
   slug: p.slug,
   desc: p.data.description || "点击阅读详情...",
   tags: p.data.tags || [],
-  cover: p.data.cover
+  cover: p.data.cover,
+  isDraft: p.data.draft === true
 }));
 
 // 按日期降序排列
@@ -34,28 +35,43 @@ const displayPosts = processedPosts.sort((a, b) => new Date(b.date).getTime() - 
             <h2 class="section-heading">最新文章</h2>
             <div class="articles-grid">
                 {displayPosts.map((post, index) => (
-                    <a href={`/blog/${post.slug}`} class="article-card" data-tags={post.tags.join(',')}>
-                        {post.cover ? (
-                            <img src={post.cover} alt={post.title} class="article-card-cover" />
-                        ) : (
-                            <div class={`article-card-cover gradient-${(index % 5) + 1}`}>
-                                <div style="font-size: 1.25rem; font-weight: 700; width: 100%; text-align: center; padding: 0 20px; text-shadow: 0 1px 3px rgba(0,0,0,0.2);">
-                                    {post.title}
+                    <div class={`article-card-wrapper ${post.isDraft ? 'is-draft' : ''}`} style={post.isDraft ? 'display: none;' : ''}>
+                        <a href={`/blog/${post.slug}`} class="article-card" data-tags={post.tags.join(',')} style="position: relative;">
+                            {post.isDraft && (
+                                <div style="position: absolute; top: 10px; left: 10px; background: #ff9800; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; z-index: 10;">
+                                    草稿
+                                </div>
+                            )}
+                            {post.cover ? (
+                                <img src={post.cover} alt={post.title} class="article-card-cover" />
+                            ) : (
+                                <div class={`article-card-cover gradient-${(index % 5) + 1}`}>
+                                    <div style="font-size: 1.25rem; font-weight: 700; width: 100%; text-align: center; padding: 0 20px; text-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                                        {post.title}
+                                    </div>
+                                </div>
+                            )}
+                            <div class="article-card-body">
+                                <span class="article-card-tag">原创</span>
+                                <p>{post.desc}</p>
+                            </div>
+                            <div class="article-card-footer">
+                                <span>{post.date}</span>
+                                <div class="article-card-stats">
+                                    <span><span class="material-icons-round">favorite</span> 0</span>
+                                    <span><span class="material-icons-round">chat_bubble</span> 0</span>
                                 </div>
                             </div>
-                        )}
-                        <div class="article-card-body">
-                            <span class="article-card-tag">原创</span>
-                            <p>{post.desc}</p>
+                        </a>
+                        <div class="dev-actions" style="display: none; gap: 8px; margin-top: 8px;">
+                            <button class="dev-edit-btn" onclick={`window.location.href='/editor?edit=${post.slug}'`} style="flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 8px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s;">
+                                <span class="material-icons-round" style="font-size: 16px; vertical-align: bottom;">edit</span> 编辑
+                            </button>
+                            <button class="dev-delete-btn" data-slug={post.slug} data-title={post.title} style="flex: 1; background: var(--surface); border: 1px solid #e74c3c; color: #e74c3c; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s;">
+                                <span class="material-icons-round" style="font-size: 16px; vertical-align: bottom;">delete</span> 删除
+                            </button>
                         </div>
-                        <div class="article-card-footer">
-                            <span>{post.date}</span>
-                            <div class="article-card-stats">
-                                <span><span class="material-icons-round">favorite</span> 0</span>
-                                <span><span class="material-icons-round">chat_bubble</span> 0</span>
-                            </div>
-                        </div>
-                    </a>
+                    </div>
                 ))}
             </div>
         </section>
@@ -65,7 +81,7 @@ const displayPosts = processedPosts.sort((a, b) => new Date(b.date).getTime() - 
 <script is:inline>
   document.addEventListener('DOMContentLoaded', () => {
     const chips = document.querySelectorAll('.guide-chip');
-    const cards = document.querySelectorAll('.article-card');
+    const cards = document.querySelectorAll('.article-card-wrapper');
 
     chips.forEach(chip => {
       chip.addEventListener('click', (e) => {
@@ -76,19 +92,91 @@ const displayPosts = processedPosts.sort((a, b) => new Date(b.date).getTime() - 
         const category = e.currentTarget.getAttribute('data-category');
 
         cards.forEach(card => {
-          const tags = card.getAttribute('data-tags') || '';
+          const innerA = card.querySelector('.article-card');
+          const tags = innerA ? innerA.getAttribute('data-tags') : '';
+          
+          let shouldShowCategory = false;
           if (category === 'all') {
-            card.style.display = 'flex';
+            shouldShowCategory = true;
+          } else if (tags && tags.includes(category)) {
+            shouldShowCategory = true;
+          }
+
+          // But also respect dev mode if it's a draft
+          const isDraft = card.classList.contains('is-draft');
+          const isDev = localStorage.getItem('okay_dev_mode') === 'true';
+
+          if (shouldShowCategory && (!isDraft || isDev)) {
+             card.style.display = 'block';
           } else {
-            // 支持模糊匹配或者包含关系
-            if (tags.includes(category)) {
-              card.style.display = 'flex';
-            } else {
-              card.style.display = 'none';
-            }
+             card.style.display = 'none';
           }
         });
       });
+    });
+
+    // Dev mode check for Editor/Delete buttons and Drafts
+    const checkDevModeIndex = () => {
+        const isDev = localStorage.getItem('okay_dev_mode') === 'true';
+        const devActions = document.querySelectorAll('.dev-actions');
+        const wrappers = document.querySelectorAll('.article-card-wrapper');
+        
+        devActions.forEach(container => {
+            container.style.display = isDev ? 'flex' : 'none';
+        });
+
+        // Current active category to keep filtering correct
+        const activeChip = document.querySelector('.guide-chip.active');
+        const activeCategory = activeChip ? activeChip.getAttribute('data-category') : 'all';
+
+        wrappers.forEach(card => {
+            const isDraft = card.classList.contains('is-draft');
+            const innerA = card.querySelector('.article-card');
+            const tags = innerA ? innerA.getAttribute('data-tags') : '';
+            
+            let shouldShowCategory = (activeCategory === 'all') || (tags && tags.includes(activeCategory));
+
+            if (isDraft) {
+                if (isDev && shouldShowCategory) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            }
+        });
+    };
+
+    checkDevModeIndex();
+    window.addEventListener('dev-mode-changed', checkDevModeIndex);
+
+    // Delete article handler
+    document.querySelectorAll('.dev-delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const slug = btn.getAttribute('data-slug');
+            const title = btn.getAttribute('data-title');
+            
+            if (!confirm(`确定要删除文章「${title}」吗？此操作不可恢复！`)) return;
+
+            try {
+                const res = await fetch('/api/deleteArticle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('✅ 文章已删除');
+                    // Remove the card from DOM immediately
+                    const wrapper = btn.closest('.article-card-wrapper');
+                    if (wrapper) wrapper.remove();
+                } else {
+                    alert('删除失败: ' + data.error);
+                }
+            } catch(err) {
+                alert('删除失败: ' + err.message);
+            }
+        });
     });
   });
 </script>

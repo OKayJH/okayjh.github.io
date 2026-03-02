@@ -538,6 +538,11 @@ img {
     border-bottom: 2px solid var(--border-light);
 }
 
+.article-card-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
 .articles-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -553,6 +558,10 @@ img {
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
+    flex: 1;
+    /* stretch to fill wrapper height */
+    text-decoration: none;
+    color: inherit;
 }
 
 .article-card:hover {
@@ -601,8 +610,11 @@ img {
     flex: 1;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    min-height: 4em;
+    /* Ensures consistent card height */
 }
 
 .article-card-footer {
