@@ -14,3 +14,5 @@ draft: false
 8
 
 ![Snipaste_2026-02-28_16-16-26.png](/images/uploads/Snipaste_2026-02-28_16-16-26.png)
+
+![image](/images/uploads/paste-1772421104953.png)
