@@ -12,7 +12,7 @@ import Layout from '../layouts/Layout.astro';
                 <span class="material-icons-round">arrow_back</span> 返回主页
             </a>
             <h1 class="works-title">
-                <span class="material-icons-round">view_in_ar</span> 硬件作品展厅
+                <span class="material-icons-round">view_in_ar</span> 作品展厅
             </h1>
             <p class="works-subtitle">拖拽旋转，滚轮缩放，沉浸式探索我的开源硬件与 3D 设计</p>
         </header>
@@ -20,37 +20,44 @@ import Layout from '../layouts/Layout.astro';
         <section class="showroom-container">
             <!-- 左侧模型选择列表 -->
             <div class="model-list">
-                <h3 class="list-heading">精选项目</h3>
-                <button class="model-btn active" data-src="/models/pocket3.glb" data-title="DJI Pocket 3" data-desc="大疆创新 (DJI) 推出的小巧云台相机，拥有 1 英寸 CMOS 和出色的稳定性能。此处展示的是该设备的 3D 模型高精度还原。">
+                <h3 class="list-heading">精选</h3>
+                <button class="model-btn active" data-src="/models/pocket3.glb" data-title="DJI Pocket 3" data-desc="大疆口袋云台相机，1 英寸 CMOS 传感器，4K/120fps 录制，三轴机械增稳，轻巧便携的 Vlog 神器。">
                     <div class="model-icon"><span class="material-icons-round" style="color: #ea4335;">videocam</span></div>
                     <div class="model-info">
-                        <span class="model-name">Pocket 3 云台相机</span>
+                        <span class="model-name">Pocket 3</span>
                         <span class="model-tag highlight" style="background: rgba(234, 67, 53, 0.1); color: #ea4335;">摄影设备</span>
                     </div>
                 </button>
                 
-                <button class="model-btn" data-src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" data-title="RK3588 核心板 (示例)" data-desc="基于 Rockchip RK3588 的高性能核心板，板载 8GB LPDDR4X。支持 8K 视频解码。">
-                    <div class="model-icon"><span class="material-icons-round">memory</span></div>
-                    <div class="model-info">
-                        <span class="model-name">RK3588 核心板</span>
-                        <span class="model-tag highlight">示例模型</span>
-                    </div>
-                </button>
-
-                <button class="model-btn" data-src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" data-title="诱骗 PD 充电器 (示例)" data-desc="基于 CH224Q 芯片，支持最高 20V 诱骗输出，体积小巧的调试神器。">
-                    <div class="model-icon"><span class="material-icons-round">electric_bolt</span></div>
-                    <div class="model-info">
-                        <span class="model-name">PD 诱骗器</span>
-                        <span class="model-tag">示例模型</span>
-                    </div>
-                </button>
-
-                <!-- 新增幼年狸花猫交互模型作为彩蛋宠物 -->
-                <button class="model-btn" data-src="https://modelviewer.dev/shared-assets/models/RobotExpressive.glb" data-title="赛博宠物：小狸花猫 (互动示例)" data-desc="这是一只可爱的赛博狸花猫宝宝示例。在屏幕上拖拽可以和它互动，它还会做各种小动作呢！">
+                <button class="model-btn" data-src="/models/cat.glb" data-title="Pad Pad" data-desc="中国原产家猫品种，虎斑纹理，性格独立机敏，身手矫健，是最受欢迎的本土猫咪之一。">
                     <div class="model-icon"><span class="material-icons-round" style="color: #ff9800;">pets</span></div>
                     <div class="model-info">
-                        <span class="model-name">宠物狸花猫</span>
-                        <span class="model-tag highlight" style="background: rgba(255, 152, 0, 0.1); color: #ff9800;">互动伙伴</span>
+                        <span class="model-name">Pad Pad</span>
+                        <span class="model-tag highlight" style="background: rgba(255, 152, 0, 0.1); color: #ff9800;">萌宠伙伴</span>
+                    </div>
+                </button>
+
+                <button class="model-btn" data-src="/models/xiaomisu7.glb" data-title="Xiaomi Su7" data-desc="小米首款纯电轿车，零百加速 2.78 秒，流线型车身设计，搭载澎湃智能座舱与高阶智驾系统。">
+                    <div class="model-icon"><span class="material-icons-round" style="color: #ff6d00;">directions_car</span></div>
+                    <div class="model-info">
+                        <span class="model-name">Xiaomi Su7</span>
+                        <span class="model-tag highlight" style="background: rgba(255, 109, 0, 0.1); color: #ff6d00;">智能汽车</span>
+                    </div>
+                </button>
+
+                <button class="model-btn" data-src="/models/lexusLFA.glb" data-title="Lexus LFA" data-desc="雷克萨斯传奇超跑，4.8L V10 自然吸气引擎，560 匹马力，全球限量 500 台，日系性能巅峰之作。">
+                    <div class="model-icon"><span class="material-icons-round" style="color: #1a237e;">sports_score</span></div>
+                    <div class="model-info">
+                        <span class="model-name">Lexus LFA</span>
+                        <span class="model-tag highlight" style="background: rgba(26, 35, 126, 0.1); color: #1a237e;">经典超跑</span>
+                    </div>
+                </button>
+
+                <button class="model-btn" data-src="/models/Gundam.glb" data-title="Gundam" data-desc="经典日系机甲，精密机械结构与装甲设计的完美融合，承载着一代人的热血与梦想。">
+                    <div class="model-icon"><span class="material-icons-round" style="color: #7c4dff;">smart_toy</span></div>
+                    <div class="model-info">
+                        <span class="model-name">Gundam</span>
+                        <span class="model-tag highlight" style="background: rgba(124, 77, 255, 0.1); color: #7c4dff;">机甲模型</span>
                     </div>
                 </button>
             </div>
@@ -85,7 +92,7 @@ import Layout from '../layouts/Layout.astro';
                 <!-- 模型信息卡片浮层 -->
                 <div class="model-details-card glass-panel">
                     <h2 id="overlay-title">DJI Pocket 3</h2>
-                    <p id="overlay-desc">大疆创新 (DJI) 推出的小巧云台相机，拥有 1 英寸 CMOS 和出色的稳定性能。此处展示的是该设备的 3D 模型高精度还原。</p>
+                    <p id="overlay-desc">大疆口袋云台相机，1 英寸 CMOS 传感器，4K/120fps 录制，三轴机械增稳，轻巧便携的 Vlog 神器。</p>
                 </div>
             </div>
         </section>
