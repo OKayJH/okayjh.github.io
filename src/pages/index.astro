@@ -158,17 +158,22 @@ const displayPosts = processedPosts.sort((a, b) => new Date(b.date).getTime() - 
             const title = btn.getAttribute('data-title');
             
             if (!confirm(`确定要删除文章「${title}」吗？此操作不可恢复！`)) return;
+            
+            const syncToGithub = confirm('是否同步删除到 GitHub？\n\n点击「确定」= 删除本地 + 同步GitHub\n点击「取消」= 仅删除本地');
 
             try {
                 const res = await fetch('/api/deleteArticle', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ slug })
+                    body: JSON.stringify({ slug, syncToGithub })
                 });
                 const data = await res.json();
                 if (data.success) {
-                    alert('✅ 文章已删除');
-                    // Remove the card from DOM immediately
+                    if (data.gitError) {
+                        alert('⚠️ 文章已删除，但GitHub同步失败: ' + data.message);
+                    } else {
+                        alert(syncToGithub ? '✅ 文章已删除并同步到GitHub' : '✅ 文章已在本地删除');
+                    }
                     const wrapper = btn.closest('.article-card-wrapper');
                     if (wrapper) wrapper.remove();
                 } else {
