@@ -222,6 +222,7 @@ const { Content } = await post.render();
   :global(.markdown-body pre code .line) {
     display: block; /* makes each line fill the container */
     padding-right: 1.25rem; /* right padding restored */
+    transition: background-color 0.3s ease;
   }
 
   :global(.markdown-body pre code .line::before) {
@@ -245,13 +246,15 @@ const { Content } = await post.render();
     background: rgba(255,255,255,0.9);
     border: 1px solid #d0d7de;
     border-radius: 6px;
-    padding: 4px 12px;
-    font-size: 0.75rem;
+    padding: 6px;
     color: #555;
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.2s, background 0.2s;
     z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   :global(.markdown-body pre:hover .code-copy-btn) {
     opacity: 1;
@@ -337,22 +340,50 @@ const { Content } = await post.render();
       // Add copy button
       var copyBtn = document.createElement('button');
       copyBtn.className = 'code-copy-btn';
-      copyBtn.textContent = '复制';
+      copyBtn.innerHTML = '<span class="material-icons-round" style="font-size: 1.2rem;">content_copy</span>';
+      copyBtn.title = '复制代码';
       pre.style.position = 'relative';
       pre.appendChild(copyBtn);
 
       (function(btn, p) {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
           var code = p.querySelector('code');
           var text = code ? code.textContent : p.textContent;
           navigator.clipboard.writeText(text).then(function() {
-            btn.textContent = '已复制 ✓';
+            btn.innerHTML = '<span class="material-icons-round" style="font-size: 1.2rem;">check</span>';
             btn.classList.add('copied');
             setTimeout(function() {
-              btn.textContent = '复制';
+              btn.innerHTML = '<span class="material-icons-round" style="font-size: 1.2rem;">content_copy</span>';
               btn.classList.remove('copied');
             }, 2000);
           });
+        });
+
+        // Double click line number to copy line
+        p.addEventListener('dblclick', function(e) {
+           var line = e.target.closest && e.target.closest('.line');
+           if (!line) return;
+           var lineRect = line.getBoundingClientRect();
+           // If double clicked within 55px of the left edge (where line number is)
+           if (e.clientX - lineRect.left <= 55) {
+               // Get only text content of this line, omit newline if needed
+               var text = line.textContent;
+               if (!text.endsWith('\n')) text += '\n'; // Keep formatting
+               navigator.clipboard.writeText(text).then(function() {
+                   // Highlight line
+                   var originalBg = line.style.backgroundColor;
+                   line.style.backgroundColor = '#dafbe1';
+                   // Flash copy icon
+                   btn.innerHTML = '<span class="material-icons-round" style="font-size: 1.2rem;">check</span>';
+                   btn.classList.add('copied');
+                   setTimeout(function() {
+                     btn.innerHTML = '<span class="material-icons-round" style="font-size: 1.2rem;">content_copy</span>';
+                     btn.classList.remove('copied');
+                   }, 2000);
+                   setTimeout(function() { line.style.backgroundColor = originalBg; }, 600);
+               });
+           }
         });
       })(copyBtn, pre);
 
