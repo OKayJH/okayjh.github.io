@@ -1,0 +1,1219 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="串口调试助手 | OKay's Blog">
+    <!-- xterm.js (local) -->
+    <link rel="stylesheet" href="/libs/xterm/xterm.min.css" />
+    <script is:inline src="/libs/xterm/xterm.min.js"></script>
+    <script is:inline src="/libs/xterm/addon-fit.min.js"></script>
+    <script is:inline src="/libs/xterm/addon-web-links.min.js"></script>
+    <!-- Chart.js CDN -->
+    <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    <main class="serial-main">
+        <header class="serial-header">
+            <div class="header-left">
+                <a href="/" class="back-link">
+                    <span class="material-icons-round">arrow_back</span> 返回主页
+                </a>
+            </div>
+            <div class="header-center">
+                <h1 class="serial-title">
+                    <span class="material-icons-round">terminal</span> OKay Terminal
+                </h1>
+                <p class="serial-subtitle">专业的浏览器端串口调试工具 · 支持交互命令与波形分析</p>
+            </div>
+            <div class="header-right"></div>
+        </header>
+
+        <!-- Toast for error messages -->
+        <div class="toast-container" id="toast-container"></div>
+
+        <section class="toolbar-card" id="toolbar">
+            <div class="toolbar-row">
+                <div class="toolbar-group">
+                    <label>端口</label>
+                    <div class="port-row">
+                        <button class="btn btn-primary" id="btn-connect">
+                            <span class="material-icons-round" id="connect-icon">usb</span>
+                            <span id="connect-text">选择端口</span>
+                        </button>
+                        <span class="port-info" id="port-info">未选择</span>
+                    </div>
+                </div>
+                <div class="toolbar-group">
+                    <label>波特率</label>
+                    <select id="baud-rate" class="baud-select">
+                        <option value="1200">1200</option>
+                        <option value="2400">2400</option>
+                        <option value="4800">4800</option>
+                        <option value="9600">9600</option>
+                        <option value="19200">19200</option>
+                        <option value="38400">38400</option>
+                        <option value="57600">57600</option>
+                        <option value="74800">74800</option>
+                        <option value="115200">115200</option>
+                        <option value="230400">230400</option>
+                        <option value="460800">460800</option>
+                        <option value="500000">500000</option>
+                        <option value="576000">576000</option>
+                        <option value="921600">921600</option>
+                        <option value="1000000">1000000</option>
+                        <option value="1152000">1152000</option>
+                        <option value="1500000" selected>1500000</option>
+                        <option value="2000000">2000000</option>
+                        <option value="2500000">2500000</option>
+                        <option value="3000000">3000000</option>
+                        <option value="3500000">3500000</option>
+                        <option value="4000000">4000000</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <label>数据位</label>
+                    <select id="data-bits">
+                        <option value="7">7</option>
+                        <option value="8" selected>8</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <label>停止位</label>
+                    <select id="stop-bits">
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <label>校验位</label>
+                    <select id="parity">
+                        <option value="none" selected>None</option>
+                        <option value="even">Even</option>
+                        <option value="odd">Odd</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <label>流控</label>
+                    <select id="flow-control">
+                        <option value="none" selected>None</option>
+                        <option value="hardware">Hardware</option>
+                    </select>
+                </div>
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <label>模式</label>
+                    <div class="mode-switch">
+                        <button class="mode-btn active" id="mode-interactive" title="交互模式：标准终端数据交互流通信">
+                            <span class="material-icons-round">keyboard</span> 交互
+                        </button>
+                        <button class="mode-btn" id="mode-monitor" title="监控模式：独立接收视图与快捷指令分发">
+                            <span class="material-icons-round">monitor_heart</span> 监控
+                        </button>
+                    </div>
+                </div>
+                <div class="toolbar-group">
+                    <label>回显</label>
+                    <label class="echo-toggle" title="本地回显：开启后在终端显示你发送的字符">
+                        <input type="checkbox" id="chk-echo">
+                        <span class="echo-slider"></span>
+                    </label>
+                </div>
+                <div class="toolbar-status">
+                    <div class="status-indicator" id="status-led"></div>
+                    <span id="status-text">未连接</span>
+                </div>
+                <div class="toolbar-counters">
+                    <span class="counter rx-counter">RX: <b id="rx-count">0</b></span>
+                    <span class="counter tx-counter">TX: <b id="tx-count">0</b></span>
+                    <button class="btn btn-icon" id="btn-reset-count" title="重置计数">
+                        <span class="material-icons-round">restart_alt</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="serial-body">
+            <div class="view-tabs">
+                <button class="view-tab active" data-view="terminal" id="tab-terminal">
+                    <span class="material-icons-round">terminal</span> 终端
+                </button>
+                <button class="view-tab" data-view="chart" id="tab-chart">
+                    <span class="material-icons-round">show_chart</span> 波形图
+                </button>
+                <button class="view-tab" data-view="split" id="tab-split">
+                    <span class="material-icons-round">vertical_split</span> 分屏
+                </button>
+                <div class="view-tab-actions">
+                    <label class="toggle-label" title="显示时间戳">
+                        <input type="checkbox" id="chk-timestamp">
+                        <span class="material-icons-round">schedule</span>
+                    </label>
+                    <label class="toggle-label" title="HEX 显示">
+                        <input type="checkbox" id="chk-hex-display">
+                        <span class="material-icons-round">data_object</span>
+                    </label>
+                    <label class="toggle-label" title="自动滚动">
+                        <input type="checkbox" id="chk-autoscroll" checked>
+                        <span class="material-icons-round">vertical_align_bottom</span>
+                    </label>
+                    <button class="btn btn-icon" id="btn-clear" title="清屏">
+                        <span class="material-icons-round">delete_sweep</span>
+                    </button>
+                </div>
+            </div>
+            <div class="main-workspace">
+                <!-- Activity Bar (Far Left) -->
+                <div class="activity-bar">
+                    <button class="activity-icon active" data-panel="panel-cmd" title="常用命令库">
+                        <span class="material-icons-round">bookmark</span>
+                    </button>
+                </div>
+
+                <!-- Primary Sidebar -->
+                <div class="primary-sidebar" id="primary-sidebar">
+                    <!-- Command Library Panel -->
+                    <div class="sidebar-panel active" id="panel-cmd">
+                        <div class="shell-sidebar-header">
+                            <span class="shell-sidebar-title" style="margin-left:4px; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.5px;">常用命令库</span>
+                            <span class="shell-cmds-count" id="shell-cmds-count">0</span>
+                            <button class="btn-icon-mini" id="btn-edit-cmds" title="编辑命令">
+                                <span class="material-icons-round">edit</span>
+                            </button>
+                        </div>
+                        <div class="shell-sidebar-body" id="shell-cmds-body">
+                            <div class="shell-add-row" id="shell-add-row">
+                                <select id="shell-cmd-category" class="shell-cat-select" title="分类">
+                                    <option value="系统信息">系统</option>
+                                    <option value="文件操作">文件</option>
+                                    <option value="网络">网络</option>
+                                    <option value="进程管理">进程</option>
+                                    <option value="自定义">自定义</option>
+                                </select>
+                                <input type="text" class="shell-cmd-input" id="shell-cmd-input" placeholder="命令">
+                                <input type="text" class="shell-cmd-desc-input" id="shell-cmd-desc" placeholder="描述">
+                                <button class="btn btn-sm btn-accent" id="btn-add-shell-cmd" title="添加命令">
+                                    <span class="material-icons-round">add</span>
+                                </button>
+                            </div>
+                            <div class="shell-cmds-list" id="shell-cmds-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal resize divider -->
+                <div class="sidebar-resize-handle" id="sidebar-resize-handle" title="拖拽调整宽度"></div>
+
+                <!-- Main Editor Area -->
+                <div class="views-container">
+                    <div class="terminal-panel" id="terminal-panel">
+                        <div id="terminal-container"></div>
+                        <div class="terminal-resize-handle" id="terminal-resize-handle" title="拖拽调整终端高度"></div>
+                    </div>
+                    <div class="chart-panel" id="chart-panel" style="display: none;">
+                        <div class="chart-toolbar">
+                            <div class="chart-info">
+                                <span class="material-icons-round">info</span>
+                                VOFA+ FireWater 协议：逗号分隔浮点数，以 <code>\n</code> 结尾
+                            </div>
+                            <div class="chart-controls">
+                                <label>数据点数:
+                                    <select id="chart-points">
+                                        <option value="100">100</option>
+                                        <option value="200" selected>200</option>
+                                        <option value="500">500</option>
+                                        <option value="1000">1000</option>
+                                    </select>
+                                </label>
+                                <button class="btn btn-sm" id="btn-chart-clear">
+                                    <span class="material-icons-round">playlist_remove</span> 清除
+                                </button>
+                                <button class="btn btn-sm" id="btn-chart-pause">
+                                    <span class="material-icons-round" id="chart-pause-icon">pause</span>
+                                    <span id="chart-pause-text">暂停</span>
+                                </button>
+                            </div>
+                        </div>
+                        <canvas id="waveform-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="send-bar" id="send-bar">
+            <div class="send-row">
+                <div class="send-mode-toggle">
+                    <button class="send-mode active" data-mode="text" id="smode-text">TEXT</button>
+                    <button class="send-mode" data-mode="hex" id="smode-hex">HEX</button>
+                </div>
+                <input type="text" class="send-input" id="send-input" placeholder="输入要发送的数据..." autocomplete="off">
+                <select class="newline-select" id="newline-select" title="换行符">
+                    <option value="\r\n">\\r\\n</option>
+                    <option value="\n">\\n</option>
+                    <option value="\r">\\r</option>
+                    <option value="">无</option>
+                </select>
+                <button class="btn btn-accent" id="btn-send" disabled>
+                    <span class="material-icons-round">send</span> 发送
+                </button>
+            </div>
+            <div class="quick-send" id="quick-send">
+                <span class="quick-label">快捷:</span>
+                <button class="quick-btn" data-cmd="AT\r\n">AT</button>
+                <button class="quick-btn" data-cmd="AT+GMR\r\n">AT+GMR</button>
+                <button class="quick-btn" data-cmd="help\r\n">help</button>
+                <button class="quick-btn" data-cmd="reboot\r\n">reboot</button>
+                <button class="quick-btn" data-cmd="\x03">Ctrl+C</button>
+                <button class="btn btn-icon btn-add-quick" id="btn-add-quick" title="添加快捷指令">
+                    <span class="material-icons-round">add</span>
+                </button>
+            </div>
+        </section>
+
+        <div class="unsupported-banner" id="unsupported-banner" style="display: none;">
+            <span class="material-icons-round">warning</span>
+            <div>
+                <strong>你的浏览器不支持 Web Serial API</strong>
+                <p>请使用 Chrome 89+、Edge 89+ 或 Opera 76+ 浏览器</p>
+            </div>
+        </div>
+    </main>
+
+    <style is:global>
+        .serial-main { max-width: 1400px; margin: 80px auto 0; padding: 20px 24px 100px; min-height: 100vh; }
+        .serial-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; position: relative; }
+        .header-left, .header-right { width: 120px; flex-shrink: 0; }
+        .header-center { flex: 1; text-align: center; }
+        .back-link { display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); text-decoration: none; font-size: 0.95rem; font-weight: 500; padding: 8px 12px; border-radius: 10px; transition: all 0.2s; background: var(--surface); border: 1px solid var(--border); margin-top: 4px; }
+        .back-link:hover { color: var(--text); background: var(--hover-bg); border-color: var(--text-secondary); }
+        .serial-title { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-flex; align-items: center; gap: 10px; margin: 0; }
+        .serial-title .material-icons-round { -webkit-text-fill-color: var(--accent); font-size: 2.2rem; }
+        .serial-subtitle { color: var(--text-secondary); margin-top: 8px; font-size: 1rem; font-weight: 500; }
+
+        /* Toast */
+        .toast-container { position: fixed; top: 80px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+        .toast { padding: 12px 20px; border-radius: 12px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.15); animation: toast-in 0.3s ease; display: flex; align-items: center; gap: 8px; max-width: 420px; }
+        .toast-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        .toast-warn { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+        .toast-ok { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .toast .material-icons-round { font-size: 20px; }
+        @keyframes toast-in { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+
+        /* Toolbar */
+        .toolbar-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px 20px; margin-bottom: 16px; backdrop-filter: blur(12px); }
+        .toolbar-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .toolbar-group { display: flex; flex-direction: column; gap: 4px; }
+        .toolbar-group label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; }
+        .toolbar-group select { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; color: var(--text); font-size: 0.85rem; font-weight: 500; cursor: pointer; outline: none; transition: border-color 0.2s; min-width: 70px; }
+        .toolbar-group select:focus { border-color: var(--accent); }
+        .toolbar-divider { width: 1px; height: 40px; background: var(--border); margin: 0 4px; }
+        .port-row { display: flex; align-items: center; gap: 8px; }
+        .port-info { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); padding: 4px 8px; background: var(--bg); border-radius: 6px; border: 1px solid var(--border); min-width: 60px; text-align: center; }
+        .port-info.connected { color: #22c55e; border-color: #22c55e33; background: #22c55e0d; }
+        .baud-input { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; color: var(--text); font-size: 0.85rem; font-weight: 500; outline: none; transition: border-color 0.2s; width: 100px; -moz-appearance: textfield; }
+        .baud-input::-webkit-inner-spin-button, .baud-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .baud-input:focus { border-color: var(--accent); }
+
+        /* Mode Switch */
+        .mode-switch { display: flex; background: var(--bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+        .mode-btn { display: inline-flex; align-items: center; gap: 3px; padding: 5px 10px; border: none; background: none; color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .mode-btn .material-icons-round { font-size: 15px; }
+        .mode-btn.active { background: var(--accent); color: #fff; }
+
+        /* Echo Toggle */
+        .echo-toggle { position: relative; display: inline-block; width: 36px; height: 20px; cursor: pointer; }
+        .echo-toggle input { opacity: 0; width: 0; height: 0; }
+        .echo-slider { position: absolute; inset: 0; background: var(--border); border-radius: 20px; transition: 0.3s; }
+        .echo-slider::before { content: ''; position: absolute; height: 14px; width: 14px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.3s; }
+        .echo-toggle input:checked + .echo-slider { background: var(--accent); }
+        .echo-toggle input:checked + .echo-slider::before { transform: translateX(16px); }
+
+        /* Status */
+        .toolbar-status { display: flex; align-items: center; gap: 8px; margin-left: auto; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
+        .status-indicator { width: 10px; height: 10px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.4); transition: all 0.3s; }
+        .status-indicator.connected { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.5); animation: pulse-green 2s infinite; }
+        @keyframes pulse-green { 0%,100% { box-shadow: 0 0 6px rgba(34,197,94,0.4); } 50% { box-shadow: 0 0 14px rgba(34,197,94,0.7); } }
+        .toolbar-counters { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
+        .counter { padding: 4px 10px; border-radius: 8px; background: var(--bg); font-weight: 600; }
+        .rx-counter b { color: #22c55e; }
+        .tx-counter b { color: #3b82f6; }
+
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; gap: 4px; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn:hover { background: var(--bg); border-color: var(--accent); }
+        .btn-primary { background: var(--accent); color: #fff; border: none; box-shadow: 0 2px 8px rgba(0,122,204,0.3); }
+        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-primary.connected-btn { background: #ef4444; box-shadow: 0 2px 8px rgba(239,68,68,0.3); }
+        .btn-accent { background: var(--accent); color: #fff; border: none; }
+        .btn-accent:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-icon { padding: 6px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; display: inline-flex; }
+        .btn-icon:hover { background: var(--surface); color: var(--text); }
+        .btn-sm { padding: 4px 10px; font-size: 0.8rem; border-radius: 8px; }
+
+        /* Tabs */
+        .view-tabs { display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--border); }
+        .view-tab { display: inline-flex; align-items: center; gap: 4px; padding: 10px 18px; border: none; background: none; color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .view-tab:hover { color: var(--text); }
+        .view-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .view-tab .material-icons-round { font-size: 18px; }
+        .view-tab-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; padding: 4px 0; }
+        .toggle-label { display: inline-flex; align-items: center; gap: 2px; cursor: pointer; padding: 4px 6px; border-radius: 8px; color: var(--text-secondary); transition: all 0.2s; font-size: 0.8rem; }
+        .toggle-label:hover { color: var(--text); background: var(--surface); }
+        .toggle-label input { display: none; }
+        .toggle-label:has(input:checked) { color: var(--accent); background: rgba(0,122,204,0.1); }
+        .toggle-label .material-icons-round { font-size: 18px; }
+
+        /* Main workspace: terminal + sidebar side by side */
+        .main-workspace { display: flex; border: 1px solid var(--border); border-top: none; border-radius: 0 0 16px 16px; overflow: hidden; background: var(--surface); height: 660px; min-height: 660px; }
+
+        /* Views */
+        .views-container { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+        .terminal-panel { position: relative; display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+        #terminal-container { width: 100%; height: 100%; padding: 8px; box-sizing: border-box; overflow: hidden; }
+        .views-container.split-view .terminal-panel { flex: 1; min-width: 0; }
+        .terminal-resize-handle { height: 6px; background: var(--border); cursor: ns-resize; flex-shrink: 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
+        .terminal-resize-handle::after { content: ''; width: 40px; height: 2px; background: var(--text-secondary); border-radius: 2px; opacity: 0.4; }
+        .terminal-resize-handle:hover, .terminal-resize-handle.dragging { background: var(--accent); }
+        .terminal-resize-handle:hover::after, .terminal-resize-handle.dragging::after { background: #fff; opacity: 0.8; }
+        .chart-panel { flex: 1; min-height: 420px; display: flex; flex-direction: column; padding: 10px; background: var(--bg); }
+
+        /* Sidebar resize handle (vertical divider) */
+        .sidebar-resize-handle { width: 6px; cursor: ew-resize; background: var(--border); flex-shrink: 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
+        .sidebar-resize-handle::after { content: ''; width: 2px; height: 40px; background: var(--text-secondary); border-radius: 2px; opacity: 0.4; }
+        .sidebar-resize-handle:hover, .sidebar-resize-handle.dragging { background: var(--accent); }
+        .sidebar-resize-handle:hover::after, .sidebar-resize-handle.dragging::after { background: #fff; opacity: 0.8; }
+
+        /* Activity Bar */
+        .activity-bar { width: 48px; background: var(--surface); display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--border); padding-top: 10px; gap: 8px; flex-shrink: 0; z-index: 10; }
+        .activity-icon { width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-secondary); border: none; background: transparent; transition: 0.2s; position: relative; border-radius: 8px; margin: 0 2px; }
+        .activity-icon:hover { color: var(--text); }
+        .activity-icon.active { color: var(--accent); }
+        .activity-icon.active::before { content: ''; position: absolute; left: -2px; top: 8px; bottom: 8px; width: 3px; background: var(--accent); border-radius: 0 3px 3px 0; }
+        .activity-icon .material-icons-round { font-size: 24px; }
+
+        /* Primary Sidebar */
+        .primary-sidebar { width: 280px; min-width: 150px; max-width: 500px; display: flex; flex-direction: column; background: var(--surface); flex-shrink: 0; transition: width 0.2s ease, min-width 0.2s ease, padding 0.2s ease, margin 0.2s ease; overflow: hidden; border-right: 1px solid var(--border); }
+        .primary-sidebar.collapsed { width: 0 !important; min-width: 0 !important; border-right: none; }
+        .sidebar-panel { display: none; flex-direction: column; height: 100%; }
+        .sidebar-panel.active { display: flex; }
+
+        /* Sidebar content styles */
+        .shell-sidebar-header { display: flex; align-items: center; gap: 6px; padding: 10px 12px; font-weight: 700; font-size: 0.82rem; color: var(--text); user-select: none; border-bottom: 1px solid var(--border); }
+        .shell-sidebar-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .shell-cmds-count { font-size: 0.65rem; background: var(--accent); color: #fff; border-radius: 10px; padding: 1px 6px; font-weight: 700; flex-shrink: 0; }
+        .btn-icon-mini { padding: 4px; border: none; background: none; color: var(--text-secondary); cursor: pointer; border-radius: 6px; display: flex; transition: all 0.15s; flex-shrink: 0; }
+        .btn-icon-mini:hover { color: var(--accent); background: rgba(0,122,204,0.1); }
+        .btn-icon-mini .material-icons-round { font-size: 16px; }
+        .btn-icon-mini.active { color: var(--accent); background: rgba(0,122,204,0.15); }
+        .shell-sidebar-body { flex: 1; overflow-y: auto; padding: 10px 8px; }
+        .shell-add-row { display: none; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+        .sidebar-panel.editing .shell-add-row { display: flex; }
+        .shell-cat-select { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 4px 6px; color: var(--text); font-size: 0.72rem; flex-shrink: 0; }
+        .shell-cmd-input { flex: 1; min-width: 80px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-family: 'JetBrains Mono',monospace; font-size: 0.78rem; outline: none; transition: border-color 0.2s; }
+        .shell-cmd-input:focus { border-color: var(--accent); }
+        .shell-cmd-desc-input { width: 70px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-size: 0.72rem; outline: none; transition: border-color 0.2s; }
+        .shell-cmd-desc-input:focus { border-color: var(--accent); }
+        .shell-cmds-list { display: flex; flex-direction: column; gap: 6px; }
+        .shell-cat-group { margin-bottom: 8px; }
+        .shell-cat-title { font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; padding-left: 4px; letter-spacing: 0.5px; opacity: 0.8; }
+        .shell-cmd-table { display: flex; flex-direction: column; gap: 2px; }
+        .shell-cmd-item { display: flex; flex-direction: row; align-items: center; padding: 6px 10px; gap: 8px; border-radius: 8px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; background: transparent; position: relative; }
+        .shell-cmd-item:hover { background: var(--hover-bg, var(--bg)); border-color: var(--border); transform: translateX(2px); }
+        .shell-cmd-item::before { content: '右键复制'; position: absolute; left: 50%; top: -16px; transform: translateX(-50%); font-size: 0.65rem; color: #fff; background: rgba(0,0,0,0.7); padding: 2px 6px; border-radius: 4px; opacity: 0; transition: all 0.2s; pointer-events: none; z-index: 10; white-space: nowrap; }
+        .shell-cmd-item:hover::before { opacity: 1; top: -20px; }
+        .shell-cmd-text { flex: 1; min-width: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.4; }
+        .shell-cmd-desc { width: 80px; flex-shrink: 0; font-size: 0.72rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; text-align: left; }
+        .shell-cmd-del-cell { width: 24px; flex-shrink: 0; display: none; justify-content: flex-end; align-items: center; margin-left: auto; }
+        .sidebar-panel.editing .shell-cmd-del-cell { display: flex; }
+        .shell-cmd-del { padding: 4px; border: none; background: none; color: var(--text-secondary); cursor: pointer; border-radius: 6px; transition: all 0.15s; display: flex; }
+        .shell-cmd-del:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
+        .chart-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+        .chart-info { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-secondary); background: var(--surface); padding: 6px 12px; border-radius: 8px; }
+        .chart-info code { background: var(--bg); padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+        .chart-controls { display: flex; align-items: center; gap: 8px; }
+        .chart-controls label { font-size: 0.8rem; color: var(--text-secondary); }
+        .chart-controls select { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 3px 6px; color: var(--text); font-size: 0.8rem; }
+        #waveform-chart { flex: 1; max-height: 360px; }
+        .views-container.split-view .terminal-panel, .views-container.split-view .chart-panel { display: flex !important; flex-direction: column; }
+        .views-container.split-view { display: flex; }
+
+        /* Send bar */
+        .send-bar { margin-top: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px 18px; }
+        .send-bar.interactive-hidden { opacity: 0.5; pointer-events: none; }
+        .send-row { display: flex; align-items: center; gap: 10px; }
+        .send-mode-toggle { display: flex; background: var(--bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+        .send-mode { padding: 6px 14px; border: none; background: none; color: var(--text-secondary); font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .send-mode.active { background: var(--accent); color: #fff; }
+        .send-input { flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); font-size: 0.9rem; font-family: 'JetBrains Mono','Fira Code',monospace; outline: none; transition: border-color 0.2s; }
+        .send-input:focus { border-color: var(--accent); }
+        .newline-select { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; color: var(--text); font-size: 0.8rem; font-weight: 600; font-family: monospace; cursor: pointer; outline: none; }
+        .quick-send { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .quick-label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); }
+        .quick-btn { padding: 4px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: 0.8rem; font-weight: 600; font-family: 'JetBrains Mono','Fira Code',monospace; cursor: pointer; transition: all 0.2s; }
+        .quick-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+        .btn-add-quick { padding: 3px; }
+
+        /* Unsupported */
+        .unsupported-banner { background: linear-gradient(135deg,#fef3c7,#fde68a); color: #92400e; padding: 16px 24px; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-top: 20px; font-weight: 500; }
+        .unsupported-banner .material-icons-round { font-size: 32px; color: #f59e0b; }
+        .unsupported-banner p { margin: 4px 0 0; font-size: 0.85rem; opacity: 0.8; }
+
+        @media (max-width: 768px) {
+            .serial-main { padding: 20px 12px 120px; }
+            .toolbar-row { gap: 10px; }
+            .toolbar-status { margin-left: 0; }
+            .toolbar-divider { display: none; }
+            .main-workspace { flex-direction: column; }
+            .activity-bar { width: 100%; flex-direction: row; border-right: none; border-bottom: 1px solid var(--border); padding-top: 0; justify-content: center; z-index: 10; padding: 4px 0; }
+            .primary-sidebar { width: 100% !important; max-width: none; border-right: none; max-height: 300px; }
+            .sidebar-resize-handle { display: none; }
+            .views-container { flex-direction: column; }
+            .views-container.split-view { flex-direction: column; }
+            .views-container.split-view .terminal-panel { border-right: none; border-bottom: 1px solid var(--border); }
+            #terminal-container { min-height: 300px; }
+            .send-row { flex-wrap: wrap; }
+            .send-input { min-width: 100%; }
+        }
+    </style>
+
+    <script is:inline>
+        function initSerialDebug() {
+            if (!document.getElementById('terminal-container')) return;
+            if (window.__serialDebugInit) return;
+            window.__serialDebugInit = true;
+
+            // === State ===
+            var port = null, reader = null, writer = null, isConnected = false, isDisconnecting = false;
+            var rxCount = 0, txCount = 0, sendMode = 'text', lineBuffer = '', chartPaused = false;
+            var term = null, fitAddon = null, chart = null;
+            var chartDatasets = [], chartLabels = [], chartPointIndex = 0;
+            var interactiveMode = true; // true = MobaXterm style, false = VOFA+ style
+            var localEcho = false;
+            var COLORS = ['#3b82f6','#ef4444','#22c55e','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#14b8a6','#6366f1'];
+
+            // === DOM Elements ===
+            var connectBtn = document.getElementById('btn-connect');
+            var connectIcon = document.getElementById('connect-icon');
+            var connectTextEl = document.getElementById('connect-text');
+            var portInfoEl = document.getElementById('port-info');
+            var statusLed = document.getElementById('status-led');
+            var statusTextEl = document.getElementById('status-text');
+            var rxCountEl = document.getElementById('rx-count');
+            var txCountEl = document.getElementById('tx-count');
+            var sendInput = document.getElementById('send-input');
+            var sendBtn = document.getElementById('btn-send');
+            var baudSelect = document.getElementById('baud-rate');
+            var dataBitsSelect = document.getElementById('data-bits');
+            var stopBitsSelect = document.getElementById('stop-bits');
+            var paritySelect = document.getElementById('parity');
+            var flowControlSelect = document.getElementById('flow-control');
+            var sendBar = document.getElementById('send-bar');
+            var echoChk = document.getElementById('chk-echo');
+
+            // === Toast notification ===
+            function showToast(msg, type) {
+                var tc = document.getElementById('toast-container');
+                var icons = { error: 'error', warn: 'warning', ok: 'check_circle' };
+                var t = document.createElement('div');
+                t.className = 'toast toast-' + (type || 'ok');
+                t.innerHTML = '<span class="material-icons-round">' + (icons[type] || 'info') + '</span><span>' + msg + '</span>';
+                tc.appendChild(t);
+                setTimeout(function() { t.style.opacity = '0'; t.style.transform = 'translateX(40px)'; t.style.transition = '0.3s'; setTimeout(function() { t.remove(); }, 300); }, 4000);
+            }
+
+            // === Helper: log to terminal or console ===
+            function log(msg, color) {
+                if (term) {
+                    if (color) term.writeln('\x1b[' + color + 'm' + msg + '\x1b[0m');
+                    else term.writeln(msg);
+                } else console.log('[Serial]', msg);
+            }
+
+            // === Check browser support ===
+            if (!('serial' in navigator)) {
+                var banner = document.getElementById('unsupported-banner');
+                if (banner) banner.style.display = 'flex';
+            }
+
+            // ==========================================================
+            //  SERIAL CONNECTION (no CDN dependency)
+            // ==========================================================
+            async function connectSerial() {
+                if (!('serial' in navigator)) {
+                    showToast('\u6d4f\u89c8\u5668\u4e0d\u652f\u6301 Web Serial API\uff0c\u8bf7\u7528 Chrome 89+', 'error');
+                    return;
+                }
+
+                // Clean up any existing connection first
+                if (isConnected || port) {
+                    log('\u26a0 \u6e05\u7406\u4e0a\u4e00\u6b21\u8fde\u63a5...', '0;33');
+                    await cleanupConnection();
+                }
+
+                try {
+                    port = await navigator.serial.requestPort();
+                    var info = port.getInfo();
+                    var portName = info.usbVendorId
+                        ? 'USB(' + info.usbVendorId.toString(16).toUpperCase() + ':' + (info.usbProductId || 0).toString(16).toUpperCase() + ')'
+                        : 'Serial';
+                    portInfoEl.textContent = portName;
+                    portInfoEl.classList.add('connected');
+
+                    var baud = parseInt(baudSelect.value) || 115200;
+
+                    // Try to open with retry (handles port lingering from previous session)
+                    var opened = false;
+                    for (var attempt = 0; attempt < 2 && !opened; attempt++) {
+                        try {
+                            await port.open({
+                                baudRate: baud,
+                                dataBits: parseInt(dataBitsSelect.value),
+                                stopBits: parseInt(stopBitsSelect.value),
+                                parity: paritySelect.value,
+                                flowControl: flowControlSelect.value
+                            });
+                            opened = true;
+                        } catch (openErr) {
+                            if (attempt === 0 && openErr.name === 'InvalidStateError') {
+                                // Port might still be open from previous session, try close + reopen
+                                log('\u26a0 \u7aef\u53e3\u6b8b\u7559\u72b6\u6001\uff0c\u5c1d\u8bd5\u91cd\u7f6e...', '0;33');
+                                try { await port.close(); } catch(e) {}
+                                await new Promise(function(r) { setTimeout(r, 300); });
+                                continue;
+                            }
+                            // Real error on 2nd attempt or other error types
+                            portInfoEl.textContent = '\u672a\u9009\u62e9';
+                            portInfoEl.classList.remove('connected');
+                            var errMsg = openErr.message || '';
+                            if (openErr.name === 'NetworkError') {
+                                showToast('\u2717 \u4e32\u53e3\u88ab\u5176\u4ed6\u7a0b\u5e8f\u5360\u7528\uff01\u8bf7\u5148\u5173\u95ed VOFA+/SSCOM \u7b49\u8f6f\u4ef6', 'error');
+                                log('\u2717 \u4e32\u53e3 ' + portName + ' \u88ab\u5176\u4ed6\u7a0b\u5e8f\u5360\u7528', '1;31');
+                                log('  \u8bf7\u5148\u5173\u95ed\u5360\u7528\u8be5\u4e32\u53e3\u7684\u8f6f\u4ef6\uff0c\u7136\u540e\u91cd\u8bd5', '0;33');
+                            } else if (openErr.name === 'InvalidStateError') {
+                                showToast('\u2717 \u7aef\u53e3\u88ab\u9501\u5b9a\uff01\u8bf7\u5173\u95ed\u5176\u4ed6\u6253\u5f00\u4e86\u6b64\u9875\u9762\u7684\u6d4f\u89c8\u5668\u6807\u7b7e\u9875', 'error');
+                                log('\u2717 \u4e32\u53e3 ' + portName + ' \u88ab\u5176\u4ed6\u6d4f\u89c8\u5668\u6807\u7b7e\u9875\u9501\u5b9a', '1;31');
+                                log('  \u8bf7\u5173\u95ed\u5176\u4ed6\u6253\u5f00\u4e86\u6b64\u9875\u9762\u7684\u6807\u7b7e\u9875\uff0c\u7136\u540e\u91cd\u8bd5', '0;33');
+                            } else {
+                                showToast('\u2717 \u6253\u5f00\u4e32\u53e3\u5931\u8d25: ' + errMsg, 'error');
+                                log('\u2717 \u6253\u5f00\u4e32\u53e3\u5931\u8d25: ' + errMsg, '1;31');
+                            }
+                            port = null;
+                            return;
+                        }
+                    }
+
+                    isConnected = true;
+                    isDisconnecting = false;
+                    updateConnectionUI(true);
+                    writer = port.writable.getWriter();
+                    log('\u2713 \u4e32\u53e3\u8fde\u63a5\u6210\u529f (' + portName + ' @ ' + baud + ')', '1;32');
+                    if (interactiveMode) {
+                        log('▶ 交互模式：标准终端数据交互流通信', '0;36');
+                        log('  按 Enter 发送命令，Ctrl+C 发送中断', '0;90');
+                    } else {
+                        log('▶ 监控模式：独立接收视图与快捷指令分发', '0;36');
+                    }
+                    showToast('\u2713 \u4e32\u53e3\u8fde\u63a5\u6210\u529f (' + portName + ')', 'ok');
+                    if (term) term.focus();
+                    readLoop(port);
+                } catch (err) {
+                    if (err.name === 'NotFoundError') return; // user cancelled dialog
+                    showToast('\u2717 \u8fde\u63a5\u5931\u8d25: ' + err.message, 'error');
+                    log('\u2717 \u8fde\u63a5\u5931\u8d25: ' + err.message, '1;31');
+                }
+            }
+
+            async function cleanupConnection() {
+                isConnected = false;
+                try {
+                    if (reader) {
+                        try { await Promise.race([reader.cancel(), new Promise(function(r) { setTimeout(r, 1000); })]); } catch(e) {}
+                        try { reader.releaseLock(); } catch(e) {}
+                        reader = null;
+                    }
+                    if (writer) {
+                        try { writer.releaseLock(); } catch(e) {}
+                        writer = null;
+                    }
+                    if (port) {
+                        try { await Promise.race([port.close(), new Promise(function(r) { setTimeout(r, 1000); })]); } catch(e) {}
+                        port = null;
+                    }
+                } catch(e) { console.error('Cleanup error:', e); }
+                // Small delay to let the OS release the port
+                await new Promise(function(r) { setTimeout(r, 200); });
+            }
+
+            async function disconnectSerial() {
+                if (isDisconnecting) return;
+                isDisconnecting = true;
+                await cleanupConnection();
+                updateConnectionUI(false);
+                portInfoEl.textContent = '\u672a\u9009\u62e9';
+                portInfoEl.classList.remove('connected');
+                log('\u26a1 \u4e32\u53e3\u5df2\u65ad\u5f00', '1;33');
+                showToast('\u4e32\u53e3\u5df2\u65ad\u5f00', 'warn');
+                isDisconnecting = false;
+            }
+
+            async function readLoop(p) {
+                while (p.readable && isConnected) {
+                    try {
+                        reader = p.readable.getReader();
+                    } catch(e) { break; }
+                    try {
+                        while (isConnected) {
+                            var r = await reader.read();
+                            if (r.done) break;
+                            if (r.value && isConnected) {
+                                rxCount += r.value.length;
+                                rxCountEl.textContent = rxCount.toString();
+                                var text = new TextDecoder().decode(r.value);
+
+                                // Parse VOFA+ FireWater for chart
+                                for (var ci = 0; ci < text.length; ci++) {
+                                    if (text[ci] === '\n') {
+                                        var trimmed = lineBuffer.trim();
+                                        if (trimmed) {
+                                            var parts = trimmed.split(',').map(function(s) { return parseFloat(s.trim()); });
+                                            if (parts.length > 0 && parts.every(function(v) { return !isNaN(v); })) addChartData(parts);
+                                        }
+                                        lineBuffer = '';
+                                    } else lineBuffer += text[ci];
+                                }
+
+                                // Display in terminal
+                                if (term) {
+                                    var display;
+                                    var chkHex = document.getElementById('chk-hex-display');
+                                    if (chkHex && chkHex.checked) {
+                                        display = Array.from(r.value).map(function(b) { return b.toString(16).toUpperCase().padStart(2,'0'); }).join(' ');
+                                    } else display = text;
+                                    var chkTs = document.getElementById('chk-timestamp');
+                                    if (chkTs && chkTs.checked) {
+                                        var now = new Date();
+                                        display = '\x1b[90m[' + now.toLocaleTimeString('en-US',{hour12:false}) + '.' + now.getMilliseconds().toString().padStart(3,'0') + ']\x1b[0m ' + display;
+                                    }
+                                    term.write(display);
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        if (isConnected && err.name !== 'NetworkError') {
+                            log('\u8bfb\u53d6\u9519\u8bef: ' + err.message, '1;31');
+                        }
+                    } finally {
+                        try { reader.releaseLock(); } catch(e) {}
+                        reader = null;
+                    }
+                    if (!isConnected) break;
+                }
+                // Auto-disconnect if readLoop exits unexpectedly while still "connected"
+                if (isConnected) {
+                    isConnected = false;
+                    updateConnectionUI(false);
+                    portInfoEl.textContent = '\u672a\u9009\u62e9';
+                    portInfoEl.classList.remove('connected');
+                    log('\u26a0 \u4e32\u53e3\u8fde\u63a5\u5df2\u65ad\u5f00\uff08\u8bbe\u5907\u53ef\u80fd\u5df2\u62d4\u51fa\uff09', '1;33');
+                    showToast('\u4e32\u53e3\u8fde\u63a5\u5df2\u65ad\u5f00\uff08\u8bbe\u5907\u53ef\u80fd\u5df2\u62d4\u51fa\uff09', 'warn');
+                }
+            }
+
+            function updateConnectionUI(connected) {
+                connectIcon.textContent = connected ? 'usb_off' : 'usb';
+                connectTextEl.textContent = connected ? '\u65ad\u5f00\u8fde\u63a5' : '\u9009\u62e9\u7aef\u53e3';
+                connectBtn.classList.toggle('connected-btn', connected);
+                statusLed.classList.toggle('connected', connected);
+                statusTextEl.textContent = connected ? '\u5df2\u8fde\u63a5' : '\u672a\u8fde\u63a5';
+                sendBtn.disabled = !connected;
+                [baudSelect,dataBitsSelect,stopBitsSelect,paritySelect,flowControlSelect].forEach(function(s) { s.disabled = connected; });
+            }
+
+            async function sendData(data) {
+                if (!isConnected || !writer) return;
+                var bytes;
+                if (sendMode === 'hex') {
+                    var h = data.replace(/\s+/g,'');
+                    if (h.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(h)) { showToast('HEX \u683c\u5f0f\u9519\u8bef\uff0c\u8bf7\u8f93\u5165\u6709\u6548\u7684\u5341\u516d\u8fdb\u5236', 'error'); return; }
+                    bytes = new Uint8Array(h.match(/.{2}/g).map(function(b) { return parseInt(b,16); }));
+                } else {
+                    var toSend = data;
+                    var nl = document.getElementById('newline-select').value;
+                    if (nl) toSend += nl;
+                    bytes = new TextEncoder().encode(toSend);
+                }
+                try {
+                    await writer.write(bytes);
+                    txCount += bytes.length;
+                    txCountEl.textContent = txCount.toString();
+                    if (localEcho && term && sendMode !== 'hex') term.write('\x1b[90m' + data + '\x1b[0m');
+                } catch (err) {
+                    showToast('\u53d1\u9001\u5931\u8d25: ' + err.message, 'error');
+                    log('\u53d1\u9001\u5931\u8d25: ' + err.message, '1;31');
+                }
+            }
+
+            async function sendRaw(rawBytes) {
+                if (!isConnected || !writer) return;
+                try {
+                    var b = typeof rawBytes === 'string' ? new TextEncoder().encode(rawBytes) : rawBytes;
+                    await writer.write(b);
+                    txCount += b.length;
+                    txCountEl.textContent = txCount.toString();
+                } catch(e) {}
+            }
+
+            function addChartData(values) {
+                if (chartPaused || !chart) return;
+                while (chartDatasets.length < values.length) {
+                    var idx = chartDatasets.length;
+                    var c = COLORS[idx % COLORS.length];
+                    chartDatasets.push({ label: 'CH' + (idx+1), data: [], borderColor: c, backgroundColor: c + '22', borderWidth: 1.5, pointRadius: 0 });
+                    chart.data.datasets = chartDatasets;
+                }
+                chartPointIndex++;
+                chartLabels.push(chartPointIndex);
+                for (var i = 0; i < chartDatasets.length; i++) chartDatasets[i].data.push(i < values.length ? values[i] : NaN);
+                var maxPts = parseInt(document.getElementById('chart-points').value) || 200;
+                while (chartLabels.length > maxPts) { chartLabels.shift(); chartDatasets.forEach(function(ds) { ds.data.shift(); }); }
+                chart.update('none');
+            }
+
+            // ==========================================================
+            //  BIND ALL EVENTS IMMEDIATELY (no CDN dependency)
+            // ==========================================================
+            connectBtn.addEventListener('click', function() { isConnected ? disconnectSerial() : connectSerial(); });
+            sendBtn.addEventListener('click', function() { var v = sendInput.value.trim(); if (v) { sendData(v); sendInput.value = ''; sendInput.focus(); } });
+            sendInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && sendInput.value.trim()) { sendData(sendInput.value.trim()); sendInput.value = ''; } });
+            document.getElementById('smode-text').addEventListener('click', function() { sendMode = 'text'; this.classList.add('active'); document.getElementById('smode-hex').classList.remove('active'); });
+            document.getElementById('smode-hex').addEventListener('click', function() { sendMode = 'hex'; this.classList.add('active'); document.getElementById('smode-text').classList.remove('active'); });
+
+            document.querySelectorAll('.quick-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() { sendRaw(btn.dataset.cmd || ''); });
+            });
+            document.getElementById('btn-add-quick').addEventListener('click', function() {
+                var cmd = prompt('\u8f93\u5165\u5feb\u6377\u6307\u4ee4 (\u4f8b\u5982: AT+RST)');
+                if (cmd) {
+                    var qs = document.getElementById('quick-send');
+                    var ab = document.getElementById('btn-add-quick');
+                    var nb = document.createElement('button');
+                    nb.className = 'quick-btn';
+                    nb.dataset.cmd = cmd + '\r\n';
+                    nb.textContent = cmd;
+                    nb.addEventListener('click', function() { sendRaw(nb.dataset.cmd); });
+                    qs.insertBefore(nb, ab);
+                }
+            });
+            document.getElementById('btn-clear').addEventListener('click', function() { if (term) term.clear(); });
+            document.getElementById('btn-reset-count').addEventListener('click', function() { rxCount=0; txCount=0; rxCountEl.textContent='0'; txCountEl.textContent='0'; });
+
+            // Mode switch
+            document.getElementById('mode-interactive').addEventListener('click', function() {
+                interactiveMode = true;
+                this.classList.add('active');
+                document.getElementById('mode-monitor').classList.remove('active');
+                sendBar.classList.remove('interactive-hidden');
+                log('▶ 已切换到交互模式（标准终端数据交互流通信）', '0;36');
+                if (term) term.focus();
+            });
+            document.getElementById('mode-monitor').addEventListener('click', function() {
+                interactiveMode = false;
+                this.classList.add('active');
+                document.getElementById('mode-interactive').classList.remove('active');
+                sendBar.classList.remove('interactive-hidden');
+                log('▶ 已切换到监控模式（独立接收视图与快捷指令分发）', '0;36');
+            });
+
+            // Echo toggle
+            echoChk.addEventListener('change', function() {
+                localEcho = this.checked;
+                log(localEcho ? '\u2713 \u672c\u5730\u56de\u663e\u5df2\u5f00\u542f' : '\u2717 \u672c\u5730\u56de\u663e\u5df2\u5173\u95ed', '0;90');
+            });
+
+            // View tabs
+            var tabTerminal = document.getElementById('tab-terminal');
+            var tabChart = document.getElementById('tab-chart');
+            var tabSplit = document.getElementById('tab-split');
+            var terminalPanel = document.getElementById('terminal-panel');
+            var chartPanel = document.getElementById('chart-panel');
+            var viewsContainer = document.querySelector('.views-container');
+
+            function switchView(view) {
+                [tabTerminal,tabChart,tabSplit].forEach(function(t) { t.classList.remove('active'); });
+                viewsContainer.classList.remove('split-view');
+                if (view === 'terminal') { tabTerminal.classList.add('active'); terminalPanel.style.display='flex'; chartPanel.style.display='none'; }
+                else if (view === 'chart') { tabChart.classList.add('active'); terminalPanel.style.display='none'; chartPanel.style.display='flex'; }
+                else { tabSplit.classList.add('active'); viewsContainer.classList.add('split-view'); terminalPanel.style.display='flex'; chartPanel.style.display='flex'; }
+                setTimeout(function() { try { if (fitAddon) fitAddon.fit(); } catch(e) {} if (chart) chart.resize(); }, 100);
+            }
+            tabTerminal.addEventListener('click', function() { switchView('terminal'); });
+            tabChart.addEventListener('click', function() { switchView('chart'); });
+            tabSplit.addEventListener('click', function() { switchView('split'); });
+
+            document.getElementById('btn-chart-clear').addEventListener('click', function() { if (chart) { chartLabels.length=0; chartDatasets.forEach(function(ds){ds.data.length=0;}); chartPointIndex=0; chart.update('none'); } });
+            document.getElementById('btn-chart-pause').addEventListener('click', function() {
+                chartPaused = !chartPaused;
+                document.getElementById('chart-pause-icon').textContent = chartPaused ? 'play_arrow' : 'pause';
+                document.getElementById('chart-pause-text').textContent = chartPaused ? '\u7ee7\u7eed' : '\u6682\u505c';
+            });
+
+            // ==========================================================
+            //  LAZY INIT: Terminal (depends on CDN xterm.js)
+            // ==========================================================
+            function initTerminal() {
+                if (term) return;
+                if (typeof Terminal === 'undefined' || typeof FitAddon === 'undefined') { setTimeout(initTerminal, 200); return; }
+                try {
+                    function getTermTheme() {
+                        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                        return isDark
+                            ? { background: '#1a1b2e', foreground: '#e2e8f0', cursor: '#7c3aed', selectionBackground: '#334155' }
+                            : { background: '#1e1e2e', foreground: '#cdd6f4', cursor: '#007acc', selectionBackground: '#45475a' };
+                    }
+                    term = new Terminal({ cursorBlink: true, fontSize: 14, fontFamily: "'JetBrains Mono','Fira Code','Cascadia Code',monospace", theme: getTermTheme(), scrollback: 10000, convertEol: true });
+                    fitAddon = new FitAddon.FitAddon();
+                    term.loadAddon(fitAddon);
+                    if (typeof WebLinksAddon !== 'undefined') term.loadAddon(new WebLinksAddon.WebLinksAddon());
+                    var tc = document.getElementById('terminal-container');
+                    term.open(tc);
+                    setTimeout(function() { fitAddon.fit(); }, 50);
+                    new ResizeObserver(function() { try { fitAddon.fit(); } catch(e) {} }).observe(tc);
+
+                    // Welcome
+                    term.writeln('\x1b[1;36m\u2554' + '\u2550'.repeat(48) + '\u2557\x1b[0m');
+                    term.writeln('\x1b[1;36m\u2551\x1b[0m   \x1b[1;33mOKay Terminal\x1b[0m                               \x1b[1;36m\u2551\x1b[0m');
+                    term.writeln('\x1b[1;36m\u2551\x1b[0m                                                \x1b[1;36m\u2551\x1b[0m');
+                    term.writeln('\x1b[1;36m\u2551\x1b[0m   \x1b[0;36m交互模式\x1b[0m \u2500 标准终端数据交互流通信              \x1b[1;36m\u2551\x1b[0m');
+                    term.writeln('\x1b[1;36m\u2551\x1b[0m   \x1b[0;35m监控模式\x1b[0m \u2500 独立接收视图与快捷指令分发          \x1b[1;36m\u2551\x1b[0m');
+                    term.writeln('\x1b[1;36m\u2551\x1b[0m                                                \x1b[1;36m\u2551\x1b[0m');
+                    term.writeln('\x1b[1;36m\u2551\x1b[0m   \u70b9\u51fb \x1b[1;32m\u9009\u62e9\u7aef\u53e3\x1b[0m \u5f00\u59cb\u4f7f\u7528                    \x1b[1;36m\u2551\x1b[0m');
+                    term.writeln('\x1b[1;36m\u255a' + '\u2550'.repeat(48) + '\u255d\x1b[0m');
+                    term.writeln('');
+
+                    // Interactive terminal input handler
+                    term.onData(function(data) {
+                        if (!isConnected || !writer) return;
+                        if (!interactiveMode) return; // In monitor mode, ignore terminal keyboard input
+                        // In interactive mode, send keystrokes directly to serial
+                        var bytes = new TextEncoder().encode(data);
+                        writer.write(bytes);
+                        txCount += bytes.length;
+                        txCountEl.textContent = txCount.toString();
+                        if (localEcho) term.write(data); // local echo
+                    });
+
+                    // Right-click to paste
+                    tc.addEventListener('contextmenu', function(e) {
+                        e.preventDefault();
+                        if (!isConnected || !writer || !interactiveMode) return;
+                        navigator.clipboard.readText().then(function(text) {
+                            if (text) {
+                                var bytes = new TextEncoder().encode(text);
+                                writer.write(bytes);
+                                txCount += bytes.length;
+                                txCountEl.textContent = txCount.toString();
+                                if (localEcho) term.write(text.replace(/\r\n|\n/g, '\r\n')); // Write pasted text with echo
+                                showToast('\u5df2\u7c98\u8d34并发送', 'ok');
+                            }
+                        }).catch(function(err) {
+                            console.error('Paste failed', err);
+                        });
+                    });
+
+                    // Theme observer
+                    new MutationObserver(function() {
+                        if (term) term.options.theme = getTermTheme();
+                        if (chart) {
+                            var tc2 = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#666';
+                            var sc = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#999';
+                            chart.options.plugins.legend.labels.color = tc2;
+                            chart.options.scales.x.ticks.color = sc;
+                            chart.options.scales.y.ticks.color = sc;
+                            chart.update('none');
+                        }
+                    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+                } catch(e) { console.error('Terminal init failed:', e); }
+            }
+
+            // ==========================================================
+            //  LAZY INIT: Chart (depends on CDN chart.js)
+            // ==========================================================
+            function initChartJS() {
+                if (chart) return;
+                if (typeof Chart === 'undefined') { setTimeout(initChartJS, 200); return; }
+                try {
+                    chart = new Chart(document.getElementById('waveform-chart'), {
+                        type: 'line',
+                        data: { labels: chartLabels, datasets: chartDatasets },
+                        options: {
+                            responsive: true, maintainAspectRatio: false, animation: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: { legend: { position: 'top', labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#666', font: { size: 11 } } } },
+                            scales: {
+                                x: { display: true, ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#999', maxTicksLimit: 10 }, grid: { color: 'rgba(128,128,128,0.15)' } },
+                                y: { display: true, ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#999' }, grid: { color: 'rgba(128,128,128,0.15)' } }
+                            }
+                        }
+                    });
+                } catch(e) { console.error('Chart init failed:', e); }
+            }
+
+            // ==========================================================
+            //  PAGE UNLOAD AND BACK BUTTON GUARD
+            // ==========================================================
+            window.addEventListener('beforeunload', function(e) {
+                if (isConnected) {
+                    var msg = '\u4e32\u53e3仍处于连接状态，确定要离开吗？连接将会断开。';
+                    e.returnValue = msg;
+                    return msg;
+                }
+            });
+
+            document.querySelector('.back-link').addEventListener('click', function(e) {
+                // If we are connected, prevent default and ask for confirmation first
+                if (isConnected) {
+                    e.preventDefault();
+                    if (confirm('\u4e32\u53e3当前处于连接状态。\n\n点击【确定】将断开连接并返回主页。\n点击【取消】保留在当前页面。')) {
+                        disconnectSerial().then(function() {
+                            window.location.href = '/';
+                        });
+                    }
+                }
+            });
+
+            // ==========================================================
+            //  TERMINAL RESIZE HANDLE
+            // ==========================================================
+            (function() {
+                var handle = document.getElementById('terminal-resize-handle');
+                var tc = document.getElementById('terminal-container');
+                var workspace = document.querySelector('.main-workspace');
+                if (!handle || !tc || !workspace) return;
+                var startY = 0, startH = 0, dragging = false;
+                function onDown(e) {
+                    e.preventDefault();
+                    dragging = true;
+                    startY = e.touches ? e.touches[0].clientY : e.clientY;
+                    startH = workspace.offsetHeight;
+                    handle.classList.add('dragging');
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onUp);
+                    document.addEventListener('touchmove', onMove);
+                    document.addEventListener('touchend', onUp);
+                }
+                function onMove(e) {
+                    if (!dragging) return;
+                    var y = e.touches ? e.touches[0].clientY : e.clientY;
+                    var newH = Math.max(660, startH + (y - startY));
+                    workspace.style.height = newH + 'px';
+                    if (fitAddon) try { fitAddon.fit(); } catch(ex) {}
+                }
+                function onUp() {
+                    dragging = false;
+                    handle.classList.remove('dragging');
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onUp);
+                    if (fitAddon) try { fitAddon.fit(); } catch(ex) {}
+                }
+                handle.addEventListener('mousedown', onDown);
+                handle.addEventListener('touchstart', onDown);
+            })();
+
+            // ==========================================================
+            //  SIDEBAR HORIZONTAL RESIZE HANDLE
+            // ==========================================================
+            (function() {
+                var handle = document.getElementById('sidebar-resize-handle');
+                var sidebar = document.getElementById('primary-sidebar');
+                if (!handle || !sidebar) return;
+                var startX = 0, startW = 0, dragging = false;
+                function onDown(e) {
+                    if (sidebar.classList.contains('collapsed')) return;
+                    e.preventDefault();
+                    dragging = true;
+                    startX = e.touches ? e.touches[0].clientX : e.clientX;
+                    startW = sidebar.offsetWidth;
+                    handle.classList.add('dragging');
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onUp);
+                    document.addEventListener('touchmove', onMove, {passive: false});
+                    document.addEventListener('touchend', onUp);
+                }
+                function onMove(e) {
+                    if (!dragging) return;
+                    var x = e.touches ? e.touches[0].clientX : e.clientX;
+                    var newW = Math.max(150, Math.min(500, startW + (x - startX)));
+                    sidebar.style.width = newW + 'px';
+                    if (fitAddon) try { fitAddon.fit(); } catch(ex) {}
+                }
+                function onUp() {
+                    dragging = false;
+                    handle.classList.remove('dragging');
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onUp);
+                    if (fitAddon) try { fitAddon.fit(); } catch(ex) {}
+                }
+                handle.addEventListener('mousedown', onDown);
+                handle.addEventListener('touchstart', onDown);
+            })();
+
+            // ==========================================================
+            //  SHELL COMMANDS LIBRARY (localStorage persistence)
+            // ==========================================================
+            (function() {
+                var STORAGE_KEY = 'serialDebug_shellCmds';
+                var defaultCmds = [
+                    { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'uname -a', desc: '\u5185\u6838\u7248\u672c' },
+                    { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'cat /proc/cpuinfo', desc: 'CPU \u4fe1\u606f' },
+                    { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'free -h', desc: '\u5185\u5b58\u4f7f\u7528' },
+                    { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'df -h', desc: '\u78c1\u76d8\u4f7f\u7528' },
+                    { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'uptime', desc: '\u8fd0\u884c\u65f6\u95f4' },
+                    { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'ls -la', desc: '\u5217\u51fa\u6587\u4ef6' },
+                    { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'pwd', desc: '\u5f53\u524d\u76ee\u5f55' },
+                    { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'cat /etc/os-release', desc: '\u7cfb\u7edf\u7248\u672c' },
+                    { cat: '\u7f51\u7edc', cmd: 'ifconfig', desc: '\u7f51\u5361\u4fe1\u606f' },
+                    { cat: '\u7f51\u7edc', cmd: 'ping -c 3 8.8.8.8', desc: '\u7f51\u7edc\u6d4b\u8bd5' },
+                    { cat: '\u7f51\u7edc', cmd: 'ip addr', desc: 'IP \u5730\u5740' },
+                    { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'ps aux', desc: '\u8fdb\u7a0b\u5217\u8868' },
+                    { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'top -bn1 | head -20', desc: 'CPU \u5360\u7528' },
+                    { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'dmesg | tail -30', desc: '\u5185\u6838\u65e5\u5fd7' }
+                ];
+
+                function loadCmds() {
+                    try {
+                        var d = localStorage.getItem(STORAGE_KEY);
+                        return d ? JSON.parse(d) : null;
+                    } catch(e) { return null; }
+                }
+                function saveCmds(cmds) {
+                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cmds)); } catch(e) {}
+                }
+                var cmds = loadCmds();
+                if (!cmds) { cmds = defaultCmds.slice(); saveCmds(cmds); }
+
+                var countEl = document.getElementById('shell-cmds-count');
+                var listEl = document.getElementById('shell-cmds-list');
+                var addBtn = document.getElementById('btn-add-shell-cmd');
+                var cmdInput = document.getElementById('shell-cmd-input');
+                var descInput = document.getElementById('shell-cmd-desc');
+                var catSelect = document.getElementById('shell-cmd-category');
+
+                function renderCmds() {
+                    countEl.textContent = cmds.length;
+                    listEl.innerHTML = '';
+                    var groups = {};
+                    cmds.forEach(function(c, i) {
+                        if (!groups[c.cat]) groups[c.cat] = [];
+                        groups[c.cat].push({ idx: i, cmd: c.cmd, desc: c.desc });
+                    });
+                    var catOrder = ['\u7cfb\u7edf\u4fe1\u606f', '\u6587\u4ef6\u64cd\u4f5c', '\u7f51\u7edc', '\u8fdb\u7a0b\u7ba1\u7406', '\u81ea\u5b9a\u4e49'];
+                    Object.keys(groups).sort(function(a,b) {
+                        var ai = catOrder.indexOf(a), bi = catOrder.indexOf(b);
+                        return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+                    }).forEach(function(cat) {
+                        var g = document.createElement('div');
+                        g.className = 'shell-cat-group';
+                        var titleHtml = '<div class="shell-cat-title">' + cat + '</div>';
+                        var tableObj = document.createElement('div');
+                        tableObj.className = 'shell-cmd-table';
+                        
+                        groups[cat].forEach(function(item) {
+                            var row = document.createElement('div');
+                            row.className = 'shell-cmd-item';
+                            row.innerHTML = 
+                                '<div class="shell-cmd-text" title="' + escHtml(item.cmd) + '">' + escHtml(item.cmd) + '</div>' +
+                                '<div class="shell-cmd-desc" title="' + escHtml(item.desc || '') + '">' + escHtml(item.desc || '') + '</div>' +
+                                '<div class="shell-cmd-del-cell"><button class="shell-cmd-del" data-idx="' + item.idx + '" title="\u5220\u9664"><span class="material-icons-round" style="font-size:16px">close</span></button></div>';
+                            row.addEventListener('click', function(e) {
+                                if (e.target.closest('.shell-cmd-del')) return;
+                                if (isConnected && writer) {
+                                    sendData(item.cmd);
+                                    if (term) term.focus();
+                                } else {
+                                    sendInput.value = item.cmd;
+                                    sendInput.focus();
+                                }
+                            });
+                            row.addEventListener('contextmenu', function(e) {
+                                e.preventDefault();
+                                if (e.target.closest('.shell-cmd-del')) return;
+                                navigator.clipboard.writeText(item.cmd).then(function() {
+                                    showToast('\u5df2\u590d\u5236\u547d\u4ee4\u5230\u526a\u8d34\u677f', 'ok');
+                                }).catch(function() {
+                                    showToast('\u590d\u5236\u5931\u8d25\uff0c\u8bf7\u624b\u52a8\u590d\u5236', 'error');
+                                });
+                            });
+                            tableObj.appendChild(row);
+                        });
+                        g.innerHTML = titleHtml;
+                        g.appendChild(tableObj);
+                        listEl.appendChild(g);
+                    });
+                    // Bind delete buttons
+                    listEl.querySelectorAll('.shell-cmd-del').forEach(function(btn) {
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            var cmdPanel = document.getElementById('panel-cmd');
+                            if (!cmdPanel || !cmdPanel.classList.contains('editing')) return;
+                            var idx = parseInt(btn.getAttribute('data-idx'));
+                            cmds.splice(idx, 1);
+                            saveCmds(cmds);
+                            renderCmds();
+                        });
+                    });
+                }
+                function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+                addBtn.addEventListener('click', function() {
+                    var cmd = cmdInput.value.trim();
+                    if (!cmd) { cmdInput.focus(); return; }
+                    cmds.push({ cat: catSelect.value, cmd: cmd, desc: descInput.value.trim() });
+                    saveCmds(cmds);
+                    renderCmds();
+                    cmdInput.value = '';
+                    descInput.value = '';
+                });
+                cmdInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') addBtn.click();
+                });
+
+                renderCmds();
+
+                // VSCode style Sidebar Collapse/Expand
+                var primarySidebar = document.getElementById('primary-sidebar');
+                var resizeHandle = document.getElementById('sidebar-resize-handle');
+                var activityIcon = document.querySelector('.activity-icon');
+                
+                if (activityIcon) {
+                    activityIcon.addEventListener('click', function() {
+                        var isCollapsed = primarySidebar.classList.toggle('collapsed');
+                        resizeHandle.style.display = isCollapsed ? 'none' : 'flex';
+                        this.classList.toggle('active', !isCollapsed); 
+                        
+                        setTimeout(function() {
+                            if (fitAddon) try { fitAddon.fit(); } catch(ex) {}
+                        }, 250);
+                    });
+                }
+
+                // Edit mode toggle
+                var editBtn = document.getElementById('btn-edit-cmds');
+                var cmdPanel = document.getElementById('panel-cmd');
+                editBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    cmdPanel.classList.toggle('editing');
+                    editBtn.classList.toggle('active');
+                    // Re-render to ensure grid columns adjust correctly
+                    renderCmds();
+                });
+            })();
+
+            initTerminal();
+            initChartJS();
+        }
+
+        document.addEventListener('astro:page-load', function() { window.__serialDebugInit = false; initSerialDebug(); });
+    </script>
+</Layout>
