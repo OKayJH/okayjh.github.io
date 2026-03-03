@@ -4,6 +4,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MusicPlayer from '../components/MusicPlayer.astro';
+import { ViewTransitions } from 'astro:transitions';
 
 interface Props {
 	title: string;
@@ -22,6 +23,7 @@ const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.p
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<ViewTransitions />
 
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -77,42 +79,24 @@ const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.p
 		</div>
 
 		<script is:inline>
-			// Execute immediately during HTML parsing (before load) to prevent flashes
-			const isHome = window.location.pathname === '/';
-			
-			// 判断是否应该播放动画
-			// 播放条件：在首页 AND (硬刷新 OR 从外部/新标签页进入)
-			// 不播放条件：从本站内部页面（文章）导航过来
-			let shouldPlayAnimation = false;
-
-			if (isHome) {
-				const navEntries = performance.getEntriesByType('navigation');
-				const navType = navEntries.length > 0 ? navEntries[0].type : 'navigate';
+			(() => {
+				const hasPlayed = sessionStorage.getItem('hasPlayedWelcome');
+				const isRoot = window.location.pathname === '/' || window.location.pathname === '/index.html';
 				
-				if (navType === 'reload') {
-					// 浏览器刷新按钮 / F5 → 播放
-					shouldPlayAnimation = true;
-				} else if (navType === 'navigate') {
-					// 检查 referrer：如果来自同源站点内部页面则不播放
-					const referrer = document.referrer;
-					if (!referrer || !referrer.startsWith(window.location.origin)) {
-						// 新标签页打开 或 从外部网站跳入 → 播放
-						shouldPlayAnimation = true;
-					}
-					// 否则是从文章页点返回 → 不播放
-				}
-				// navType === 'back_forward' 浏览器前进后退 → 不播放
-			}
+				// Play if they haven't seen it this session and are hitting the root page
+				const shouldPlayAnimation = !hasPlayed && isRoot;
 
-			if (!shouldPlayAnimation) {
-				document.write('<style>#welcome-screen { display: none !important; } #app { opacity: 1 !important; visibility: visible !important; }</style>');
-			}
-			
-			function initWelcomeScreen() {
 				const welcome = document.getElementById('welcome-screen');
 				const app = document.getElementById('app');
 
-				if (shouldPlayAnimation) {
+				if (!shouldPlayAnimation) {
+					if(welcome) welcome.style.display = 'none';
+					if(app) {
+						app.style.opacity = '1';
+						app.style.visibility = 'visible';
+					}
+				} else {
+					sessionStorage.setItem('hasPlayedWelcome', 'true');
 					if(app) {
 						app.style.opacity = '0';
 						app.classList.remove('hidden');
@@ -122,25 +106,44 @@ const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.p
 						welcome.classList.remove('fade-out');
 					}
 
-					setTimeout(() => {
-						if(welcome) welcome.classList.add('fade-out');
-						if(app) {
-							app.style.opacity = '1';
-						}
+					const startAnim = () => {
 						setTimeout(() => {
-							if(welcome) welcome.style.display = 'none';
-						}, 600);
-					}, 2500);
-				} else {
-					if(welcome) welcome.style.display = 'none';
-					if(app) {
-						app.classList.remove('hidden');
-						app.style.opacity = '1';
+							const w = document.getElementById('welcome-screen');
+							const a = document.getElementById('app');
+							if(w) w.classList.add('fade-out');
+							if(a) a.style.opacity = '1';
+							setTimeout(() => {
+								if(w) w.style.display = 'none';
+							}, 600);
+						}, 2500);
+					};
+
+					if (document.readyState === 'complete') {
+						startAnim();
+					} else {
+						window.addEventListener('load', startAnim);
 					}
 				}
-			}
 
-			window.addEventListener('load', initWelcomeScreen);
+				// Keep track if we are in the middle of the initial splash animation
+				let isInitialSplash = shouldPlayAnimation;
+
+				// Handle subsequent Astro SPA navigations instantly
+				document.addEventListener('astro:page-load', () => {
+					if (isInitialSplash) {
+						isInitialSplash = false; // Only allow skipping on actual navigations
+						return;
+					}
+
+					const w = document.getElementById('welcome-screen');
+					const a = document.getElementById('app');
+					if (w) w.style.display = 'none';
+					if (a) {
+						a.style.opacity = '1';
+						a.style.visibility = 'visible';
+					}
+				});
+			})();
 		</script>
 	<!-- Developer Mode Hidden Trigger & Modal -->
 		<div id="dev-trigger-area" style="position: fixed; bottom: 0; right: 0; width: 50px; height: 50px; z-index: 9999; cursor: default;"></div>

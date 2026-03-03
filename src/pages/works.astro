@@ -429,17 +429,21 @@ import Layout from '../layouts/Layout.astro';
     </style>
 
     <script is:inline>
-        document.addEventListener('DOMContentLoaded', () => {
+        function setupShowroom() {
             const viewer = document.querySelector('#main-viewer');
             const btns = document.querySelectorAll('.model-btn');
             const titleEl = document.getElementById('overlay-title');
             const descEl = document.getElementById('overlay-desc');
             const cardEl = document.querySelector('.model-details-card');
 
+            if (!viewer || btns.length === 0) return; // Prevent errors internally if DOM is different
+
             // 进度条逻辑
             viewer.addEventListener('progress', (event) => {
                 const progressBar = event.target.querySelector('.progress-bar');
                 const updateBar = event.target.querySelector('.update-bar');
+                if (!progressBar || !updateBar) return;
+                
                 updateBar.style.width = `${event.detail.totalProgress * 100}%`;
                 if (event.detail.totalProgress === 1) {
                     progressBar.classList.add('hide');
@@ -453,7 +457,12 @@ import Layout from '../layouts/Layout.astro';
 
             // 切换模型加载逻辑
             btns.forEach(btn => {
-                btn.addEventListener('click', () => {
+                // Ensure no double listeners if script runs multiple times in some edge cases
+                btn.removeEventListener('click', window._showroomClickHandler);
+                
+                btn.addEventListener('click', function _handler() {
+                    window._showroomClickHandler = _handler; // Store for cleanup if ever needed
+                    
                     // Update active state
                     btns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
@@ -463,8 +472,7 @@ import Layout from '../layouts/Layout.astro';
                     const title = btn.getAttribute('data-title');
                     const desc = btn.getAttribute('data-desc');
 
-                    // Animate card out
-                    cardEl.classList.add('card-animating');
+                    if (cardEl) cardEl.classList.add('card-animating');
                     
                     // Switch model source
                     viewer.src = src;
@@ -474,10 +482,10 @@ import Layout from '../layouts/Layout.astro';
 
                     // Update Text after animation out
                     setTimeout(() => {
-                        titleEl.textContent = title;
-                        descEl.textContent = desc;
+                        if (titleEl) titleEl.textContent = title;
+                        if (descEl) descEl.textContent = desc;
                         // Animate card in
-                        cardEl.classList.remove('card-animating');
+                        if (cardEl) cardEl.classList.remove('card-animating');
                     }, 300);
                 });
             });
@@ -485,6 +493,8 @@ import Layout from '../layouts/Layout.astro';
             // Interaction disables auto-rotate to let user explore
             viewer.addEventListener('mousedown', () => viewer.autoRotate = false);
             viewer.addEventListener('touchstart', () => viewer.autoRotate = false);
-        });
+        }
+
+        document.addEventListener('astro:page-load', setupShowroom);
     </script>
 </Layout>

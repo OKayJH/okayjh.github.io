@@ -206,40 +206,57 @@
     }
 </style>
 
-<script is:inline>
-    document.addEventListener('DOMContentLoaded', () => {
+<script>
+    document.addEventListener('astro:page-load', () => {
         const avatarBtn = document.getElementById('author-avatar-btn');
         const modal = document.getElementById('author-modal');
         const closeBtn = document.getElementById('modal-close-btn');
 
         if(avatarBtn && modal && closeBtn) {
+            // Use cloned nodes to clear any old listeners
+            const clonedBtn = avatarBtn.cloneNode(true);
+            avatarBtn.parentNode.replaceChild(clonedBtn, avatarBtn);
+            
+            const clonedClose = closeBtn.cloneNode(true);
+            closeBtn.parentNode.replaceChild(clonedClose, closeBtn);
+
             // Open modal
-            avatarBtn.addEventListener('click', () => {
+            clonedBtn.addEventListener('click', () => {
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden'; // Prevent background scrolling
             });
 
             // Close modal via button
-            closeBtn.addEventListener('click', () => {
+            clonedClose.addEventListener('click', () => {
                 modal.classList.remove('active');
                 document.body.style.overflow = '';
             });
 
-            // Close modal via overlay click
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            });
-            
-            // Close via Escape key
-            document.addEventListener('keydown', (e) => {
+            // Clean up old window handler for Escape key if exists
+            if (window._authorModalKeyHandler) {
+                document.removeEventListener('keydown', window._authorModalKeyHandler);
+            }
+            window._authorModalKeyHandler = (e) => {
                 if(e.key === 'Escape' && modal.classList.contains('active')) {
                     modal.classList.remove('active');
                     document.body.style.overflow = '';
                 }
+            };
+            document.addEventListener('keydown', window._authorModalKeyHandler);
+
+            // Close modal via overlay click - need to handle previous listeners
+            const clonedModal = modal.cloneNode(true);
+            modal.parentNode.replaceChild(clonedModal, modal);
+            
+            clonedModal.addEventListener('click', (e) => {
+                if (e.target === clonedModal) {
+                    clonedModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
             });
+            
+            // Re-assign references after cloning for the keydown handler to work later
+            window._authorModalElement = clonedModal;
         }
     });
 </script>

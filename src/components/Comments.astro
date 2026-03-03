@@ -17,7 +17,7 @@
     // Clear existing iframe if any (for view transitions support)
     container.innerHTML = '';
     
-    const theme = document.documentElement.classList.contains('dark') ? 'noborder_gray' : 'light';
+    const theme = document.documentElement.className.includes('dark') || document.documentElement.getAttribute('data-theme') === 'dark' ? 'noborder_gray' : 'light';
     
     const script = document.createElement('script');
     script.src = 'https://giscus.app/client.js';
@@ -39,11 +39,8 @@
     container.appendChild(script);
   }
 
-  // Run immediately for first load
-  renderGiscus();
-
-  // Re-run if navigating via History API or simple re-exec
-  document.addEventListener('DOMContentLoaded', renderGiscus);
+  // Hook into Astro's page transition lifecycle
+  document.addEventListener('astro:page-load', renderGiscus);
 </script>
 
 <style>

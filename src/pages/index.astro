@@ -79,15 +79,21 @@ const displayPosts = processedPosts.sort((a, b) => new Date(b.date).getTime() - 
     </main>
 </Layout>
 
-<script is:inline>
-  document.addEventListener('DOMContentLoaded', () => {
+<script>
+  document.addEventListener('astro:page-load', () => {
     const chips = document.querySelectorAll('.guide-chip');
+    if (chips.length === 0) return; // Not on the index page
+
     const cards = document.querySelectorAll('.article-card-wrapper');
 
     chips.forEach(chip => {
-      chip.addEventListener('click', (e) => {
+      // Remove old listener to prevent duplicates if script executes multiple times
+      const clonedChip = chip.cloneNode(true);
+      chip.parentNode.replaceChild(clonedChip, chip);
+      
+      clonedChip.addEventListener('click', (e) => {
         // 更新激活状态
-        chips.forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.guide-chip').forEach(c => c.classList.remove('active'));
         e.currentTarget.classList.add('active');
 
         const category = e.currentTarget.getAttribute('data-category');
@@ -149,14 +155,18 @@ const displayPosts = processedPosts.sort((a, b) => new Date(b.date).getTime() - 
     };
 
     checkDevModeIndex();
+    window.removeEventListener('dev-mode-changed', checkDevModeIndex);
     window.addEventListener('dev-mode-changed', checkDevModeIndex);
 
     // Delete article handler
     document.querySelectorAll('.dev-delete-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
+        const clonedBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(clonedBtn, btn);
+
+        clonedBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
-            const slug = btn.getAttribute('data-slug');
-            const title = btn.getAttribute('data-title');
+            const slug = clonedBtn.getAttribute('data-slug');
+            const title = clonedBtn.getAttribute('data-title');
             
             if (!confirm(`确定要删除文章「${title}」吗？此操作不可恢复！`)) return;
             
@@ -175,7 +185,7 @@ const displayPosts = processedPosts.sort((a, b) => new Date(b.date).getTime() - 
                     } else {
                         alert(syncToGithub ? '✅ 文章已删除并同步到GitHub' : '✅ 文章已在本地删除');
                     }
-                    const wrapper = btn.closest('.article-card-wrapper');
+                    const wrapper = clonedBtn.closest('.article-card-wrapper');
                     if (wrapper) wrapper.remove();
                 } else {
                     alert('删除失败: ' + data.error);

@@ -1,7 +1,7 @@
 ---
 // src/components/MusicPlayer.astro
 ---
-<div class="music-player" id="music-player">
+<div class="music-player" id="music-player" transition:persist="player">
     <div class="player-mini" id="player-mini">
         <div class="player-disc" id="player-disc">
             <img src="/music/cover/qingtian.jpg" alt="Cover" id="mini-cover" />
@@ -91,6 +91,8 @@
     let currentIndex = 0;
     let isPlaying = false;
     let playMode = 'repeat'; // 'repeat', 'one', 'shuffle'
+    let _docClickHandler: ((e: MouseEvent) => void) | null = null;
+    let isInitialized = false;
 
     // Use a global variable for the audio element so it persists across page loads
     // Make sure we only create one audio element.
@@ -101,9 +103,12 @@
     }
 
     const setupPlayer = () => {
+        if (isInitialized) return;
+        isInitialized = true;
+
         const audio = window.globalAudio as HTMLAudioElement;
         
-        // Re-query the actual DOM elements currently on the page
+        // Query the actual DOM elements
         const playerElements = {
             miniPlayer: document.getElementById('player-mini'),
             miniCover: document.getElementById('mini-cover') as HTMLImageElement,
@@ -197,7 +202,6 @@
                 audio.pause();
                 isPlaying = false;
             } else {
-                // If it's the very first time and no src is set
                 if (!audio.src || audio.src === window.location.href) {
                      loadSong(currentIndex);
                 }
@@ -212,11 +216,8 @@
             if (playMode === 'shuffle') {
                 currentIndex = Math.floor(Math.random() * playlist.length);
             } else if (playMode === 'one' && !userInitiated) {
-                // If not user-initiated (i.e. auto-next), 'one' mode means we don't change index
-                // This is normally handled in onEnded, but just in case this is called directly
+                // Do nothing
             } else {
-                // 'repeat' (which acts like sequential list play in many players, or loop list depending on preference)
-                // Let's make 'repeat' loop the list when it reaches the end for smooth listening
                 currentIndex = (currentIndex + 1) % playlist.length;
             }
             loadSong(currentIndex);
@@ -234,17 +235,11 @@
         };
 
         const toggleMode = () => {
-            // Updated modes: 
-            // - repeat: sequential play (loops back to 0)
-            // - one: single loop
-            // - shuffle: random play
             const modes = ['repeat', 'one', 'shuffle'];
             const icons = {'repeat': 'repeat', 'one': 'repeat_one', 'shuffle': 'shuffle'};
             let idx = modes.indexOf(playMode);
             playMode = modes[(idx + 1) % modes.length];
             if(playerElements.modeIcon) playerElements.modeIcon.textContent = icons[playMode as keyof typeof icons];
-            
-            // Re-render playlist to update visual hints if any based on mode later
         };
 
         const renderPlaylist = () => {
@@ -274,20 +269,16 @@
         };
 
         // --- GLOBAL AUDIO EVENT LISTENERS ---
-        // Clean up old listeners attached to audio if page is reloaded (prevents duplicate triggers)
-        audio.onupdate = null; 
-        
         const onTimeUpdate = () => {
             if (!audio.duration || !playerElements.progressBar) return;
             const current = audio.currentTime;
             const total = audio.duration;
             
-            // Only update slider if user isn't holding it
             playerElements.progressBar.value = ((current / total) * 100).toString();
             
             if(playerElements.timeCurrent) playerElements.timeCurrent.textContent = formatTime(current);
             if(playerElements.timeTotal) playerElements.timeTotal.textContent = formatTime(total);
-            updatePlayStateUI(); // keep UI in sync
+            updatePlayStateUI();
         };
 
         const onEnded = () => {
@@ -303,18 +294,13 @@
             if(playerElements.timeTotal) playerElements.timeTotal.textContent = formatTime(audio.duration);
         };
 
-        // We replace listeners rather than addEventListener so they don't pile up on globalAudio across Swup/ViewTransitions
         audio.ontimeupdate = onTimeUpdate;
         audio.onended = onEnded;
         audio.onloadedmetadata = onLoadedMetadata;
         audio.onplay = updatePlayStateUI;
         audio.onpause = updatePlayStateUI;
 
-
         // --- UI BINDINGS ---
-        // We do not need the complex "cloneNode" trick if we simply hook standard events on fresh elements
-        
-        // Progress interaction
         if (playerElements.progressBar) {
             playerElements.progressBar.addEventListener('input', (e) => {
                 const target = e.target as HTMLInputElement;
@@ -324,7 +310,6 @@
             });
         }
         
-        // Expanded UI toggle
         const openExpanded = (e: Event) => {
             e.stopPropagation();
             if(playerElements.expandedPlayer) playerElements.expandedPlayer.style.display = 'block';
@@ -333,7 +318,6 @@
             if(playerElements.expandedPlayer) playerElements.expandedPlayer.style.display = 'none';
         };
 
-        // Playlist Toggle
         const toggleList = (e: Event) => {
             e.stopPropagation();
             if (!playerElements.playlistPanel) return;
@@ -344,15 +328,18 @@
             }
         };
 
-        // Click outside to close playlist
-        document.addEventListener('click', (e) => {
+        if (_docClickHandler) {
+            document.removeEventListener('click', _docClickHandler);
+        }
+        _docClickHandler = (e: MouseEvent) => {
             if (playerElements.playlistPanel && playerElements.playlistPanel.style.display === 'flex') {
                 const target = e.target as HTMLElement;
                 if (!playerElements.playlistPanel.contains(target) && target !== playerElements.listBtn && !playerElements.listBtn?.contains(target)) {
                     playerElements.playlistPanel.style.display = 'none';
                 }
             }
-        });
+        };
+        document.addEventListener('click', _docClickHandler);
 
         playerElements.miniPlayBtn?.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
         playerElements.bigPlayBtn?.addEventListener('click', togglePlay);
@@ -369,7 +356,7 @@
         
         // Initial setup
         loadSongToUI(currentIndex);
-        updatePlayStateUI(); // Sync the UI with the global audio playing state if already playing
+        updatePlayStateUI(); 
     };
 
     // Global typing for window
@@ -379,8 +366,8 @@
         }
     }
 
-    // Since Astro's page transitions might re-evaluate this script, 
-    // setupPlayer connects the new DOM elements to the existing window.globalAudio
+    // Since we now use transition:persist="player" on the music player outer div,
+    // the DOM elements and their attached event listeners will survive page transitions intact.
+    // Astro module scripts execute exactly once. Therefore, we only run setupPlayer once.
     setupPlayer();
-    document.addEventListener('astro:page-load', setupPlayer);
 </script>
