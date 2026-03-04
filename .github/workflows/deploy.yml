@@ -51,6 +51,10 @@ jobs:
           rm -rf src/pages/api/
           rm -f src/pages/editor.astro
       - name: Build with Astro
+        env:
+          PUBLIC_AI_ASSISTANT_ENABLED: ${{ vars.PUBLIC_AI_ASSISTANT_ENABLED }}
+          PUBLIC_AI_ASSISTANT_NAME: ${{ vars.PUBLIC_AI_ASSISTANT_NAME }}
+          PUBLIC_AI_GATEWAY_URL: ${{ vars.PUBLIC_AI_GATEWAY_URL }}
         run: |
           ${{ steps.detect-package-manager.outputs.runner }} astro build
       - name: Upload artifact
