@@ -2,16 +2,16 @@
 const apiUrl = import.meta.env.PUBLIC_AI_GATEWAY_URL ?? '';
 const enabled =
   Boolean(apiUrl) && import.meta.env.PUBLIC_AI_ASSISTANT_ENABLED !== 'false';
-const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '小O';
-const titleText = `${assistantName} 助手`;
-const subtitleText = '中文低成本助手';
-const clearText = '清空对话';
-const closeText = '关闭';
-const welcomeText = `你好，我是 ${assistantName}。你可以问我博客内容、嵌入式 Linux、边缘 AI 或编程问题。`;
-const statusReadyText = '就绪';
-const inputPlaceholder = '请输入问题（回车发送，Shift+Enter 换行）';
-const stopText = '停止';
-const sendText = '发送';
+const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
+const titleText = `${assistantName} \u52a9\u624b`;
+const subtitleText = 'OKay\u7684\u667a\u80fd\u52a9\u624b';
+const clearText = '\u6e05\u7a7a\u5bf9\u8bdd';
+const closeText = '\u5173\u95ed';
+const welcomeText = `\u4f60\u597d\uff0c\u6211\u662f${assistantName}\u3002\u6709\u4ec0\u4e48\u53ef\u4ee5\u5e2e\u5230\u4f60\uff1f`;
+const statusReadyText = '\u5c31\u7eea';
+const inputPlaceholder = `\u7ed9 ${assistantName} \u53d1\u9001\u6d88\u606f`;
+const stopText = '\u505c\u6b62';
+const sendText = '\u53d1\u9001';
 ---
 
 {enabled && (
@@ -78,7 +78,7 @@ const sendText = '发送';
     if (root.getAttribute('data-mounted') === 'true') return;
     root.setAttribute('data-mounted', 'true');
 
-    const assistantName = root.getAttribute('data-assistant-name') || '小O';
+    const assistantName = root.getAttribute('data-assistant-name') || '\u5c0fO';
     const endpoint = root.getAttribute('data-api-url') || '';
 
     const panel = document.getElementById('ai-panel');
@@ -224,7 +224,7 @@ const sendText = '发送';
 
     const sendMessage = async (text) => {
       if (!endpoint) {
-        setStatus('未配置 AI 网关地址，请联系站长。', 'error');
+        setStatus('\u672a\u914d\u7f6e AI \u7f51\u5173\u5730\u5740\uff0c\u8bf7\u8054\u7cfb\u7ad9\u957f\u3002', 'error');
         return;
       }
 
@@ -232,7 +232,7 @@ const sendText = '发送';
       if (!userText) return;
 
       setBusy(true);
-      setStatus('思考中...', 'busy');
+      setStatus('\u601d\u8003\u4e2d...', 'busy');
       addMessage('user', userText);
       messages.push({ role: 'user', content: userText });
       input.value = '';
@@ -261,7 +261,7 @@ const sendText = '发送';
 
         if (!response.ok) {
           const textResp = await response.text();
-          throw new Error(textResp || `请求失败（${response.status}）`);
+          throw new Error(textResp || `\u8bf7\u6c42\u5931\u8d25\uff08${response.status}\uff09`);
         }
 
         const contentType = response.headers.get('content-type') || '';
@@ -276,19 +276,19 @@ const sendText = '发送';
             data?.answer ||
             data?.text ||
             data?.choices?.[0]?.message?.content ||
-            '这次没有返回可用内容。';
+            '\u8fd9\u6b21\u6ca1\u6709\u8fd4\u56de\u53ef\u7528\u5185\u5bb9\u3002';
           updateMessage(assistantItem, assistantText);
         }
 
-        const finalText = assistantText.trim() || '这次没有生成有效回复。';
+        const finalText = assistantText.trim() || '\u8fd9\u6b21\u6ca1\u6709\u751f\u6210\u6709\u6548\u56de\u590d\u3002';
         updateMessage(assistantItem, finalText);
         messages.push({ role: 'assistant', content: finalText });
-        setStatus('就绪');
+        setStatus('\u5c31\u7eea');
       } catch (error) {
         const message =
           error?.name === 'AbortError'
-            ? '已停止生成。'
-            : `请求失败：${error?.message || '未知错误'}`;
+            ? '\u5df2\u505c\u6b62\u751f\u6210\u3002'
+            : `\u8bf7\u6c42\u5931\u8d25\uff1a${error?.message || '\u672a\u77e5\u9519\u8bef'}`;
         updateMessage(assistantItem, message);
         messages.push({ role: 'assistant', content: message });
         setStatus(message, 'error');
@@ -313,8 +313,8 @@ const sendText = '发送';
       clearBtn.addEventListener('click', () => {
         messages.length = 0;
         if (messagesWrap) messagesWrap.innerHTML = '';
-        addMessage('assistant', `上下文已清空。你可以继续向 ${assistantName} 提问。`);
-        setStatus('对话已清空');
+        addMessage('assistant', `\u4e0a\u4e0b\u6587\u5df2\u6e05\u7a7a\u3002\u4f60\u53ef\u4ee5\u7ee7\u7eed\u5411 ${assistantName} \u63d0\u95ee\u3002`);
+        setStatus('\u5bf9\u8bdd\u5df2\u6e05\u7a7a');
       });
     }
 
