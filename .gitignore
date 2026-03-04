@@ -21,6 +21,8 @@ pnpm-debug.log*
 # Cloudflare worker local state
 .wrangler/
 .dev.vars
+workers/ai-gateway/.npm-cache/
+workers/ai-gateway/wrangler.toml
 
 # macOS-specific files
 .DS_Store

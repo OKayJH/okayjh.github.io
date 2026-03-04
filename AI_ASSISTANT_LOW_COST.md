@@ -1,18 +1,18 @@
-# Low-Cost Setup for Assistant (default name encoded as \u5c0fO)
+# 小O 助手（中文 + 省钱档）接入说明
 
-This project is deployed as a static site on GitHub Pages.  
-Because of that, model calls must go through an external gateway (Cloudflare Worker).
+当前博客部署在 GitHub Pages（静态站）。  
+因此模型请求必须走外部网关（Cloudflare Worker），不能把 API Key 放前端。
 
-## What has been implemented
+## 已完成改动
 
-1. `src/components/AIAssistant.astro`: floating chat widget
-2. `src/layouts/Layout.astro`: global mount for the widget
-3. `workers/ai-gateway/worker.mjs`: OpenAI-compatible proxy with basic cost controls
-4. `workers/ai-gateway/wrangler.toml.example`: deployment template
-5. `.env.example`: frontend config example
-6. `.github/workflows/deploy.yml`: build now accepts public AI env vars
+1. `src/components/AIAssistant.astro`：小O浮窗助手，全部中文文案
+2. `src/layouts/Layout.astro`：全局挂载小O组件
+3. `workers/ai-gateway/worker.mjs`：网关代理 + 中文错误提示 + 省钱参数
+4. `workers/ai-gateway/wrangler.toml.example`：省钱档默认配置
+5. `.env.example`：前端变量示例
+6. `.github/workflows/deploy.yml`：构建时注入 `PUBLIC_AI_*` 变量
 
-## 1. Deploy the gateway (Cloudflare Worker)
+## 1. 部署网关
 
 ```powershell
 cd workers/ai-gateway
@@ -22,59 +22,49 @@ npx wrangler secret put AI_API_KEY
 npx wrangler deploy
 ```
 
-After deploy, you get a base URL like:
+部署后会得到：
 
 ```text
-https://okay-blog-ai-gateway.<your-subdomain>.workers.dev
+https://<worker-name>.<subdomain>.workers.dev
 ```
 
-Use this endpoint in the blog:
+前端要填这个接口：
 
 ```text
-https://okay-blog-ai-gateway.<your-subdomain>.workers.dev/chat
+https://<worker-name>.<subdomain>.workers.dev/chat
 ```
 
-## 2. Configure frontend environment variables
+## 2. 配置前端环境变量
 
-### Local development
-
-Create `.env` in repo root:
+### 本地开发（`.env`）
 
 ```env
 PUBLIC_AI_ASSISTANT_ENABLED=true
-PUBLIC_AI_GATEWAY_URL=https://okay-blog-ai-gateway.<your-subdomain>.workers.dev/chat
-# Optional:
-# PUBLIC_AI_ASSISTANT_NAME=YourAssistantName
+PUBLIC_AI_ASSISTANT_NAME=小O
+PUBLIC_AI_GATEWAY_URL=https://<worker-name>.<subdomain>.workers.dev/chat
 ```
 
-### GitHub Pages build
-
-In GitHub repo settings, add Actions Variables:
+### GitHub 仓库（Actions Variables）
 
 1. `PUBLIC_AI_ASSISTANT_ENABLED` = `true`
-2. `PUBLIC_AI_GATEWAY_URL` = your Worker `/chat` URL
-3. `PUBLIC_AI_ASSISTANT_NAME` = custom display name (optional)
+2. `PUBLIC_AI_ASSISTANT_NAME` = `小O`
+3. `PUBLIC_AI_GATEWAY_URL` = 你的 Worker `/chat` 地址
 
-Then rerun `Deploy to GitHub Pages`.
+然后重新运行 `Deploy to GitHub Pages`。
 
-## 3. Built-in cost controls
+## 3. 最省钱默认档（已内置）
 
-Worker template already includes:
+1. `RATE_LIMIT_PER_MIN = 10`
+2. `MAX_HISTORY_MESSAGES = 4`
+3. `MAX_MESSAGE_CHARS = 800`
+4. `MAX_USER_INPUT_CHARS = 300`
+5. `MAX_OUTPUT_TOKENS = 220`
+6. `TEMPERATURE = 0.1`
 
-1. per-IP requests per minute (`RATE_LIMIT_PER_MIN`)
-2. max history messages (`MAX_HISTORY_MESSAGES`)
-3. max user input chars (`MAX_USER_INPUT_CHARS`)
-4. max output tokens (`MAX_OUTPUT_TOKENS`)
+含义：更短上下文、更短回复、更低频率，优先压成本。
 
-Recommended conservative defaults:
+## 4. 随时停用
 
-1. `RATE_LIMIT_PER_MIN = 20`
-2. `MAX_HISTORY_MESSAGES = 8`
-3. `MAX_USER_INPUT_CHARS = 600`
-4. `MAX_OUTPUT_TOKENS = 420`
-
-## 4. How to stop later
-
-1. Hide UI immediately: set `PUBLIC_AI_ASSISTANT_ENABLED=false` and redeploy
-2. Stop gateway: `npx wrangler delete`
-3. Stop model billing immediately: revoke `AI_API_KEY` at model provider
+1. 立即隐藏入口：`PUBLIC_AI_ASSISTANT_ENABLED=false` 后重新部署
+2. 停用网关：`npx wrangler delete`
+3. 彻底停费：在模型平台撤销 `AI_API_KEY`

@@ -3,21 +3,21 @@ main = "worker.mjs"
 compatibility_date = "2026-03-04"
 
 [vars]
-# OpenAI-compatible endpoint. Use whichever provider is cheapest and stable for you.
+# OpenAI-compatible endpoint.
 AI_BASE_URL = "https://api.deepseek.com/v1"
 AI_MODEL = "deepseek-chat"
-ASSISTANT_NAME = "XiaoO"
+ASSISTANT_NAME = "小O"
 
 # Comma-separated exact origins
 ALLOWED_ORIGINS = "https://okayjh.github.io,http://localhost:4321"
 
-# Cost controls
-RATE_LIMIT_PER_MIN = "20"
-MAX_HISTORY_MESSAGES = "8"
-MAX_MESSAGE_CHARS = "1200"
-MAX_USER_INPUT_CHARS = "600"
-MAX_OUTPUT_TOKENS = "420"
-TEMPERATURE = "0.2"
+# Cheapest-mode defaults
+RATE_LIMIT_PER_MIN = "10"
+MAX_HISTORY_MESSAGES = "4"
+MAX_MESSAGE_CHARS = "800"
+MAX_USER_INPUT_CHARS = "300"
+MAX_OUTPUT_TOKENS = "220"
+TEMPERATURE = "0.1"
 
 # Secret value (do not commit)
 # wrangler secret put AI_API_KEY

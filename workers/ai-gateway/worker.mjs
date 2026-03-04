@@ -89,11 +89,12 @@ function normalizeMessages(rawMessages, maxHistory, maxCharsPerMessage) {
 
 function buildSystemPrompt(assistantName) {
   return [
-    `You are ${assistantName}, the assistant for OKay's technical blog.`,
-    'Reply in concise Chinese by default.',
-    'Be practical, accurate, and avoid unsupported claims.',
-    'If you are uncertain, state uncertainty and provide validation steps.',
-    'Prefer actionable steps over long disclaimers.',
+    `你是 ${assistantName}，服务于 OKay 的技术博客。`,
+    '默认使用简体中文回答，语气自然、直接、实用。',
+    '先给结论，再给可执行步骤；尽量短句，避免冗长。',
+    '若信息不确定，请明确说明并给出可验证路径。',
+    '优先给省钱方案与最低可行做法。',
+    '普通问题尽量控制在 150~220 字，必要时再展开。',
   ].join('\n');
 }
 
@@ -105,12 +106,12 @@ function buildPageHint(page) {
   const url = typeof page.url === 'string' ? page.url.trim().slice(0, 200) : '';
 
   const parts = [];
-  if (title) parts.push(`Page title: ${title}`);
-  if (path) parts.push(`Page path: ${path}`);
-  if (url) parts.push(`Page URL: ${url}`);
+  if (title) parts.push(`当前页面标题：${title}`);
+  if (path) parts.push(`当前页面路径：${path}`);
+  if (url) parts.push(`当前页面链接：${url}`);
 
   if (!parts.length) return '';
-  return `Website context:\n${parts.join('\n')}`;
+  return `站点上下文：\n${parts.join('\n')}`;
 }
 
 export default {
@@ -125,32 +126,32 @@ export default {
     }
 
     if (!cors.matched && requestOrigin) {
-      return jsonResponse({ error: 'Origin not allowed' }, 403, cors.headers);
+      return jsonResponse({ error: '当前来源域名未被允许' }, 403, cors.headers);
     }
 
     if (url.pathname !== '/chat') {
-      return jsonResponse({ error: 'Not found' }, 404, cors.headers);
+      return jsonResponse({ error: '接口不存在' }, 404, cors.headers);
     }
 
     if (request.method !== 'POST') {
-      return jsonResponse({ error: 'Method not allowed' }, 405, cors.headers);
+      return jsonResponse({ error: '请求方法不被允许' }, 405, cors.headers);
     }
 
     if (!env.AI_API_KEY) {
       return jsonResponse(
-        { error: 'Missing AI_API_KEY secret in worker environment' },
+        { error: '服务端缺少 AI_API_KEY 密钥配置' },
         500,
         cors.headers,
       );
     }
 
-    const rateLimitPerMinute = coerceNumber(env.RATE_LIMIT_PER_MIN, 20, 1, 300);
+    const rateLimitPerMinute = coerceNumber(env.RATE_LIMIT_PER_MIN, 10, 1, 120);
     const clientIp = getClientIp(request);
     const rateCheck = checkRateLimit(clientIp, rateLimitPerMinute);
 
     if (!rateCheck.allowed) {
       return jsonResponse(
-        { error: 'Too many requests. Retry in about one minute.' },
+        { error: '请求过于频繁，请约 1 分钟后再试。' },
         429,
         {
           ...cors.headers,
@@ -163,15 +164,15 @@ export default {
     try {
       body = await request.json();
     } catch {
-      return jsonResponse({ error: 'Invalid JSON body' }, 400, cors.headers);
+      return jsonResponse({ error: '请求体 JSON 格式错误' }, 400, cors.headers);
     }
 
     const assistantNameRaw = typeof body?.assistant === 'string' ? body.assistant : '';
     const assistantName =
       assistantNameRaw.trim().slice(0, 24) || env.ASSISTANT_NAME || '\u5c0fO';
 
-    const maxHistory = coerceNumber(env.MAX_HISTORY_MESSAGES, 8, 1, 20);
-    const maxCharsPerMessage = coerceNumber(env.MAX_MESSAGE_CHARS, 1200, 80, 5000);
+    const maxHistory = coerceNumber(env.MAX_HISTORY_MESSAGES, 4, 1, 12);
+    const maxCharsPerMessage = coerceNumber(env.MAX_MESSAGE_CHARS, 800, 80, 3000);
     const normalizedMessages = normalizeMessages(
       body?.messages,
       maxHistory,
@@ -181,16 +182,16 @@ export default {
     const lastUserMessage = [...normalizedMessages].reverse().find((m) => m.role === 'user');
     if (!lastUserMessage) {
       return jsonResponse(
-        { error: 'At least one user message is required' },
+        { error: '至少需要一条用户消息' },
         400,
         cors.headers,
       );
     }
 
-    const maxUserInputChars = coerceNumber(env.MAX_USER_INPUT_CHARS, 600, 80, 5000);
+    const maxUserInputChars = coerceNumber(env.MAX_USER_INPUT_CHARS, 300, 80, 2000);
     if (lastUserMessage.content.length > maxUserInputChars) {
       return jsonResponse(
-        { error: `Input too long. Max ${maxUserInputChars} characters.` },
+        { error: `输入内容过长，最多 ${maxUserInputChars} 字。` },
         400,
         cors.headers,
       );
@@ -205,8 +206,8 @@ export default {
 
     const aiBaseUrl = (env.AI_BASE_URL || 'https://api.deepseek.com/v1').replace(/\/+$/, '');
     const model = env.AI_MODEL || 'deepseek-chat';
-    const maxOutputTokens = coerceNumber(env.MAX_OUTPUT_TOKENS, 420, 64, 4096);
-    const temperature = coerceNumber(env.TEMPERATURE, 0.2, 0, 1);
+    const maxOutputTokens = coerceNumber(env.MAX_OUTPUT_TOKENS, 220, 64, 2048);
+    const temperature = coerceNumber(env.TEMPERATURE, 0.1, 0, 1);
 
     const upstream = await fetch(`${aiBaseUrl}/chat/completions`, {
       method: 'POST',
@@ -227,7 +228,7 @@ export default {
       const errText = await upstream.text();
       return jsonResponse(
         {
-          error: `Upstream model request failed (${upstream.status})`,
+          error: `上游模型请求失败（${upstream.status}）`,
           details: errText.slice(0, 600),
         },
         502,

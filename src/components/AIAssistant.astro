@@ -2,7 +2,16 @@
 const apiUrl = import.meta.env.PUBLIC_AI_GATEWAY_URL ?? '';
 const enabled =
   Boolean(apiUrl) && import.meta.env.PUBLIC_AI_ASSISTANT_ENABLED !== 'false';
-const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
+const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '小O';
+const titleText = `${assistantName} 助手`;
+const subtitleText = '中文低成本助手';
+const clearText = '清空对话';
+const closeText = '关闭';
+const welcomeText = `你好，我是 ${assistantName}。你可以问我博客内容、嵌入式 Linux、边缘 AI 或编程问题。`;
+const statusReadyText = '就绪';
+const inputPlaceholder = '请输入问题（回车发送，Shift+Enter 换行）';
+const stopText = '停止';
+const sendText = '发送';
 ---
 
 {enabled && (
@@ -13,7 +22,7 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
       type="button"
       aria-controls="ai-panel"
       aria-expanded="false"
-      title={`${assistantName} assistant`}
+      title={titleText}
     >
       <span class="material-icons-round">smart_toy</span>
       <span class="ai-toggle-label">{assistantName}</span>
@@ -23,13 +32,13 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
       <header class="ai-panel-header">
         <div class="ai-panel-title-wrap">
           <strong class="ai-panel-title">{assistantName}</strong>
-          <span class="ai-panel-subtitle">Low-cost AI helper</span>
+          <span class="ai-panel-subtitle">{subtitleText}</span>
         </div>
         <div class="ai-panel-actions">
-          <button id="ai-clear-btn" class="ai-icon-btn" type="button" title="Clear chat">
+          <button id="ai-clear-btn" class="ai-icon-btn" type="button" title={clearText}>
             <span class="material-icons-round">delete_sweep</span>
           </button>
-          <button id="ai-close-btn" class="ai-icon-btn" type="button" title="Close">
+          <button id="ai-close-btn" class="ai-icon-btn" type="button" title={closeText}>
             <span class="material-icons-round">close</span>
           </button>
         </div>
@@ -37,14 +46,12 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
 
       <div id="ai-messages" class="ai-messages">
         <div class="ai-msg ai-msg-assistant">
-          <p>
-            Hi, I am {assistantName}. Ask me about this blog, embedded Linux, edge AI, or coding.
-          </p>
+          <p>{welcomeText}</p>
         </div>
       </div>
 
       <div class="ai-status-row">
-        <span id="ai-status" class="ai-status">Ready</span>
+        <span id="ai-status" class="ai-status">{statusReadyText}</span>
       </div>
 
       <form id="ai-form" class="ai-form">
@@ -52,12 +59,12 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
           id="ai-input"
           class="ai-input"
           rows="3"
-          placeholder={`Ask ${assistantName}... (Enter to send, Shift+Enter for a new line)`}
-          maxlength="1200"
+          placeholder={inputPlaceholder}
+          maxlength="600"
         ></textarea>
         <div class="ai-form-actions">
-          <button id="ai-stop-btn" class="ai-secondary-btn hidden" type="button">Stop</button>
-          <button id="ai-send-btn" class="ai-send-btn" type="submit">Send</button>
+          <button id="ai-stop-btn" class="ai-secondary-btn hidden" type="button">{stopText}</button>
+          <button id="ai-send-btn" class="ai-send-btn" type="submit">{sendText}</button>
         </div>
       </form>
     </section>
@@ -71,7 +78,7 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
     if (root.getAttribute('data-mounted') === 'true') return;
     root.setAttribute('data-mounted', 'true');
 
-    const assistantName = root.getAttribute('data-assistant-name') || '\u5c0fO';
+    const assistantName = root.getAttribute('data-assistant-name') || '小O';
     const endpoint = root.getAttribute('data-api-url') || '';
 
     const panel = document.getElementById('ai-panel');
@@ -99,7 +106,7 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
         .replace(/'/g, '&#39;');
 
     const nowTime = () =>
-      new Date().toLocaleTimeString('en-GB', {
+      new Date().toLocaleTimeString('zh-CN', {
         hour: '2-digit',
         minute: '2-digit',
       });
@@ -151,7 +158,7 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
     };
 
     const buildRequestMessages = () => {
-      const history = messages.slice(-8);
+      const history = messages.slice(-4);
       return history.map((m) => ({ role: m.role, content: m.content }));
     };
 
@@ -217,7 +224,7 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
 
     const sendMessage = async (text) => {
       if (!endpoint) {
-        setStatus('Missing PUBLIC_AI_GATEWAY_URL', 'error');
+        setStatus('未配置 AI 网关地址，请联系站长。', 'error');
         return;
       }
 
@@ -225,7 +232,7 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
       if (!userText) return;
 
       setBusy(true);
-      setStatus('Thinking...', 'busy');
+      setStatus('思考中...', 'busy');
       addMessage('user', userText);
       messages.push({ role: 'user', content: userText });
       input.value = '';
@@ -254,7 +261,7 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
 
         if (!response.ok) {
           const textResp = await response.text();
-          throw new Error(textResp || `Request failed (${response.status})`);
+          throw new Error(textResp || `请求失败（${response.status}）`);
         }
 
         const contentType = response.headers.get('content-type') || '';
@@ -269,19 +276,19 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
             data?.answer ||
             data?.text ||
             data?.choices?.[0]?.message?.content ||
-            'No response text was returned.';
+            '这次没有返回可用内容。';
           updateMessage(assistantItem, assistantText);
         }
 
-        const finalText = assistantText.trim() || 'No usable response was generated.';
+        const finalText = assistantText.trim() || '这次没有生成有效回复。';
         updateMessage(assistantItem, finalText);
         messages.push({ role: 'assistant', content: finalText });
-        setStatus('Ready');
+        setStatus('就绪');
       } catch (error) {
         const message =
           error?.name === 'AbortError'
-            ? 'Generation stopped.'
-            : `Request failed: ${error?.message || 'Unknown error'}`;
+            ? '已停止生成。'
+            : `请求失败：${error?.message || '未知错误'}`;
         updateMessage(assistantItem, message);
         messages.push({ role: 'assistant', content: message });
         setStatus(message, 'error');
@@ -306,8 +313,8 @@ const assistantName = import.meta.env.PUBLIC_AI_ASSISTANT_NAME ?? '\u5c0fO';
       clearBtn.addEventListener('click', () => {
         messages.length = 0;
         if (messagesWrap) messagesWrap.innerHTML = '';
-        addMessage('assistant', `Context cleared. Ask ${assistantName} anything.`);
-        setStatus('Context cleared');
+        addMessage('assistant', `上下文已清空。你可以继续向 ${assistantName} 提问。`);
+        setStatus('对话已清空');
       });
     }
 
