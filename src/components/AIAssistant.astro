@@ -73,272 +73,282 @@ const sendText = '\u53d1\u9001';
 
 <script is:inline>
   (() => {
-    const root = document.querySelector('.ai-assistant-root');
-    if (!root) return;
-    if (root.getAttribute('data-mounted') === 'true') return;
-    root.setAttribute('data-mounted', 'true');
+    const bindAssistant = () => {
+      const root = document.querySelector('.ai-assistant-root');
+      if (!root) return;
+      if (root.getAttribute('data-mounted') === 'true') return;
+      root.setAttribute('data-mounted', 'true');
 
-    const assistantName = root.getAttribute('data-assistant-name') || '\u5c0fO';
-    const endpoint = root.getAttribute('data-api-url') || '';
+      const assistantName = root.getAttribute('data-assistant-name') || '\u5c0fO';
+      const endpoint = root.getAttribute('data-api-url') || '';
 
-    const panel = document.getElementById('ai-panel');
-    const toggleBtn = document.getElementById('ai-toggle-btn');
-    const closeBtn = document.getElementById('ai-close-btn');
-    const clearBtn = document.getElementById('ai-clear-btn');
-    const form = document.getElementById('ai-form');
-    const input = document.getElementById('ai-input');
-    const sendBtn = document.getElementById('ai-send-btn');
-    const stopBtn = document.getElementById('ai-stop-btn');
-    const statusEl = document.getElementById('ai-status');
-    const messagesWrap = document.getElementById('ai-messages');
+      const panel = document.getElementById('ai-panel');
+      const toggleBtn = document.getElementById('ai-toggle-btn');
+      const closeBtn = document.getElementById('ai-close-btn');
+      const clearBtn = document.getElementById('ai-clear-btn');
+      const form = document.getElementById('ai-form');
+      const input = document.getElementById('ai-input');
+      const sendBtn = document.getElementById('ai-send-btn');
+      const stopBtn = document.getElementById('ai-stop-btn');
+      const statusEl = document.getElementById('ai-status');
+      const messagesWrap = document.getElementById('ai-messages');
 
-    /** @type {{ role: 'user' | 'assistant'; content: string }[]} */
-    const messages = [];
-    let isSending = false;
-    let activeController = null;
+      /** @type {{ role: 'user' | 'assistant'; content: string }[]} */
+      const messages = [];
+      let isSending = false;
+      let activeController = null;
 
-    const escapeHtml = (raw) =>
-      raw
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+      const escapeHtml = (raw) =>
+        raw
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
 
-    const nowTime = () =>
-      new Date().toLocaleTimeString('zh-CN', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-
-    const setStatus = (text, kind = 'normal') => {
-      if (!statusEl) return;
-      statusEl.textContent = text;
-      statusEl.classList.remove('is-error', 'is-busy');
-      if (kind === 'error') statusEl.classList.add('is-error');
-      if (kind === 'busy') statusEl.classList.add('is-busy');
-    };
-
-    const scrollToBottom = () => {
-      if (!messagesWrap) return;
-      messagesWrap.scrollTop = messagesWrap.scrollHeight;
-    };
-
-    const addMessage = (role, content) => {
-      if (!messagesWrap) return null;
-      const item = document.createElement('div');
-      item.className = `ai-msg ${role === 'assistant' ? 'ai-msg-assistant' : 'ai-msg-user'}`;
-      item.innerHTML = `<p>${escapeHtml(content).replace(/\n/g, '<br>')}</p><time>${nowTime()}</time>`;
-      messagesWrap.appendChild(item);
-      scrollToBottom();
-      return item;
-    };
-
-    const updateMessage = (item, content) => {
-      if (!item) return;
-      const p = item.querySelector('p');
-      if (p) {
-        p.innerHTML = escapeHtml(content).replace(/\n/g, '<br>');
-      }
-      scrollToBottom();
-    };
-
-    const setPanelOpen = (open) => {
-      if (!panel || !toggleBtn) return;
-      panel.classList.toggle('hidden', !open);
-      toggleBtn.setAttribute('aria-expanded', String(open));
-      if (open && input) input.focus();
-    };
-
-    const setBusy = (busy) => {
-      isSending = busy;
-      if (sendBtn) sendBtn.disabled = busy;
-      if (input) input.disabled = busy;
-      if (stopBtn) stopBtn.classList.toggle('hidden', !busy);
-    };
-
-    const buildRequestMessages = () => {
-      const history = messages.slice(-4);
-      return history.map((m) => ({ role: m.role, content: m.content }));
-    };
-
-    const parseSseData = (raw) => {
-      if (!raw) return '';
-      if (raw === '[DONE]') return '__DONE__';
-
-      try {
-        const parsed = JSON.parse(raw);
-        if (parsed?.error?.message) {
-          throw new Error(parsed.error.message);
-        }
-        if (typeof parsed?.text === 'string') {
-          return parsed.text;
-        }
-        if (typeof parsed?.delta === 'string') {
-          return parsed.delta;
-        }
-        const maybe = parsed?.choices?.[0]?.delta?.content;
-        if (typeof maybe === 'string') {
-          return maybe;
-        }
-        return '';
-      } catch {
-        return raw;
-      }
-    };
-
-    const readSseStream = async (stream, onDelta) => {
-      const reader = stream.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let buffer = '';
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        let splitIndex = buffer.indexOf('\n\n');
-        while (splitIndex !== -1) {
-          const rawEvent = buffer.slice(0, splitIndex).trim();
-          buffer = buffer.slice(splitIndex + 2);
-
-          if (rawEvent) {
-            const lines = rawEvent.split('\n');
-            const data = lines
-              .filter((line) => line.startsWith('data:'))
-              .map((line) => line.slice(5).trim())
-              .join('\n');
-
-            if (data) {
-              const parsed = parseSseData(data);
-              if (parsed === '__DONE__') return;
-              if (parsed) onDelta(parsed);
-            }
-          }
-
-          splitIndex = buffer.indexOf('\n\n');
-        }
-      }
-    };
-
-    const sendMessage = async (text) => {
-      if (!endpoint) {
-        setStatus('\u672a\u914d\u7f6e AI \u7f51\u5173\u5730\u5740\uff0c\u8bf7\u8054\u7cfb\u7ad9\u957f\u3002', 'error');
-        return;
-      }
-
-      const userText = text.trim();
-      if (!userText) return;
-
-      setBusy(true);
-      setStatus('\u601d\u8003\u4e2d...', 'busy');
-      addMessage('user', userText);
-      messages.push({ role: 'user', content: userText });
-      input.value = '';
-
-      const assistantItem = addMessage('assistant', '');
-      let assistantText = '';
-      activeController = new AbortController();
-
-      try {
-        const payload = {
-          assistant: assistantName,
-          messages: buildRequestMessages(),
-          page: {
-            title: document.title,
-            path: window.location.pathname,
-            url: window.location.href,
-          },
-        };
-
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          signal: activeController.signal,
+      const nowTime = () =>
+        new Date().toLocaleTimeString('zh-CN', {
+          hour: '2-digit',
+          minute: '2-digit',
         });
 
-        if (!response.ok) {
-          const textResp = await response.text();
-          throw new Error(textResp || `\u8bf7\u6c42\u5931\u8d25\uff08${response.status}\uff09`);
+      const setStatus = (text, kind = 'normal') => {
+        if (!statusEl) return;
+        statusEl.textContent = text;
+        statusEl.classList.remove('is-error', 'is-busy');
+        if (kind === 'error') statusEl.classList.add('is-error');
+        if (kind === 'busy') statusEl.classList.add('is-busy');
+      };
+
+      const scrollToBottom = () => {
+        if (!messagesWrap) return;
+        messagesWrap.scrollTop = messagesWrap.scrollHeight;
+      };
+
+      const addMessage = (role, content) => {
+        if (!messagesWrap) return null;
+        const item = document.createElement('div');
+        item.className = `ai-msg ${role === 'assistant' ? 'ai-msg-assistant' : 'ai-msg-user'}`;
+        item.innerHTML = `<p>${escapeHtml(content).replace(/\n/g, '<br>')}</p><time>${nowTime()}</time>`;
+        messagesWrap.appendChild(item);
+        scrollToBottom();
+        return item;
+      };
+
+      const updateMessage = (item, content) => {
+        if (!item) return;
+        const p = item.querySelector('p');
+        if (p) {
+          p.innerHTML = escapeHtml(content).replace(/\n/g, '<br>');
+        }
+        scrollToBottom();
+      };
+
+      const setPanelOpen = (open) => {
+        if (!panel || !toggleBtn) return;
+        panel.classList.toggle('hidden', !open);
+        toggleBtn.setAttribute('aria-expanded', String(open));
+        if (open && input) input.focus();
+      };
+
+      const setBusy = (busy) => {
+        isSending = busy;
+        if (sendBtn) sendBtn.disabled = busy;
+        if (input) input.disabled = busy;
+        if (stopBtn) stopBtn.classList.toggle('hidden', !busy);
+      };
+
+      const buildRequestMessages = () => {
+        const history = messages.slice(-4);
+        return history.map((m) => ({ role: m.role, content: m.content }));
+      };
+
+      const parseSseData = (raw) => {
+        if (!raw) return '';
+        if (raw === '[DONE]') return '__DONE__';
+
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed?.error?.message) {
+            throw new Error(parsed.error.message);
+          }
+          if (typeof parsed?.text === 'string') {
+            return parsed.text;
+          }
+          if (typeof parsed?.delta === 'string') {
+            return parsed.delta;
+          }
+          const maybe = parsed?.choices?.[0]?.delta?.content;
+          if (typeof maybe === 'string') {
+            return maybe;
+          }
+          return '';
+        } catch {
+          return raw;
+        }
+      };
+
+      const readSseStream = async (stream, onDelta) => {
+        const reader = stream.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          let splitIndex = buffer.indexOf('\n\n');
+          while (splitIndex !== -1) {
+            const rawEvent = buffer.slice(0, splitIndex).trim();
+            buffer = buffer.slice(splitIndex + 2);
+
+            if (rawEvent) {
+              const lines = rawEvent.split('\n');
+              const data = lines
+                .filter((line) => line.startsWith('data:'))
+                .map((line) => line.slice(5).trim())
+                .join('\n');
+
+              if (data) {
+                const parsed = parseSseData(data);
+                if (parsed === '__DONE__') return;
+                if (parsed) onDelta(parsed);
+              }
+            }
+
+            splitIndex = buffer.indexOf('\n\n');
+          }
+        }
+      };
+
+      const sendMessage = async (text) => {
+        if (!endpoint) {
+          setStatus('\u672a\u914d\u7f6e AI \u7f51\u5173\u5730\u5740\uff0c\u8bf7\u8054\u7cfb\u7ad9\u957f\u3002', 'error');
+          return;
         }
 
-        const contentType = response.headers.get('content-type') || '';
-        if (contentType.includes('text/event-stream') && response.body) {
-          await readSseStream(response.body, (delta) => {
-            assistantText += delta;
-            updateMessage(assistantItem, assistantText);
+        const userText = text.trim();
+        if (!userText) return;
+
+        setBusy(true);
+        setStatus('\u601d\u8003\u4e2d...', 'busy');
+        addMessage('user', userText);
+        messages.push({ role: 'user', content: userText });
+        input.value = '';
+
+        const assistantItem = addMessage('assistant', '');
+        let assistantText = '';
+        activeController = new AbortController();
+
+        try {
+          const payload = {
+            assistant: assistantName,
+            messages: buildRequestMessages(),
+            page: {
+              title: document.title,
+              path: window.location.pathname,
+              url: window.location.href,
+            },
+          };
+
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: activeController.signal,
           });
-        } else {
-          const data = await response.json();
-          assistantText =
-            data?.answer ||
-            data?.text ||
-            data?.choices?.[0]?.message?.content ||
-            '\u8fd9\u6b21\u6ca1\u6709\u8fd4\u56de\u53ef\u7528\u5185\u5bb9\u3002';
-          updateMessage(assistantItem, assistantText);
-        }
 
-        const finalText = assistantText.trim() || '\u8fd9\u6b21\u6ca1\u6709\u751f\u6210\u6709\u6548\u56de\u590d\u3002';
-        updateMessage(assistantItem, finalText);
-        messages.push({ role: 'assistant', content: finalText });
-        setStatus('\u5c31\u7eea');
-      } catch (error) {
-        const message =
-          error?.name === 'AbortError'
-            ? '\u5df2\u505c\u6b62\u751f\u6210\u3002'
-            : `\u8bf7\u6c42\u5931\u8d25\uff1a${error?.message || '\u672a\u77e5\u9519\u8bef'}`;
-        updateMessage(assistantItem, message);
-        messages.push({ role: 'assistant', content: message });
-        setStatus(message, 'error');
-      } finally {
-        activeController = null;
-        setBusy(false);
+          if (!response.ok) {
+            const textResp = await response.text();
+            throw new Error(textResp || `\u8bf7\u6c42\u5931\u8d25\uff08${response.status}\uff09`);
+          }
+
+          const contentType = response.headers.get('content-type') || '';
+          if (contentType.includes('text/event-stream') && response.body) {
+            await readSseStream(response.body, (delta) => {
+              assistantText += delta;
+              updateMessage(assistantItem, assistantText);
+            });
+          } else {
+            const data = await response.json();
+            assistantText =
+              data?.answer ||
+              data?.text ||
+              data?.choices?.[0]?.message?.content ||
+              '\u8fd9\u6b21\u6ca1\u6709\u8fd4\u56de\u53ef\u7528\u5185\u5bb9\u3002';
+            updateMessage(assistantItem, assistantText);
+          }
+
+          const finalText = assistantText.trim() || '\u8fd9\u6b21\u6ca1\u6709\u751f\u6210\u6709\u6548\u56de\u590d\u3002';
+          updateMessage(assistantItem, finalText);
+          messages.push({ role: 'assistant', content: finalText });
+          setStatus('\u5c31\u7eea');
+        } catch (error) {
+          const message =
+            error?.name === 'AbortError'
+              ? '\u5df2\u505c\u6b62\u751f\u6210\u3002'
+              : `\u8bf7\u6c42\u5931\u8d25\uff1a${error?.message || '\u672a\u77e5\u9519\u8bef'}`;
+          updateMessage(assistantItem, message);
+          messages.push({ role: 'assistant', content: message });
+          setStatus(message, 'error');
+        } finally {
+          activeController = null;
+          setBusy(false);
+        }
+      };
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          const isOpen = panel ? !panel.classList.contains('hidden') : false;
+          setPanelOpen(!isOpen);
+        });
+      }
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => setPanelOpen(false));
+      }
+
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          messages.length = 0;
+          if (messagesWrap) messagesWrap.innerHTML = '';
+          addMessage('assistant', `\u4e0a\u4e0b\u6587\u5df2\u6e05\u7a7a\u3002\u4f60\u53ef\u4ee5\u7ee7\u7eed\u5411 ${assistantName} \u63d0\u95ee\u3002`);
+          setStatus('\u5bf9\u8bdd\u5df2\u6e05\u7a7a');
+        });
+      }
+
+      if (stopBtn) {
+        stopBtn.addEventListener('click', () => {
+          if (activeController) activeController.abort();
+        });
+      }
+
+      if (input) {
+        input.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            if (!isSending) sendMessage(input.value);
+          }
+        });
+      }
+
+      if (form) {
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+          if (!isSending) sendMessage(input.value);
+        });
       }
     };
 
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => {
-        const isOpen = panel ? !panel.classList.contains('hidden') : false;
-        setPanelOpen(!isOpen);
-      });
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindAssistant, { once: true });
+    } else {
+      bindAssistant();
     }
 
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => setPanelOpen(false));
-    }
-
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        messages.length = 0;
-        if (messagesWrap) messagesWrap.innerHTML = '';
-        addMessage('assistant', `\u4e0a\u4e0b\u6587\u5df2\u6e05\u7a7a\u3002\u4f60\u53ef\u4ee5\u7ee7\u7eed\u5411 ${assistantName} \u63d0\u95ee\u3002`);
-        setStatus('\u5bf9\u8bdd\u5df2\u6e05\u7a7a');
-      });
-    }
-
-    if (stopBtn) {
-      stopBtn.addEventListener('click', () => {
-        if (activeController) activeController.abort();
-      });
-    }
-
-    if (input) {
-      input.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-          event.preventDefault();
-          if (!isSending) sendMessage(input.value);
-        }
-      });
-    }
-
-    if (form) {
-      form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        if (!isSending) sendMessage(input.value);
-      });
-    }
+    document.addEventListener('astro:page-load', bindAssistant);
   })();
 </script>
 
