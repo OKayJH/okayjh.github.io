@@ -205,8 +205,17 @@ import Layout from '../layouts/Layout.astro';
                 <!-- Main Editor Area -->
                 <div class="views-container">
                     <div class="terminal-panel" id="terminal-panel">
-                        <div id="terminal-container"></div>
-                        <div class="terminal-resize-handle" id="terminal-resize-handle" title="拖拽调整终端高度"></div>
+                        <div style="display: flex; flex: 1; min-height: 0;">
+                            <div id="terminals-wrapper" style="flex: 1; position: relative;"></div>
+                            <div class="terminal-sidebar" id="terminal-sidebar">
+                                <div class="ts-header">
+                                    <span>终端会话</span>
+                                    <button class="btn-icon-mini" id="btn-new-term" title="新建终端 (Ctrl+Shift+~)"><span class="material-icons-round">add</span></button>
+                                </div>
+                                <div class="ts-list" id="ts-list"></div>
+                            </div>
+                        </div>
+                        <div class="terminal-resize-handle" id="terminal-resize-handle" title="拖拽调整高度"></div>
                     </div>
                     <div class="chart-panel" id="chart-panel" style="display: none;">
                         <div class="chart-toolbar">
@@ -366,14 +375,30 @@ import Layout from '../layouts/Layout.astro';
 
         /* Views */
         .views-container { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
-        .terminal-panel { position: relative; display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-        #terminal-container { width: 100%; height: 100%; padding: 8px; box-sizing: border-box; overflow: hidden; }
+        .terminal-panel { position: relative; display: flex; flex-direction: column; flex: 1; overflow: hidden; background: var(--bg); }
+        #terminal-container { width: 100%; height: 100%; padding: 4px 0 4px 8px; box-sizing: border-box; overflow: hidden; }
+        .xterm-viewport { overscroll-behavior: contain !important; }
+        .xterm-viewport::-webkit-scrollbar { width: 12px; height: 12px; background: transparent; }
+        .xterm-viewport::-webkit-scrollbar-track { background: var(--bg); border-left: 1px solid var(--border); }
+        .xterm-viewport::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.4); border: 2px solid var(--bg); border-radius: 6px; }
+        .xterm-viewport::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.7); }
         .views-container.split-view .terminal-panel { flex: 1; min-width: 0; }
         .terminal-resize-handle { height: 6px; background: var(--border); cursor: ns-resize; flex-shrink: 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
         .terminal-resize-handle::after { content: ''; width: 40px; height: 2px; background: var(--text-secondary); border-radius: 2px; opacity: 0.4; }
         .terminal-resize-handle:hover, .terminal-resize-handle.dragging { background: var(--accent); }
         .terminal-resize-handle:hover::after, .terminal-resize-handle.dragging::after { background: #fff; opacity: 0.8; }
         .chart-panel { flex: 1; min-height: 420px; display: flex; flex-direction: column; padding: 10px; background: var(--bg); }
+        
+        .terminal-sidebar { width: 150px; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+        .ts-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border); letter-spacing: 0.5px; text-transform: uppercase; }
+        .ts-list { flex: 1; overflow-y: auto; padding: 4px; display: flex; flex-direction: column; gap: 2px; }
+        .ts-item { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); transition: 0.2s; user-select: none; }
+        .ts-item:hover { background: var(--bg); color: var(--text); }
+        .ts-item.active { background: var(--accent); color: #fff; }
+        .ts-item .ts-icon { font-size: 14px; }
+        .ts-item-del { margin-left: auto; display: flex; align-items: center; justify-content: center; padding: 2px; border-radius: 4px; border: none; background: transparent; color: inherit; cursor: pointer; opacity: 0; transition: 0.2s; }
+        .ts-item:hover .ts-item-del, .ts-item.active .ts-item-del { opacity: 0.7; }
+        .ts-item-del:hover { opacity: 1 !important; background: rgba(0,0,0,0.2); }
 
         /* Sidebar resize handle (vertical divider) */
         .sidebar-resize-handle { width: 6px; cursor: ew-resize; background: var(--border); flex-shrink: 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
@@ -475,745 +500,898 @@ import Layout from '../layouts/Layout.astro';
     </style>
 
     <script is:inline>
-        function initSerialDebug() {
-            if (!document.getElementById('terminal-container')) return;
-            if (window.__serialDebugInit) return;
-            window.__serialDebugInit = true;
+function initSerialDebug() {
+    if (!document.getElementById('terminals-wrapper')) return;
+    if (window.__serialDebugInit) return;
+    window.__serialDebugInit = true;
 
-            // === State ===
-            var port = null, reader = null, writer = null, isConnected = false, isDisconnecting = false;
-            var rxCount = 0, txCount = 0, sendMode = 'text', lineBuffer = '', chartPaused = false;
-            var term = null, fitAddon = null, chart = null;
-            var chartDatasets = [], chartLabels = [], chartPointIndex = 0;
-            var interactiveMode = true; // true = MobaXterm style, false = VOFA+ style
-            var localEcho = false;
-            var COLORS = ['#3b82f6','#ef4444','#22c55e','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#14b8a6','#6366f1'];
+    // === Global State ===
+    var COLORS = ['#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1'];
+    var chart = null;
+    var chartPaused = false;
+    var sessions = [];
+    var activeSession = null;
+    var sessionIdCounter = 0;
 
-            // === DOM Elements ===
-            var connectBtn = document.getElementById('btn-connect');
-            var connectIcon = document.getElementById('connect-icon');
-            var connectTextEl = document.getElementById('connect-text');
-            var portInfoEl = document.getElementById('port-info');
-            var statusLed = document.getElementById('status-led');
-            var statusTextEl = document.getElementById('status-text');
-            var rxCountEl = document.getElementById('rx-count');
-            var txCountEl = document.getElementById('tx-count');
-            var sendInput = document.getElementById('send-input');
-            var sendBtn = document.getElementById('btn-send');
-            var baudSelect = document.getElementById('baud-rate');
-            var dataBitsSelect = document.getElementById('data-bits');
-            var stopBitsSelect = document.getElementById('stop-bits');
-            var paritySelect = document.getElementById('parity');
-            var flowControlSelect = document.getElementById('flow-control');
-            var sendBar = document.getElementById('send-bar');
-            var echoChk = document.getElementById('chk-echo');
+    // === DOM Elements ===
+    var connectBtn = document.getElementById('btn-connect');
+    var connectIcon = document.getElementById('connect-icon');
+    var connectTextEl = document.getElementById('connect-text');
+    var portInfoEl = document.getElementById('port-info');
+    var statusLed = document.getElementById('status-led');
+    var statusTextEl = document.getElementById('status-text');
+    var rxCountEl = document.getElementById('rx-count');
+    var txCountEl = document.getElementById('tx-count');
+    var sendInput = document.getElementById('send-input');
+    var sendBtn = document.getElementById('btn-send');
+    var baudSelect = document.getElementById('baud-rate');
+    var dataBitsSelect = document.getElementById('data-bits');
+    var stopBitsSelect = document.getElementById('stop-bits');
+    var paritySelect = document.getElementById('parity');
+    var flowControlSelect = document.getElementById('flow-control');
+    var sendBar = document.getElementById('send-bar');
+    var echoChk = document.getElementById('chk-echo');
+    var terminalsWrapper = document.getElementById('terminals-wrapper');
+    var tsList = document.getElementById('ts-list');
 
-            // === Toast notification ===
-            function showToast(msg, type) {
-                var tc = document.getElementById('toast-container');
-                var icons = { error: 'error', warn: 'warning', ok: 'check_circle' };
-                var t = document.createElement('div');
-                t.className = 'toast toast-' + (type || 'ok');
-                t.innerHTML = '<span class="material-icons-round">' + (icons[type] || 'info') + '</span><span>' + msg + '</span>';
-                tc.appendChild(t);
-                setTimeout(function() { t.style.opacity = '0'; t.style.transform = 'translateX(40px)'; t.style.transition = '0.3s'; setTimeout(function() { t.remove(); }, 300); }, 4000);
-            }
+    function showToast(msg, type) {
+        var tc = document.getElementById('toast-container');
+        var icons = { error: 'error', warn: 'warning', ok: 'check_circle' };
+        var t = document.createElement('div');
+        t.className = 'toast toast-' + (type || 'ok');
+        t.innerHTML = '<span class="material-icons-round">' + (icons[type] || 'info') + '</span><span>' + msg + '</span>';
+        tc.appendChild(t);
+        setTimeout(function () { t.style.opacity = '0'; t.style.transform = 'translateX(40px)'; t.style.transition = '0.3s'; setTimeout(function () { t.remove(); }, 300); }, 4000);
+    }
 
-            // === Helper: log to terminal or console ===
-            function log(msg, color) {
-                if (term) {
-                    if (color) term.writeln('\x1b[' + color + 'm' + msg + '\x1b[0m');
-                    else term.writeln(msg);
-                } else console.log('[Serial]', msg);
-            }
+    function log(s, msg, color) {
+        if (s && s.term) {
+            if (color) s.term.writeln('\x1b[' + color + 'm' + msg + '\x1b[0m');
+            else s.term.writeln(msg);
+        } else console.log('[Serial]', msg);
+    }
 
-            // === Check browser support ===
-            if (!('serial' in navigator)) {
-                var banner = document.getElementById('unsupported-banner');
-                if (banner) banner.style.display = 'flex';
-            }
+    if (!('serial' in navigator)) {
+        var banner = document.getElementById('unsupported-banner');
+        if (banner) banner.style.display = 'flex';
+    }
 
-            // ==========================================================
-            //  SERIAL CONNECTION (no CDN dependency)
-            // ==========================================================
-            async function connectSerial() {
-                if (!('serial' in navigator)) {
-                    showToast('\u6d4f\u89c8\u5668\u4e0d\u652f\u6301 Web Serial API\uff0c\u8bf7\u7528 Chrome 89+', 'error');
-                    return;
-                }
+    // === Session Management ===
 
-                // Clean up any existing connection first
-                if (isConnected || port) {
-                    log('\u26a0 \u6e05\u7406\u4e0a\u4e00\u6b21\u8fde\u63a5...', '0;33');
-                    await cleanupConnection();
-                }
+    function createSession() {
+        sessionIdCounter++;
+        var s = {
+            id: sessionIdCounter,
+            name: 'Terminal ' + sessionIdCounter,
+            port: null,
+            reader: null,
+            writer: null,
+            isConnected: false,
+            isDisconnecting: false,
+            rxCount: 0,
+            txCount: 0,
+            sendMode: 'text',
+            lineBuffer: '',
+            chartDatasets: [],
+            chartLabels: [],
+            chartPointIndex: 0,
+            term: null,
+            fitAddon: null,
+            interactiveMode: true,
+            localEcho: false,
+            baudRate: 1500000,
+            dataBits: 8,
+            stopBits: 1,
+            parity: 'none',
+            flowControl: 'none',
+            container: document.createElement('div')
+        };
+        s.container.className = 'session-container';
+        s.container.style.width = '100%';
+        s.container.style.height = '100%';
+        s.container.style.display = 'none';
+        terminalsWrapper.appendChild(s.container);
 
-                try {
-                    port = await navigator.serial.requestPort();
-                    var info = port.getInfo();
-                    var portName = info.usbVendorId
-                        ? 'USB(' + info.usbVendorId.toString(16).toUpperCase() + ':' + (info.usbProductId || 0).toString(16).toUpperCase() + ')'
-                        : 'Serial';
-                    portInfoEl.textContent = portName;
-                    portInfoEl.classList.add('connected');
+        sessions.push(s);
+        renderTerminalList();
+        switchSession(s);
+        initTerminal(s);
+        return s;
+    }
 
-                    var baud = parseInt(baudSelect.value) || 115200;
+    function removeSession(id) {
+        if (sessions.length <= 1) {
+            showToast('至少保留一个终端会话', 'warn');
+            return;
+        }
+        var idx = sessions.findIndex(function (x) { return x.id === id; });
+        if (idx === -1) return;
+        var s = sessions[idx];
+        if (s.isConnected) {
+            if (!confirm('终端 [' + s.name + '] 当前处于连接状态，确定要关闭吗？')) return;
+            try {
+                s.isDisconnecting = true;
+                if (s.reader) s.reader.cancel();
+                if (s.port) s.port.close();
+            } catch (e) { }
+        }
+        s.container.remove();
+        if (s.term) s.term.dispose();
+        sessions.splice(idx, 1);
+        if (activeSession === s) {
+            switchSession(sessions[Math.max(0, idx - 1)]);
+        } else {
+            renderTerminalList();
+        }
+    }
 
-                    // Try to open with retry (handles port lingering from previous session)
-                    var opened = false;
-                    for (var attempt = 0; attempt < 2 && !opened; attempt++) {
-                        try {
-                            await port.open({
-                                baudRate: baud,
-                                dataBits: parseInt(dataBitsSelect.value),
-                                stopBits: parseInt(stopBitsSelect.value),
-                                parity: paritySelect.value,
-                                flowControl: flowControlSelect.value
-                            });
-                            opened = true;
-                        } catch (openErr) {
-                            if (attempt === 0 && openErr.name === 'InvalidStateError') {
-                                // Port might still be open from previous session, try close + reopen
-                                log('\u26a0 \u7aef\u53e3\u6b8b\u7559\u72b6\u6001\uff0c\u5c1d\u8bd5\u91cd\u7f6e...', '0;33');
-                                try { await port.close(); } catch(e) {}
-                                await new Promise(function(r) { setTimeout(r, 300); });
-                                continue;
-                            }
-                            // Real error on 2nd attempt or other error types
-                            portInfoEl.textContent = '\u672a\u9009\u62e9';
-                            portInfoEl.classList.remove('connected');
-                            var errMsg = openErr.message || '';
-                            if (openErr.name === 'NetworkError') {
-                                showToast('\u2717 \u4e32\u53e3\u88ab\u5176\u4ed6\u7a0b\u5e8f\u5360\u7528\uff01\u8bf7\u5148\u5173\u95ed VOFA+/SSCOM \u7b49\u8f6f\u4ef6', 'error');
-                                log('\u2717 \u4e32\u53e3 ' + portName + ' \u88ab\u5176\u4ed6\u7a0b\u5e8f\u5360\u7528', '1;31');
-                                log('  \u8bf7\u5148\u5173\u95ed\u5360\u7528\u8be5\u4e32\u53e3\u7684\u8f6f\u4ef6\uff0c\u7136\u540e\u91cd\u8bd5', '0;33');
-                            } else if (openErr.name === 'InvalidStateError') {
-                                showToast('\u2717 \u7aef\u53e3\u88ab\u9501\u5b9a\uff01\u8bf7\u5173\u95ed\u5176\u4ed6\u6253\u5f00\u4e86\u6b64\u9875\u9762\u7684\u6d4f\u89c8\u5668\u6807\u7b7e\u9875', 'error');
-                                log('\u2717 \u4e32\u53e3 ' + portName + ' \u88ab\u5176\u4ed6\u6d4f\u89c8\u5668\u6807\u7b7e\u9875\u9501\u5b9a', '1;31');
-                                log('  \u8bf7\u5173\u95ed\u5176\u4ed6\u6253\u5f00\u4e86\u6b64\u9875\u9762\u7684\u6807\u7b7e\u9875\uff0c\u7136\u540e\u91cd\u8bd5', '0;33');
-                            } else {
-                                showToast('\u2717 \u6253\u5f00\u4e32\u53e3\u5931\u8d25: ' + errMsg, 'error');
-                                log('\u2717 \u6253\u5f00\u4e32\u53e3\u5931\u8d25: ' + errMsg, '1;31');
-                            }
-                            port = null;
-                            return;
-                        }
-                    }
+    function switchSession(s) {
+        if (!s) return;
+        if (activeSession && activeSession.container) {
+            activeSession.container.style.display = 'none';
+        }
+        activeSession = s;
+        s.container.style.display = 'block';
 
-                    isConnected = true;
-                    isDisconnecting = false;
-                    updateConnectionUI(true);
-                    writer = port.writable.getWriter();
-                    log('\u2713 \u4e32\u53e3\u8fde\u63a5\u6210\u529f (' + portName + ' @ ' + baud + ')', '1;32');
-                    if (interactiveMode) {
-                        log('▶ 交互模式：标准终端数据交互流通信', '0;36');
-                        log('  按 Enter 发送命令，Ctrl+C 发送中断', '0;90');
-                    } else {
-                        log('▶ 监控模式：独立接收视图与快捷指令分发', '0;36');
-                    }
-                    showToast('\u2713 \u4e32\u53e3\u8fde\u63a5\u6210\u529f (' + portName + ')', 'ok');
-                    if (term) term.focus();
-                    readLoop(port);
-                } catch (err) {
-                    if (err.name === 'NotFoundError') return; // user cancelled dialog
-                    showToast('\u2717 \u8fde\u63a5\u5931\u8d25: ' + err.message, 'error');
-                    log('\u2717 \u8fde\u63a5\u5931\u8d25: ' + err.message, '1;31');
-                }
-            }
+        updateConnectionUI(s);
+        rxCountEl.textContent = s.rxCount;
+        txCountEl.textContent = s.txCount;
 
-            async function cleanupConnection() {
-                isConnected = false;
-                try {
-                    if (reader) {
-                        try { await Promise.race([reader.cancel(), new Promise(function(r) { setTimeout(r, 1000); })]); } catch(e) {}
-                        try { reader.releaseLock(); } catch(e) {}
-                        reader = null;
-                    }
-                    if (writer) {
-                        try { writer.releaseLock(); } catch(e) {}
-                        writer = null;
-                    }
-                    if (port) {
-                        try { await Promise.race([port.close(), new Promise(function(r) { setTimeout(r, 1000); })]); } catch(e) {}
-                        port = null;
-                    }
-                } catch(e) { console.error('Cleanup error:', e); }
-                // Small delay to let the OS release the port
-                await new Promise(function(r) { setTimeout(r, 200); });
-            }
-
-            async function disconnectSerial() {
-                if (isDisconnecting) return;
-                isDisconnecting = true;
-                await cleanupConnection();
-                updateConnectionUI(false);
-                portInfoEl.textContent = '\u672a\u9009\u62e9';
-                portInfoEl.classList.remove('connected');
-                log('\u26a1 \u4e32\u53e3\u5df2\u65ad\u5f00', '1;33');
-                showToast('\u4e32\u53e3\u5df2\u65ad\u5f00', 'warn');
-                isDisconnecting = false;
-            }
-
-            async function readLoop(p) {
-                while (p.readable && isConnected) {
-                    try {
-                        reader = p.readable.getReader();
-                    } catch(e) { break; }
-                    try {
-                        while (isConnected) {
-                            var r = await reader.read();
-                            if (r.done) break;
-                            if (r.value && isConnected) {
-                                rxCount += r.value.length;
-                                rxCountEl.textContent = rxCount.toString();
-                                var text = new TextDecoder().decode(r.value);
-
-                                // Parse VOFA+ FireWater for chart
-                                for (var ci = 0; ci < text.length; ci++) {
-                                    if (text[ci] === '\n') {
-                                        var trimmed = lineBuffer.trim();
-                                        if (trimmed) {
-                                            var parts = trimmed.split(',').map(function(s) { return parseFloat(s.trim()); });
-                                            if (parts.length > 0 && parts.every(function(v) { return !isNaN(v); })) addChartData(parts);
-                                        }
-                                        lineBuffer = '';
-                                    } else lineBuffer += text[ci];
-                                }
-
-                                // Display in terminal
-                                if (term) {
-                                    var display;
-                                    var chkHex = document.getElementById('chk-hex-display');
-                                    if (chkHex && chkHex.checked) {
-                                        display = Array.from(r.value).map(function(b) { return b.toString(16).toUpperCase().padStart(2,'0'); }).join(' ');
-                                    } else display = text;
-                                    var chkTs = document.getElementById('chk-timestamp');
-                                    if (chkTs && chkTs.checked) {
-                                        var now = new Date();
-                                        display = '\x1b[90m[' + now.toLocaleTimeString('en-US',{hour12:false}) + '.' + now.getMilliseconds().toString().padStart(3,'0') + ']\x1b[0m ' + display;
-                                    }
-                                    term.write(display);
-                                }
-                            }
-                        }
-                    } catch (err) {
-                        if (isConnected && err.name !== 'NetworkError') {
-                            log('\u8bfb\u53d6\u9519\u8bef: ' + err.message, '1;31');
-                        }
-                    } finally {
-                        try { reader.releaseLock(); } catch(e) {}
-                        reader = null;
-                    }
-                    if (!isConnected) break;
-                }
-                // Auto-disconnect if readLoop exits unexpectedly while still "connected"
-                if (isConnected) {
-                    isConnected = false;
-                    updateConnectionUI(false);
-                    portInfoEl.textContent = '\u672a\u9009\u62e9';
-                    portInfoEl.classList.remove('connected');
-                    log('\u26a0 \u4e32\u53e3\u8fde\u63a5\u5df2\u65ad\u5f00\uff08\u8bbe\u5907\u53ef\u80fd\u5df2\u62d4\u51fa\uff09', '1;33');
-                    showToast('\u4e32\u53e3\u8fde\u63a5\u5df2\u65ad\u5f00\uff08\u8bbe\u5907\u53ef\u80fd\u5df2\u62d4\u51fa\uff09', 'warn');
-                }
-            }
-
-            function updateConnectionUI(connected) {
-                connectIcon.textContent = connected ? 'usb_off' : 'usb';
-                connectTextEl.textContent = connected ? '\u65ad\u5f00\u8fde\u63a5' : '\u9009\u62e9\u7aef\u53e3';
-                connectBtn.classList.toggle('connected-btn', connected);
-                statusLed.classList.toggle('connected', connected);
-                statusTextEl.textContent = connected ? '\u5df2\u8fde\u63a5' : '\u672a\u8fde\u63a5';
-                sendBtn.disabled = !connected;
-                [baudSelect,dataBitsSelect,stopBitsSelect,paritySelect,flowControlSelect].forEach(function(s) { s.disabled = connected; });
-            }
-
-            async function sendData(data) {
-                if (!isConnected || !writer) return;
-                var bytes;
-                if (sendMode === 'hex') {
-                    var h = data.replace(/\s+/g,'');
-                    if (h.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(h)) { showToast('HEX \u683c\u5f0f\u9519\u8bef\uff0c\u8bf7\u8f93\u5165\u6709\u6548\u7684\u5341\u516d\u8fdb\u5236', 'error'); return; }
-                    bytes = new Uint8Array(h.match(/.{2}/g).map(function(b) { return parseInt(b,16); }));
-                } else {
-                    var toSend = data;
-                    var nl = document.getElementById('newline-select').value;
-                    if (nl) toSend += nl;
-                    bytes = new TextEncoder().encode(toSend);
-                }
-                try {
-                    await writer.write(bytes);
-                    txCount += bytes.length;
-                    txCountEl.textContent = txCount.toString();
-                    if (localEcho && term && sendMode !== 'hex') term.write('\x1b[90m' + data + '\x1b[0m');
-                } catch (err) {
-                    showToast('\u53d1\u9001\u5931\u8d25: ' + err.message, 'error');
-                    log('\u53d1\u9001\u5931\u8d25: ' + err.message, '1;31');
-                }
-            }
-
-            async function sendRaw(rawBytes) {
-                if (!isConnected || !writer) return;
-                try {
-                    var b = typeof rawBytes === 'string' ? new TextEncoder().encode(rawBytes) : rawBytes;
-                    await writer.write(b);
-                    txCount += b.length;
-                    txCountEl.textContent = txCount.toString();
-                } catch(e) {}
-            }
-
-            function addChartData(values) {
-                if (chartPaused || !chart) return;
-                while (chartDatasets.length < values.length) {
-                    var idx = chartDatasets.length;
-                    var c = COLORS[idx % COLORS.length];
-                    chartDatasets.push({ label: 'CH' + (idx+1), data: [], borderColor: c, backgroundColor: c + '22', borderWidth: 1.5, pointRadius: 0 });
-                    chart.data.datasets = chartDatasets;
-                }
-                chartPointIndex++;
-                chartLabels.push(chartPointIndex);
-                for (var i = 0; i < chartDatasets.length; i++) chartDatasets[i].data.push(i < values.length ? values[i] : NaN);
-                var maxPts = parseInt(document.getElementById('chart-points').value) || 200;
-                while (chartLabels.length > maxPts) { chartLabels.shift(); chartDatasets.forEach(function(ds) { ds.data.shift(); }); }
-                chart.update('none');
-            }
-
-            // ==========================================================
-            //  BIND ALL EVENTS IMMEDIATELY (no CDN dependency)
-            // ==========================================================
-            connectBtn.addEventListener('click', function() { isConnected ? disconnectSerial() : connectSerial(); });
-            sendBtn.addEventListener('click', function() { var v = sendInput.value.trim(); if (v) { sendData(v); sendInput.value = ''; sendInput.focus(); } });
-            sendInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && sendInput.value.trim()) { sendData(sendInput.value.trim()); sendInput.value = ''; } });
-            document.getElementById('smode-text').addEventListener('click', function() { sendMode = 'text'; this.classList.add('active'); document.getElementById('smode-hex').classList.remove('active'); });
-            document.getElementById('smode-hex').addEventListener('click', function() { sendMode = 'hex'; this.classList.add('active'); document.getElementById('smode-text').classList.remove('active'); });
-
-            document.querySelectorAll('.quick-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() { sendRaw(btn.dataset.cmd || ''); });
-            });
-            document.getElementById('btn-add-quick').addEventListener('click', function() {
-                var cmd = prompt('\u8f93\u5165\u5feb\u6377\u6307\u4ee4 (\u4f8b\u5982: AT+RST)');
-                if (cmd) {
-                    var qs = document.getElementById('quick-send');
-                    var ab = document.getElementById('btn-add-quick');
-                    var nb = document.createElement('button');
-                    nb.className = 'quick-btn';
-                    nb.dataset.cmd = cmd + '\r\n';
-                    nb.textContent = cmd;
-                    nb.addEventListener('click', function() { sendRaw(nb.dataset.cmd); });
-                    qs.insertBefore(nb, ab);
-                }
-            });
-            document.getElementById('btn-clear').addEventListener('click', function() { if (term) term.clear(); });
-            document.getElementById('btn-reset-count').addEventListener('click', function() { rxCount=0; txCount=0; rxCountEl.textContent='0'; txCountEl.textContent='0'; });
-
-            // Mode switch
-            document.getElementById('mode-interactive').addEventListener('click', function() {
-                interactiveMode = true;
-                this.classList.add('active');
-                document.getElementById('mode-monitor').classList.remove('active');
-                sendBar.classList.remove('interactive-hidden');
-                log('▶ 已切换到交互模式（标准终端数据交互流通信）', '0;36');
-                if (term) term.focus();
-            });
-            document.getElementById('mode-monitor').addEventListener('click', function() {
-                interactiveMode = false;
-                this.classList.add('active');
-                document.getElementById('mode-interactive').classList.remove('active');
-                sendBar.classList.remove('interactive-hidden');
-                log('▶ 已切换到监控模式（独立接收视图与快捷指令分发）', '0;36');
-            });
-
-            // Echo toggle
-            echoChk.addEventListener('change', function() {
-                localEcho = this.checked;
-                log(localEcho ? '\u2713 \u672c\u5730\u56de\u663e\u5df2\u5f00\u542f' : '\u2717 \u672c\u5730\u56de\u663e\u5df2\u5173\u95ed', '0;90');
-            });
-
-            // View tabs
-            var tabTerminal = document.getElementById('tab-terminal');
-            var tabChart = document.getElementById('tab-chart');
-            var tabSplit = document.getElementById('tab-split');
-            var terminalPanel = document.getElementById('terminal-panel');
-            var chartPanel = document.getElementById('chart-panel');
-            var viewsContainer = document.querySelector('.views-container');
-
-            function switchView(view) {
-                [tabTerminal,tabChart,tabSplit].forEach(function(t) { t.classList.remove('active'); });
-                viewsContainer.classList.remove('split-view');
-                if (view === 'terminal') { tabTerminal.classList.add('active'); terminalPanel.style.display='flex'; chartPanel.style.display='none'; }
-                else if (view === 'chart') { tabChart.classList.add('active'); terminalPanel.style.display='none'; chartPanel.style.display='flex'; }
-                else { tabSplit.classList.add('active'); viewsContainer.classList.add('split-view'); terminalPanel.style.display='flex'; chartPanel.style.display='flex'; }
-                setTimeout(function() { try { if (fitAddon) fitAddon.fit(); } catch(e) {} if (chart) chart.resize(); }, 100);
-            }
-            tabTerminal.addEventListener('click', function() { switchView('terminal'); });
-            tabChart.addEventListener('click', function() { switchView('chart'); });
-            tabSplit.addEventListener('click', function() { switchView('split'); });
-
-            document.getElementById('btn-chart-clear').addEventListener('click', function() { if (chart) { chartLabels.length=0; chartDatasets.forEach(function(ds){ds.data.length=0;}); chartPointIndex=0; chart.update('none'); } });
-            document.getElementById('btn-chart-pause').addEventListener('click', function() {
-                chartPaused = !chartPaused;
-                document.getElementById('chart-pause-icon').textContent = chartPaused ? 'play_arrow' : 'pause';
-                document.getElementById('chart-pause-text').textContent = chartPaused ? '\u7ee7\u7eed' : '\u6682\u505c';
-            });
-
-            // ==========================================================
-            //  LAZY INIT: Terminal (depends on CDN xterm.js)
-            // ==========================================================
-            function initTerminal() {
-                if (term) return;
-                if (typeof Terminal === 'undefined' || typeof FitAddon === 'undefined') { setTimeout(initTerminal, 200); return; }
-                try {
-                    function getTermTheme() {
-                        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                        return isDark
-                            ? { background: '#1a1b2e', foreground: '#e2e8f0', cursor: '#7c3aed', selectionBackground: '#334155' }
-                            : { background: '#1e1e2e', foreground: '#cdd6f4', cursor: '#007acc', selectionBackground: '#45475a' };
-                    }
-                    term = new Terminal({ cursorBlink: true, fontSize: 14, fontFamily: "'JetBrains Mono','Fira Code','Cascadia Code',monospace", theme: getTermTheme(), scrollback: 10000, convertEol: true });
-                    fitAddon = new FitAddon.FitAddon();
-                    term.loadAddon(fitAddon);
-                    if (typeof WebLinksAddon !== 'undefined') term.loadAddon(new WebLinksAddon.WebLinksAddon());
-                    var tc = document.getElementById('terminal-container');
-                    term.open(tc);
-                    setTimeout(function() { fitAddon.fit(); }, 50);
-                    new ResizeObserver(function() { try { fitAddon.fit(); } catch(e) {} }).observe(tc);
-
-                    // Welcome
-                    term.writeln('\x1b[1;36m\u2554' + '\u2550'.repeat(48) + '\u2557\x1b[0m');
-                    term.writeln('\x1b[1;36m\u2551\x1b[0m   \x1b[1;33mOKay Terminal\x1b[0m                               \x1b[1;36m\u2551\x1b[0m');
-                    term.writeln('\x1b[1;36m\u2551\x1b[0m                                                \x1b[1;36m\u2551\x1b[0m');
-                    term.writeln('\x1b[1;36m\u2551\x1b[0m   \x1b[0;36m交互模式\x1b[0m \u2500 标准终端数据交互流通信              \x1b[1;36m\u2551\x1b[0m');
-                    term.writeln('\x1b[1;36m\u2551\x1b[0m   \x1b[0;35m监控模式\x1b[0m \u2500 独立接收视图与快捷指令分发          \x1b[1;36m\u2551\x1b[0m');
-                    term.writeln('\x1b[1;36m\u2551\x1b[0m                                                \x1b[1;36m\u2551\x1b[0m');
-                    term.writeln('\x1b[1;36m\u2551\x1b[0m   \u70b9\u51fb \x1b[1;32m\u9009\u62e9\u7aef\u53e3\x1b[0m \u5f00\u59cb\u4f7f\u7528                    \x1b[1;36m\u2551\x1b[0m');
-                    term.writeln('\x1b[1;36m\u255a' + '\u2550'.repeat(48) + '\u255d\x1b[0m');
-                    term.writeln('');
-
-                    // Interactive terminal input handler
-                    term.onData(function(data) {
-                        if (!isConnected || !writer) return;
-                        if (!interactiveMode) return; // In monitor mode, ignore terminal keyboard input
-                        // In interactive mode, send keystrokes directly to serial
-                        var bytes = new TextEncoder().encode(data);
-                        writer.write(bytes);
-                        txCount += bytes.length;
-                        txCountEl.textContent = txCount.toString();
-                        if (localEcho) term.write(data); // local echo
-                    });
-
-                    // Right-click to paste
-                    tc.addEventListener('contextmenu', function(e) {
-                        e.preventDefault();
-                        if (!isConnected || !writer || !interactiveMode) return;
-                        navigator.clipboard.readText().then(function(text) {
-                            if (text) {
-                                var bytes = new TextEncoder().encode(text);
-                                writer.write(bytes);
-                                txCount += bytes.length;
-                                txCountEl.textContent = txCount.toString();
-                                if (localEcho) term.write(text.replace(/\r\n|\n/g, '\r\n')); // Write pasted text with echo
-                                showToast('\u5df2\u7c98\u8d34并发送', 'ok');
-                            }
-                        }).catch(function(err) {
-                            console.error('Paste failed', err);
-                        });
-                    });
-
-                    // Theme observer
-                    new MutationObserver(function() {
-                        if (term) term.options.theme = getTermTheme();
-                        if (chart) {
-                            var tc2 = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#666';
-                            var sc = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#999';
-                            chart.options.plugins.legend.labels.color = tc2;
-                            chart.options.scales.x.ticks.color = sc;
-                            chart.options.scales.y.ticks.color = sc;
-                            chart.update('none');
-                        }
-                    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-                } catch(e) { console.error('Terminal init failed:', e); }
-            }
-
-            // ==========================================================
-            //  LAZY INIT: Chart (depends on CDN chart.js)
-            // ==========================================================
-            function initChartJS() {
-                if (chart) return;
-                if (typeof Chart === 'undefined') { setTimeout(initChartJS, 200); return; }
-                try {
-                    chart = new Chart(document.getElementById('waveform-chart'), {
-                        type: 'line',
-                        data: { labels: chartLabels, datasets: chartDatasets },
-                        options: {
-                            responsive: true, maintainAspectRatio: false, animation: false,
-                            interaction: { mode: 'index', intersect: false },
-                            plugins: { legend: { position: 'top', labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#666', font: { size: 11 } } } },
-                            scales: {
-                                x: { display: true, ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#999', maxTicksLimit: 10 }, grid: { color: 'rgba(128,128,128,0.15)' } },
-                                y: { display: true, ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#999' }, grid: { color: 'rgba(128,128,128,0.15)' } }
-                            }
-                        }
-                    });
-                } catch(e) { console.error('Chart init failed:', e); }
-            }
-
-            // ==========================================================
-            //  PAGE UNLOAD AND BACK BUTTON GUARD
-            // ==========================================================
-            window.addEventListener('beforeunload', function(e) {
-                if (isConnected) {
-                    var msg = '\u4e32\u53e3仍处于连接状态，确定要离开吗？连接将会断开。';
-                    e.returnValue = msg;
-                    return msg;
-                }
-            });
-
-            document.querySelector('.back-link').addEventListener('click', function(e) {
-                // If we are connected, prevent default and ask for confirmation first
-                if (isConnected) {
-                    e.preventDefault();
-                    if (confirm('\u4e32\u53e3当前处于连接状态。\n\n点击【确定】将断开连接并返回主页。\n点击【取消】保留在当前页面。')) {
-                        disconnectSerial().then(function() {
-                            window.location.href = '/';
-                        });
-                    }
-                }
-            });
-
-            // ==========================================================
-            //  TERMINAL RESIZE HANDLE
-            // ==========================================================
-            (function() {
-                var handle = document.getElementById('terminal-resize-handle');
-                var tc = document.getElementById('terminal-container');
-                var workspace = document.querySelector('.main-workspace');
-                if (!handle || !tc || !workspace) return;
-                var startY = 0, startH = 0, dragging = false;
-                function onDown(e) {
-                    e.preventDefault();
-                    dragging = true;
-                    startY = e.touches ? e.touches[0].clientY : e.clientY;
-                    startH = workspace.offsetHeight;
-                    handle.classList.add('dragging');
-                    document.addEventListener('mousemove', onMove);
-                    document.addEventListener('mouseup', onUp);
-                    document.addEventListener('touchmove', onMove);
-                    document.addEventListener('touchend', onUp);
-                }
-                function onMove(e) {
-                    if (!dragging) return;
-                    var y = e.touches ? e.touches[0].clientY : e.clientY;
-                    var newH = Math.max(660, startH + (y - startY));
-                    workspace.style.height = newH + 'px';
-                    if (fitAddon) try { fitAddon.fit(); } catch(ex) {}
-                }
-                function onUp() {
-                    dragging = false;
-                    handle.classList.remove('dragging');
-                    document.removeEventListener('mousemove', onMove);
-                    document.removeEventListener('mouseup', onUp);
-                    document.removeEventListener('touchmove', onMove);
-                    document.removeEventListener('touchend', onUp);
-                    if (fitAddon) try { fitAddon.fit(); } catch(ex) {}
-                }
-                handle.addEventListener('mousedown', onDown);
-                handle.addEventListener('touchstart', onDown);
-            })();
-
-            // ==========================================================
-            //  SIDEBAR HORIZONTAL RESIZE HANDLE
-            // ==========================================================
-            (function() {
-                var handle = document.getElementById('sidebar-resize-handle');
-                var sidebar = document.getElementById('primary-sidebar');
-                if (!handle || !sidebar) return;
-                var startX = 0, startW = 0, dragging = false;
-                function onDown(e) {
-                    if (sidebar.classList.contains('collapsed')) return;
-                    e.preventDefault();
-                    dragging = true;
-                    startX = e.touches ? e.touches[0].clientX : e.clientX;
-                    startW = sidebar.offsetWidth;
-                    handle.classList.add('dragging');
-                    document.addEventListener('mousemove', onMove);
-                    document.addEventListener('mouseup', onUp);
-                    document.addEventListener('touchmove', onMove, {passive: false});
-                    document.addEventListener('touchend', onUp);
-                }
-                function onMove(e) {
-                    if (!dragging) return;
-                    var x = e.touches ? e.touches[0].clientX : e.clientX;
-                    var newW = Math.max(150, Math.min(500, startW + (x - startX)));
-                    sidebar.style.width = newW + 'px';
-                    if (fitAddon) try { fitAddon.fit(); } catch(ex) {}
-                }
-                function onUp() {
-                    dragging = false;
-                    handle.classList.remove('dragging');
-                    document.removeEventListener('mousemove', onMove);
-                    document.removeEventListener('mouseup', onUp);
-                    document.removeEventListener('touchmove', onMove);
-                    document.removeEventListener('touchend', onUp);
-                    if (fitAddon) try { fitAddon.fit(); } catch(ex) {}
-                }
-                handle.addEventListener('mousedown', onDown);
-                handle.addEventListener('touchstart', onDown);
-            })();
-
-            // ==========================================================
-            //  SHELL COMMANDS LIBRARY (localStorage persistence)
-            // ==========================================================
-            (function() {
-                var STORAGE_KEY = 'serialDebug_shellCmds';
-                var defaultCmds = [
-                    { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'uname -a', desc: '\u5185\u6838\u7248\u672c' },
-                    { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'cat /proc/cpuinfo', desc: 'CPU \u4fe1\u606f' },
-                    { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'free -h', desc: '\u5185\u5b58\u4f7f\u7528' },
-                    { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'df -h', desc: '\u78c1\u76d8\u4f7f\u7528' },
-                    { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'uptime', desc: '\u8fd0\u884c\u65f6\u95f4' },
-                    { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'ls -la', desc: '\u5217\u51fa\u6587\u4ef6' },
-                    { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'pwd', desc: '\u5f53\u524d\u76ee\u5f55' },
-                    { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'cat /etc/os-release', desc: '\u7cfb\u7edf\u7248\u672c' },
-                    { cat: '\u7f51\u7edc', cmd: 'ifconfig', desc: '\u7f51\u5361\u4fe1\u606f' },
-                    { cat: '\u7f51\u7edc', cmd: 'ping -c 3 8.8.8.8', desc: '\u7f51\u7edc\u6d4b\u8bd5' },
-                    { cat: '\u7f51\u7edc', cmd: 'ip addr', desc: 'IP \u5730\u5740' },
-                    { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'ps aux', desc: '\u8fdb\u7a0b\u5217\u8868' },
-                    { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'top -bn1 | head -20', desc: 'CPU \u5360\u7528' },
-                    { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'dmesg | tail -30', desc: '\u5185\u6838\u65e5\u5fd7' }
-                ];
-
-                function loadCmds() {
-                    try {
-                        var d = localStorage.getItem(STORAGE_KEY);
-                        return d ? JSON.parse(d) : null;
-                    } catch(e) { return null; }
-                }
-                function saveCmds(cmds) {
-                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cmds)); } catch(e) {}
-                }
-                var cmds = loadCmds();
-                if (!cmds) { cmds = defaultCmds.slice(); saveCmds(cmds); }
-
-                var countEl = document.getElementById('shell-cmds-count');
-                var listEl = document.getElementById('shell-cmds-list');
-                var addBtn = document.getElementById('btn-add-shell-cmd');
-                var cmdInput = document.getElementById('shell-cmd-input');
-                var descInput = document.getElementById('shell-cmd-desc');
-                var catSelect = document.getElementById('shell-cmd-category');
-
-                function renderCmds() {
-                    countEl.textContent = cmds.length;
-                    listEl.innerHTML = '';
-                    var groups = {};
-                    cmds.forEach(function(c, i) {
-                        if (!groups[c.cat]) groups[c.cat] = [];
-                        groups[c.cat].push({ idx: i, cmd: c.cmd, desc: c.desc });
-                    });
-                    var catOrder = ['\u7cfb\u7edf\u4fe1\u606f', '\u6587\u4ef6\u64cd\u4f5c', '\u7f51\u7edc', '\u8fdb\u7a0b\u7ba1\u7406', '\u81ea\u5b9a\u4e49'];
-                    Object.keys(groups).sort(function(a,b) {
-                        var ai = catOrder.indexOf(a), bi = catOrder.indexOf(b);
-                        return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-                    }).forEach(function(cat) {
-                        var g = document.createElement('div');
-                        g.className = 'shell-cat-group';
-                        var titleHtml = '<div class="shell-cat-title">' + cat + '</div>';
-                        var tableObj = document.createElement('div');
-                        tableObj.className = 'shell-cmd-table';
-                        
-                        groups[cat].forEach(function(item) {
-                            var row = document.createElement('div');
-                            row.className = 'shell-cmd-item';
-                            row.innerHTML = 
-                                '<div class="shell-cmd-text" title="' + escHtml(item.cmd) + '">' + escHtml(item.cmd) + '</div>' +
-                                '<div class="shell-cmd-desc" title="' + escHtml(item.desc || '') + '">' + escHtml(item.desc || '') + '</div>' +
-                                '<div class="shell-cmd-del-cell"><button class="shell-cmd-del" data-idx="' + item.idx + '" title="\u5220\u9664"><span class="material-icons-round" style="font-size:16px">close</span></button></div>';
-                            row.addEventListener('click', function(e) {
-                                if (e.target.closest('.shell-cmd-del')) return;
-                                if (isConnected && writer) {
-                                    sendData(item.cmd);
-                                    if (term) term.focus();
-                                } else {
-                                    sendInput.value = item.cmd;
-                                    sendInput.focus();
-                                }
-                            });
-                            row.addEventListener('contextmenu', function(e) {
-                                e.preventDefault();
-                                if (e.target.closest('.shell-cmd-del')) return;
-                                navigator.clipboard.writeText(item.cmd).then(function() {
-                                    showToast('\u5df2\u590d\u5236\u547d\u4ee4\u5230\u526a\u8d34\u677f', 'ok');
-                                }).catch(function() {
-                                    showToast('\u590d\u5236\u5931\u8d25\uff0c\u8bf7\u624b\u52a8\u590d\u5236', 'error');
-                                });
-                            });
-                            tableObj.appendChild(row);
-                        });
-                        g.innerHTML = titleHtml;
-                        g.appendChild(tableObj);
-                        listEl.appendChild(g);
-                    });
-                    // Bind delete buttons
-                    listEl.querySelectorAll('.shell-cmd-del').forEach(function(btn) {
-                        btn.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            var cmdPanel = document.getElementById('panel-cmd');
-                            if (!cmdPanel || !cmdPanel.classList.contains('editing')) return;
-                            var idx = parseInt(btn.getAttribute('data-idx'));
-                            cmds.splice(idx, 1);
-                            saveCmds(cmds);
-                            renderCmds();
-                        });
-                    });
-                }
-                function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-                addBtn.addEventListener('click', function() {
-                    var cmd = cmdInput.value.trim();
-                    if (!cmd) { cmdInput.focus(); return; }
-                    cmds.push({ cat: catSelect.value, cmd: cmd, desc: descInput.value.trim() });
-                    saveCmds(cmds);
-                    renderCmds();
-                    cmdInput.value = '';
-                    descInput.value = '';
-                });
-                cmdInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') addBtn.click();
-                });
-
-                renderCmds();
-
-                // VSCode style Sidebar Collapse/Expand
-                var primarySidebar = document.getElementById('primary-sidebar');
-                var resizeHandle = document.getElementById('sidebar-resize-handle');
-                var activityIcon = document.querySelector('.activity-icon');
-                
-                if (activityIcon) {
-                    activityIcon.addEventListener('click', function() {
-                        var isCollapsed = primarySidebar.classList.toggle('collapsed');
-                        resizeHandle.style.display = isCollapsed ? 'none' : 'flex';
-                        this.classList.toggle('active', !isCollapsed); 
-                        
-                        setTimeout(function() {
-                            if (fitAddon) try { fitAddon.fit(); } catch(ex) {}
-                        }, 250);
-                    });
-                }
-
-                // Edit mode toggle
-                var editBtn = document.getElementById('btn-edit-cmds');
-                var cmdPanel = document.getElementById('panel-cmd');
-                editBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    cmdPanel.classList.toggle('editing');
-                    editBtn.classList.toggle('active');
-                    // Re-render to ensure grid columns adjust correctly
-                    renderCmds();
-                });
-            })();
-
-            initTerminal();
-            initChartJS();
+        if (s.port) {
+            var info = s.port.getInfo();
+            var portName = info.usbVendorId ? 'USB(' + info.usbVendorId.toString(16).toUpperCase() + ':' + (info.usbProductId || 0).toString(16).toUpperCase() + ')' : 'Serial';
+            portInfoEl.textContent = portName;
+            portInfoEl.classList.toggle('connected', s.isConnected);
+        } else {
+            portInfoEl.textContent = '未选择';
+            portInfoEl.classList.remove('connected');
         }
 
+        baudSelect.value = s.baudRate;
+        dataBitsSelect.value = s.dataBits;
+        stopBitsSelect.value = s.stopBits;
+        paritySelect.value = s.parity;
+        flowControlSelect.value = s.flowControl;
+        echoChk.checked = s.localEcho;
+
+        if (s.sendMode === 'text') {
+            document.getElementById('smode-text').classList.add('active');
+            document.getElementById('smode-hex').classList.remove('active');
+        } else {
+            document.getElementById('smode-hex').classList.add('active');
+            document.getElementById('smode-text').classList.remove('active');
+        }
+
+        if (s.interactiveMode) {
+            document.getElementById('mode-interactive').classList.add('active');
+            document.getElementById('mode-monitor').classList.remove('active');
+        } else {
+            document.getElementById('mode-monitor').classList.add('active');
+            document.getElementById('mode-interactive').classList.remove('active');
+        }
+
+        if (chart) {
+            chart.data.labels = s.chartLabels;
+            chart.data.datasets = s.chartDatasets;
+            chart.update('none');
+        }
+
+        if (s.fitAddon) {
+            try { s.fitAddon.fit(); } catch (e) { }
+        }
+        if (s.term) {
+            s.term.focus();
+            setTimeout(function () { try { s.fitAddon.fit(); } catch (e) { } }, 50);
+        }
+
+        renderTerminalList();
+    }
+
+    function renderTerminalList() {
+        tsList.innerHTML = '';
+        sessions.forEach(function (s) {
+            var item = document.createElement('div');
+            item.className = 'ts-item' + (s === activeSession ? ' active' : '');
+            var icon = document.createElement('span');
+            icon.className = 'material-icons-round ts-icon';
+            icon.textContent = 'terminal';
+
+            var name = document.createElement('span');
+            name.textContent = s.name;
+            name.style.flex = '1';
+
+            var delBtn = document.createElement('button');
+            delBtn.className = 'ts-item-del';
+            delBtn.innerHTML = '<span class="material-icons-round" style="font-size:14px">close</span>';
+            delBtn.title = '关闭';
+
+            delBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                removeSession(s.id);
+            });
+
+            item.appendChild(icon);
+            item.appendChild(name);
+            item.appendChild(delBtn);
+
+            item.addEventListener('click', function () {
+                if (activeSession !== s) switchSession(s);
+            });
+            tsList.appendChild(item);
+        });
+    }
+
+    document.getElementById('btn-new-term').addEventListener('click', function () {
+        createSession();
+    });
+
+    // === Serial Connection Logic ===
+
+    async function connectSerial(s) {
+        if (!s) return;
+        if (!('serial' in navigator)) {
+            showToast('\u6d4f\u89c8\u5668\u4e0d\u652f\u6301 Web Serial API\uff0c\u8bf7\u7528 Chrome 89+', 'error');
+            return;
+        }
+        if (s.isConnected || s.port) {
+            log(s, '\u26a0 \u6e05\u7406\u4e0a\u4e00\u6b21\u8fde\u63a5...', '0;33');
+            await cleanupConnection(s);
+        }
+        try {
+            s.port = await navigator.serial.requestPort();
+            var info = s.port.getInfo();
+            var portName = info.usbVendorId
+                ? 'USB(' + info.usbVendorId.toString(16).toUpperCase() + ':' + (info.usbProductId || 0).toString(16).toUpperCase() + ')'
+                : 'Serial';
+            if (s === activeSession) {
+                portInfoEl.textContent = portName;
+                portInfoEl.classList.add('connected');
+            }
+
+            s.baudRate = parseInt(baudSelect.value) || 115200;
+            s.dataBits = parseInt(dataBitsSelect.value);
+            s.stopBits = parseInt(stopBitsSelect.value);
+            s.parity = paritySelect.value;
+            s.flowControl = flowControlSelect.value;
+
+            var opened = false;
+            for (var attempt = 0; attempt < 2 && !opened; attempt++) {
+                try {
+                    await s.port.open({
+                        baudRate: s.baudRate,
+                        dataBits: s.dataBits,
+                        stopBits: s.stopBits,
+                        parity: s.parity,
+                        flowControl: s.flowControl
+                    });
+                    opened = true;
+                } catch (openErr) {
+                    if (attempt === 0 && openErr.name === 'InvalidStateError') {
+                        log(s, '\u26a0 \u7aef\u53e3\u6b8b\u7559\u72b6\u6001\uff0c\u5c1d\u8bd5\u91cd\u7f6e...', '0;33');
+                        try { await s.port.close(); } catch (e) { }
+                        await new Promise(function (r) { setTimeout(r, 300); });
+                        continue;
+                    }
+                    if (s === activeSession) {
+                        portInfoEl.textContent = '\u672a\u9009\u62e9';
+                        portInfoEl.classList.remove('connected');
+                    }
+                    var errMsg = openErr.message || '';
+                    if (openErr.name === 'NetworkError') {
+                        showToast('\u2717 \u4e32\u53e3\u88ab\u5176\u4ed6\u7a0b\u5e8f\u5360\u7528\uff01\u8bf7\u5148\u5173\u95ed VOFA+/SSCOM \u7b49\u8f6f\u4ef6', 'error');
+                        log(s, '\u2717 \u4e32\u53e3 ' + portName + ' \u88ab\u5176\u4ed6\u7a0b\u5e8f\u5360\u7528', '1;31');
+                    } else if (openErr.name === 'InvalidStateError') {
+                        showToast('\u2717 \u7aef\u53e3\u88ab\u9501\u5b9a\uff01\u8bf7\u5173\u95ed\u5176\u4ed6\u6253\u5f00\u4e86\u6b64\u9875\u9762\u7684\u6d4f\u89c8\u5668\u6807\u7b7e\u9875', 'error');
+                        log(s, '\u2717 \u4e32\u53e3 ' + portName + ' \u88ab\u5176\u4ed6\u6d4f\u89c8\u5668\u6807\u7b7e\u9875\u9501\u5b9a', '1;31');
+                    } else {
+                        showToast('\u2717 \u6253\u5f00\u4e32\u53e3\u5931\u8d25: ' + errMsg, 'error');
+                        log(s, '\u2717 \u6253\u5f00\u4e32\u53e3\u5931\u8d25: ' + errMsg, '1;31');
+                    }
+                    s.port = null;
+                    return;
+                }
+            }
+
+            s.isConnected = true;
+            s.isDisconnecting = false;
+            s.name = portName; // update tab name
+            if (s === activeSession) updateConnectionUI(s);
+            renderTerminalList();
+
+            log(s, '\u2713 \u6210\u529f\u8fde\u63a5\u5230 ' + portName + ' (' + s.baudRate + 'bps)', '1;32');
+            showToast('\u5df2\u8fde\u63a5\u5230 ' + portName, 'ok');
+
+            s.writer = s.port.writable.getWriter();
+            readLoop(s);
+        } catch (err) {
+            if (err.name !== 'NotFoundError') {
+                showToast('\u2717 \u8fde\u63a5\u5931\u8d25: ' + err.message, 'error');
+                log(s, '\u2717 \u8fde\u63a5\u5931\u8d25: ' + err.message, '1;31');
+            }
+        }
+    }
+
+    async function disconnectSerial(s) {
+        if (!s || !s.isConnected) return;
+        s.isDisconnecting = true;
+        log(s, '\u2500 \u6b63\u5728\u65ad\u5f00\u8fde\u63a5...', '0;33');
+        try {
+            if (s.reader) { await s.reader.cancel(); s.reader = null; }
+            if (s.writer) { await s.writer.close(); s.writer.releaseLock(); s.writer = null; }
+            if (s.port) { await s.port.close(); s.port = null; }
+        } catch (e) { console.warn('Disconnect error', e); }
+        s.isConnected = false;
+        s.isDisconnecting = false;
+        if (s === activeSession) {
+            updateConnectionUI(s);
+            portInfoEl.textContent = '\u672a\u9009\u62e9';
+            portInfoEl.classList.remove('connected');
+        }
+        log(s, '\u2713 \u5df2\u65ad\u5f00\u8fde\u63a5\n', '1;32');
+        showToast('\u5df2\u65ad\u5f00\u8fde\u63a5', 'ok');
+    }
+
+    async function cleanupConnection(s) {
+        if (!s) return;
+        try {
+            s.isDisconnecting = true;
+            if (s.reader) { await s.reader.cancel(); s.reader = null; }
+            if (s.writer) { s.writer.releaseLock(); s.writer = null; }
+            if (s.port) { await s.port.close(); s.port = null; }
+        } catch (e) { }
+        s.isConnected = false;
+        s.isDisconnecting = false;
+    }
+
+    async function readLoop(s) {
+        if (!s.port) return;
+        var decoder = new TextDecoder('utf-8', { stream: true });
+        while (s.port.readable && s.isConnected && !s.isDisconnecting) {
+            s.reader = s.port.readable.getReader();
+            try {
+                while (true) {
+                    var r = await s.reader.read();
+                    if (r.done) break;
+                    if (r.value) {
+                        s.rxCount += r.value.length;
+                        if (s === activeSession) rxCountEl.textContent = s.rxCount.toString();
+                        var text = decoder.decode(r.value, { stream: true });
+
+                        // VOFA+ Protocol
+                        for (var ci = 0; ci < text.length; ci++) {
+                            if (text[ci] === '\n') {
+                                var trimmed = s.lineBuffer.trim();
+                                if (trimmed) {
+                                    var parts = trimmed.split(',').map(function (pt) { return parseFloat(pt.trim()); });
+                                    if (parts.length > 0 && parts.every(function (v) { return !isNaN(v); })) addChartData(s, parts);
+                                }
+                                s.lineBuffer = '';
+                            } else s.lineBuffer += text[ci];
+                        }
+
+                        if (s.term) {
+                            var display;
+                            var chkHex = document.getElementById('chk-hex-display');
+                            if (chkHex && chkHex.checked) {
+                                display = Array.from(r.value).map(function (b) { return b.toString(16).toUpperCase().padStart(2, '0'); }).join(' ');
+                            } else display = text;
+                            var chkTs = document.getElementById('chk-timestamp');
+                            if (chkTs && chkTs.checked) {
+                                var now = new Date();
+                                display = '\x1b[90m[' + now.toLocaleTimeString('en-US', { hour12: false }) + '.' + now.getMilliseconds().toString().padStart(3, '0') + ']\x1b[0m ' + display;
+                            }
+                            s.term.write(display);
+                        }
+                    }
+                }
+            } catch (err) {
+                if (s.isConnected && err.name !== 'NetworkError') {
+                    log(s, '\u8bfb\u53d6\u9519\u8bef: ' + err.message, '1;31');
+                }
+            } finally {
+                try { s.reader.releaseLock(); } catch (e) { }
+                s.reader = null;
+            }
+            if (!s.isConnected) break;
+        }
+        try { decoder.decode(); } catch (e) { }
+        if (s.isConnected) {
+            s.isConnected = false;
+            if (s === activeSession) {
+                updateConnectionUI(s);
+                portInfoEl.textContent = '\u672a\u9009\u62e9';
+                portInfoEl.classList.remove('connected');
+            }
+            log(s, '\u26a0 \u4e32\u53e3\u8fde\u63a5\u5df2\u65ad\u5f00\uff08\u8bbe\u5907\u53ef\u80fd\u5df2\u62d4\u51fa\uff09', '1;33');
+            showToast('\u4e32\u53e3\u8fde\u63a5\u5df2\u65ad\u5f00', 'warn');
+        }
+        renderTerminalList();
+    }
+
+    function updateConnectionUI(s) {
+        if (!s) return;
+        var connected = s.isConnected;
+        connectIcon.textContent = connected ? 'usb_off' : 'usb';
+        connectTextEl.textContent = connected ? '\u65ad\u5f00\u8fde\u63a5' : '\u9009\u62e9\u7aef\u53e3';
+        connectBtn.classList.toggle('connected-btn', connected);
+        statusLed.classList.toggle('connected', connected);
+        statusTextEl.textContent = connected ? '\u5df2\u8fde\u63a5' : '\u672a\u8fde\u63a5';
+        sendBtn.disabled = !connected;
+        [baudSelect, dataBitsSelect, stopBitsSelect, paritySelect, flowControlSelect].forEach(function (el) { el.disabled = connected; });
+    }
+
+    async function sendData(s, data) {
+        if (!s || !s.isConnected || !s.writer) return;
+        var bytes;
+        if (s.sendMode === 'hex') {
+            var h = data.replace(/\s+/g, '');
+            if (h.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(h)) { showToast('HEX \u683c\u5f0f\u9519\u8bef', 'error'); return; }
+            bytes = new Uint8Array(h.match(/.{2}/g).map(function (b) { return parseInt(b, 16); }));
+        } else {
+            var toSend = data;
+            var nl = document.getElementById('newline-select').value;
+            if (nl) toSend += nl;
+            bytes = new TextEncoder().encode(toSend);
+        }
+        try {
+            await s.writer.write(bytes);
+            s.txCount += bytes.length;
+            if (activeSession === s) txCountEl.textContent = s.txCount.toString();
+            if (s.localEcho && s.term && s.sendMode !== 'hex') s.term.write('\x1b[90m' + data + '\x1b[0m');
+        } catch (err) {
+            showToast('\u53d1\u9001\u5931\u8d25: ' + err.message, 'error');
+            log(s, '\u53d1\u9001\u5931\u8d25: ' + err.message, '1;31');
+        }
+    }
+
+    async function sendRaw(s, rawBytes) {
+        if (!s || !s.isConnected || !s.writer) return;
+        try {
+            var b = typeof rawBytes === 'string' ? new TextEncoder().encode(rawBytes) : rawBytes;
+            await s.writer.write(b);
+            s.txCount += b.length;
+            if (activeSession === s) txCountEl.textContent = s.txCount.toString();
+        } catch (e) { }
+    }
+
+    function addChartData(s, values) {
+        if (chartPaused || !chart || activeSession !== s) return;
+        while (s.chartDatasets.length < values.length) {
+            var idx = s.chartDatasets.length;
+            var c = COLORS[idx % COLORS.length];
+            s.chartDatasets.push({ label: 'CH' + (idx + 1), data: [], borderColor: c, backgroundColor: c + '22', borderWidth: 1.5, pointRadius: 0 });
+            chart.data.datasets = s.chartDatasets;
+        }
+        s.chartPointIndex++;
+        s.chartLabels.push(s.chartPointIndex);
+        for (var i = 0; i < s.chartDatasets.length; i++) s.chartDatasets[i].data.push(i < values.length ? values[i] : NaN);
+        var maxPts = parseInt(document.getElementById('chart-points').value) || 200;
+        while (s.chartLabels.length > maxPts) { s.chartLabels.shift(); s.chartDatasets.forEach(function (ds) { ds.data.shift(); }); }
+        chart.update('none');
+    }
+
+    // === Events ===
+    connectBtn.addEventListener('click', function () { if (activeSession) activeSession.isConnected ? disconnectSerial(activeSession) : connectSerial(activeSession); });
+    sendBtn.addEventListener('click', function () { var v = sendInput.value.trim(); if (v && activeSession) { sendData(activeSession, v); sendInput.value = ''; sendInput.focus(); } });
+    sendInput.addEventListener('keydown', function (e) { if (e.key === 'Enter' && sendInput.value.trim() && activeSession) { sendData(activeSession, sendInput.value.trim()); sendInput.value = ''; } });
+
+    document.getElementById('smode-text').addEventListener('click', function () { if (activeSession) activeSession.sendMode = 'text'; this.classList.add('active'); document.getElementById('smode-hex').classList.remove('active'); });
+    document.getElementById('smode-hex').addEventListener('click', function () { if (activeSession) activeSession.sendMode = 'hex'; this.classList.add('active'); document.getElementById('smode-text').classList.remove('active'); });
+
+    document.querySelectorAll('.quick-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () { if (activeSession) sendRaw(activeSession, btn.dataset.cmd || ''); });
+    });
+    document.getElementById('btn-add-quick').addEventListener('click', function () {
+        var cmd = prompt('\u8f93\u5165\u5feb\u6377\u6307\u4ee4 (\u4f8b\u5982: AT+RST)');
+        if (cmd) {
+            var qs = document.getElementById('quick-send');
+            var ab = document.getElementById('btn-add-quick');
+            var nb = document.createElement('button');
+            nb.className = 'quick-btn';
+            nb.dataset.cmd = cmd + '\r\n';
+            nb.textContent = cmd;
+            nb.addEventListener('click', function () { if (activeSession) sendRaw(activeSession, nb.dataset.cmd); });
+            qs.insertBefore(nb, ab);
+        }
+    });
+    document.getElementById('btn-clear').addEventListener('click', function () { if (activeSession && activeSession.term) activeSession.term.clear(); });
+    document.getElementById('btn-reset-count').addEventListener('click', function () {
+        if (activeSession) {
+            activeSession.rxCount = 0; activeSession.txCount = 0;
+            rxCountEl.textContent = '0'; txCountEl.textContent = '0';
+        }
+    });
+
+    document.getElementById('mode-interactive').addEventListener('click', function () {
+        if (activeSession) activeSession.interactiveMode = true;
+        this.classList.add('active');
+        document.getElementById('mode-monitor').classList.remove('active');
+        sendBar.classList.remove('interactive-hidden');
+        log(activeSession, '▶ 已切换到交互模式', '0;36');
+        if (activeSession && activeSession.term) activeSession.term.focus();
+    });
+    document.getElementById('mode-monitor').addEventListener('click', function () {
+        if (activeSession) activeSession.interactiveMode = false;
+        this.classList.add('active');
+        document.getElementById('mode-interactive').classList.remove('active');
+        sendBar.classList.remove('interactive-hidden');
+        log(activeSession, '▶ 已切换到监控模式', '0;36');
+    });
+
+    echoChk.addEventListener('change', function () {
+        if (activeSession) activeSession.localEcho = this.checked;
+        log(activeSession, this.checked ? '\u2713 \u672c\u5730\u56de\u663e\u5df2\u5f00\u542f' : '\u2717 \u672c\u5730\u56de\u663e\u5df2\u5173\u95ed', '0;90');
+    });
+
+    baudSelect.addEventListener('change', function () { if (activeSession) activeSession.baudRate = this.value; });
+    dataBitsSelect.addEventListener('change', function () { if (activeSession) activeSession.dataBits = this.value; });
+    stopBitsSelect.addEventListener('change', function () { if (activeSession) activeSession.stopBits = this.value; });
+    paritySelect.addEventListener('change', function () { if (activeSession) activeSession.parity = this.value; });
+    flowControlSelect.addEventListener('change', function () { if (activeSession) activeSession.flowControl = this.value; });
+
+    // Keyboard shortcut Ctrl+Shift+~
+    document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey && e.shiftKey && (e.key === '`' || e.key === '~')) {
+            e.preventDefault();
+            document.getElementById('btn-new-term').click();
+        }
+    });
+
+// === UI TABS & SIDEBAR ===
+var tabTerminal = document.getElementById('tab-terminal');
+var tabChart = document.getElementById('tab-chart');
+var tabSplit = document.getElementById('tab-split');
+var terminalPanel = document.getElementById('terminal-panel');
+var chartPanel = document.getElementById('chart-panel');
+var viewsContainer = document.querySelector('.views-container');
+
+function switchView(view) {
+    [tabTerminal, tabChart, tabSplit].forEach(function (t) { t.classList.remove('active'); });
+    viewsContainer.classList.remove('split-view');
+    if (view === 'terminal') { tabTerminal.classList.add('active'); terminalPanel.style.display = 'flex'; chartPanel.style.display = 'none'; }
+    else if (view === 'chart') { tabChart.classList.add('active'); terminalPanel.style.display = 'none'; chartPanel.style.display = 'flex'; }
+    else { tabSplit.classList.add('active'); viewsContainer.classList.add('split-view'); terminalPanel.style.display = 'flex'; chartPanel.style.display = 'flex'; }
+    setTimeout(function () {
+        sessions.forEach(function (s) {
+            try { if (s.fitAddon) s.fitAddon.fit(); } catch (e) { }
+        });
+        if (chart) chart.resize();
+    }, 100);
+}
+tabTerminal.addEventListener('click', function () { switchView('terminal'); });
+tabChart.addEventListener('click', function () { switchView('chart'); });
+tabSplit.addEventListener('click', function () { switchView('split'); });
+
+document.getElementById('btn-chart-clear').addEventListener('click', function () {
+    if (chart && activeSession) {
+        activeSession.chartLabels.length = 0;
+        activeSession.chartDatasets.forEach(function (ds) { ds.data.length = 0; });
+        activeSession.chartPointIndex = 0;
+        chart.update('none');
+    }
+});
+document.getElementById('btn-chart-pause').addEventListener('click', function () {
+    chartPaused = !chartPaused;
+    document.getElementById('chart-pause-icon').textContent = chartPaused ? 'play_arrow' : 'pause';
+    document.getElementById('chart-pause-text').textContent = chartPaused ? '\u7ee7\u7eed' : '\u6682\u505c';
+});
+
+// === Terminal & Chart Init ===
+function initTerminal(s) {
+    if (s.term) return;
+    if (typeof Terminal === 'undefined' || typeof FitAddon === 'undefined') { setTimeout(function () { initTerminal(s); }, 200); return; }
+    try {
+        function getTermTheme() {
+            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            return isDark
+                ? { background: '#1a1b2e', foreground: '#e2e8f0', cursor: '#7c3aed', selectionBackground: '#334155' }
+                : { background: '#1e1e2e', foreground: '#cdd6f4', cursor: '#007acc', selectionBackground: '#45475a' };
+        }
+        s.term = new Terminal({ cursorBlink: true, fontSize: 14, fontFamily: "'JetBrains Mono','Fira Code','Cascadia Code',monospace", theme: getTermTheme(), scrollback: 10000, convertEol: true });
+        s.fitAddon = new FitAddon.FitAddon();
+        s.term.loadAddon(s.fitAddon);
+        if (typeof WebLinksAddon !== 'undefined') s.term.loadAddon(new WebLinksAddon.WebLinksAddon());
+        s.term.open(s.container);
+        setTimeout(function () { s.fitAddon.fit(); }, 50);
+        new ResizeObserver(function () { try { s.fitAddon.fit(); } catch (e) { } }).observe(s.container);
+
+        s.term.writeln('\x1b[1;36m\u2554' + '\u2550'.repeat(48) + '\u2557\x1b[0m');
+        s.term.writeln('\x1b[1;36m\u2551\x1b[0m   \x1b[1;33mOKay Terminal [' + s.name + ']\x1b[0m                      \x1b[1;36m\u2551\x1b[0m');
+        s.term.writeln('\x1b[1;36m\u2551\x1b[0m                                                \x1b[1;36m\u2551\x1b[0m');
+        s.term.writeln('\x1b[1;36m\u2551\x1b[0m   \x1b[0;36m交互模式\x1b[0m \u2500 标准终端数据交互流通信              \x1b[1;36m\u2551\x1b[0m');
+        s.term.writeln('\x1b[1;36m\u2551\x1b[0m   \x1b[0;35m监控模式\x1b[0m \u2500 独立接收视图与快捷指令分发          \x1b[1;36m\u2551\x1b[0m');
+        s.term.writeln('\x1b[1;36m\u2551\x1b[0m                                                \x1b[1;36m\u2551\x1b[0m');
+        s.term.writeln('\x1b[1;36m\u2551\x1b[0m   \u70b9\u51fb \x1b[1;32m\u9009\u62e9\u7aef\u53e3\x1b[0m \u5f00\u59cb\u4f7f\u7528                    \x1b[1;36m\u2551\x1b[0m');
+        s.term.writeln('\x1b[1;36m\u255a' + '\u2550'.repeat(48) + '\u255d\x1b[0m');
+        s.term.writeln('');
+
+        s.term.onData(function (data) {
+            if (!s.isConnected || !s.writer) return;
+            if (!s.interactiveMode) return;
+            var bytes = new TextEncoder().encode(data);
+            s.writer.write(bytes);
+            s.txCount += bytes.length;
+            if (activeSession === s) txCountEl.textContent = s.txCount.toString();
+            if (s.localEcho) s.term.write(data);
+        });
+
+        s.container.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+            if (!s.isConnected || !s.writer || !s.interactiveMode) return;
+            navigator.clipboard.readText().then(function (text) {
+                if (text) {
+                    var safeText = text.replace(/\r\n|\n|\r/g, '');
+                    if (safeText) {
+                        var bytes = new TextEncoder().encode(safeText);
+                        s.writer.write(bytes);
+                        s.txCount += bytes.length;
+                        if (activeSession === s) txCountEl.textContent = s.txCount.toString();
+                        if (s.localEcho) s.term.write(safeText);
+                        showToast('已粘贴到终端 ' + s.name, 'ok');
+                    }
+                }
+            }).catch(function (err) {
+                console.error('Paste failed', err);
+            });
+        });
+
+        new MutationObserver(function () {
+            if (s.term) s.term.options.theme = getTermTheme();
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    } catch (e) { console.error('Terminal init failed:', e); }
+}
+
+function initChartJS() {
+    if (chart) return;
+    if (typeof Chart === 'undefined') { setTimeout(initChartJS, 200); return; }
+    try {
+        chart = new Chart(document.getElementById('waveform-chart'), {
+            type: 'line',
+            data: { labels: [], datasets: [] },
+            options: {
+                responsive: true, maintainAspectRatio: false, animation: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { position: 'top', labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#666', font: { size: 11 } } } },
+                scales: {
+                    x: { display: true, ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#999', maxTicksLimit: 10 }, grid: { color: 'rgba(128,128,128,0.15)' } },
+                    y: { display: true, ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#999' }, grid: { color: 'rgba(128,128,128,0.15)' } }
+                }
+            }
+        });
+        new MutationObserver(function () {
+            if (chart) {
+                var tc2 = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#666';
+                var sc = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#999';
+                chart.options.plugins.legend.labels.color = tc2;
+                chart.options.scales.x.ticks.color = sc;
+                chart.options.scales.y.ticks.color = sc;
+                chart.update('none');
+            }
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    } catch (e) { console.error('Chart init failed:', e); }
+}
+
+// === Guards, Resizers & Commands Library ===
+window.addEventListener('beforeunload', function (e) {
+    var connCount = sessions.filter(function (s) { return s.isConnected; }).length;
+    if (connCount > 0) {
+        var msg = '\u6709 ' + connCount + ' \u4e2a\u4e32\u53e3\u4ecd\u5904\u4e8e\u8fde\u63a5\u72b6\u6001\uff0c\u786e\u5b9a\u8981\u79bb\u5f00\u5417\uff1f';
+        e.returnValue = msg;
+        return msg;
+    }
+});
+document.querySelector('.back-link').addEventListener('click', function (e) {
+    var connCount = sessions.filter(function (s) { return s.isConnected; }).length;
+    if (connCount > 0) {
+        e.preventDefault();
+        if (confirm('\u6709 ' + connCount + ' \u4e2a\u4e32\u53e3\u5f53\u524d\u5904\u4e8e\u8fde\u63a5\u72b6\u6001\u3002\n\n\u70b9\u51fb\u3010\u786e\u5b9a\u3011\u5c06\u65ad\u5f00\u6240\u6709\u8fde\u63a5\u5e76\u8fd4\u56de\u4e3b\u9875\u3002\n\u70b9\u51fb\u3010\u53d6\u6d88\u3011\u4fdd\u7559\u5728\u5f53\u524d\u9875\u9762\u3002')) {
+            Promise.all(sessions.map(function (s) { return cleanupConnection(s); })).then(function () {
+                window.location.href = '/';
+            });
+        }
+    }
+});
+
+(function () {
+    var handle = document.getElementById('terminal-resize-handle');
+    var tc = document.getElementById('terminals-wrapper');
+    var workspace = document.querySelector('.main-workspace');
+    if (!handle || !tc || !workspace) return;
+    var startY = 0, startH = 0, dragging = false;
+    function onDown(e) {
+        e.preventDefault();
+        dragging = true;
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        startH = workspace.offsetHeight;
+        handle.classList.add('dragging');
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onUp);
+    }
+    function onMove(e) {
+        if (!dragging) return;
+        var y = e.touches ? e.touches[0].clientY : e.clientY;
+        var newH = Math.max(660, startH + (y - startY));
+        workspace.style.height = newH + 'px';
+        sessions.forEach(function (s) { if (s.fitAddon) try { s.fitAddon.fit(); } catch (ex) { } });
+    }
+    function onUp() {
+        dragging = false;
+        handle.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onUp);
+        sessions.forEach(function (s) { if (s.fitAddon) try { s.fitAddon.fit(); } catch (ex) { } });
+    }
+    handle.addEventListener('mousedown', onDown);
+    handle.addEventListener('touchstart', onDown);
+})();
+
+(function () {
+    var handle = document.getElementById('sidebar-resize-handle');
+    var sidebar = document.getElementById('primary-sidebar');
+    if (!handle || !sidebar) return;
+    var startX = 0, startW = 0, dragging = false;
+    function onDown(e) {
+        if (sidebar.classList.contains('collapsed')) return;
+        e.preventDefault();
+        dragging = true;
+        startX = e.touches ? e.touches[0].clientX : e.clientX;
+        startW = sidebar.offsetWidth;
+        handle.classList.add('dragging');
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onUp);
+    }
+    function onMove(e) {
+        if (!dragging) return;
+        var x = e.touches ? e.touches[0].clientX : e.clientX;
+        var newW = Math.max(150, Math.min(500, startW + (x - startX)));
+        sidebar.style.width = newW + 'px';
+        sessions.forEach(function (s) { if (s.fitAddon) try { s.fitAddon.fit(); } catch (ex) { } });
+    }
+    function onUp() {
+        dragging = false;
+        handle.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onUp);
+        sessions.forEach(function (s) { if (s.fitAddon) try { s.fitAddon.fit(); } catch (ex) { } });
+    }
+    handle.addEventListener('mousedown', onDown);
+    handle.addEventListener('touchstart', onDown);
+})();
+
+(function () {
+    var STORAGE_KEY = 'serialDebug_shellCmds';
+    var defaultCmds = [
+        { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'uname -a', desc: '\u5185\u6838\u7248\u672c' },
+        { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'cat /proc/cpuinfo', desc: 'CPU \u4fe1\u606f' },
+        { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'free -h', desc: '\u5185\u5b58\u4f7f\u7528' },
+        { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'df -h', desc: '\u78c1\u76d8\u4f7f\u7528' },
+        { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'uptime', desc: '\u8fd0\u884c\u65f6\u95f4' },
+        { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'ls -la', desc: '\u5217\u51fa\u6587\u4ef6' },
+        { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'pwd', desc: '\u5f53\u524d\u76ee\u5f55' },
+        { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'cat /etc/os-release', desc: '\u7cfb\u7edf\u7248\u672c' },
+        { cat: '\u7f51\u7edc', cmd: 'ifconfig', desc: '\u7f51\u5361\u4fe1\u606f' },
+        { cat: '\u7f51\u7edc', cmd: 'ping -c 3 8.8.8.8', desc: '\u7f51\u7edc\u6d4b\u8bd5' },
+        { cat: '\u7f51\u7edc', cmd: 'ip addr', desc: 'IP \u5730\u5740' },
+        { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'ps aux', desc: '\u8fdb\u7a0b\u5217\u8868' },
+        { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'top -bn1 | head -20', desc: 'CPU \u5360\u7528' },
+        { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'dmesg | tail -30', desc: '\u5185\u6838\u65e5\u5fd7' }
+    ];
+    function loadCmds() { try { var d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch (e) { return null; } }
+    function saveCmds(cmds) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cmds)); } catch (e) { } }
+    var cmds = loadCmds();
+    if (!cmds) { cmds = defaultCmds.slice(); saveCmds(cmds); }
+
+    var countEl = document.getElementById('shell-cmds-count');
+    var listEl = document.getElementById('shell-cmds-list');
+    var addBtn = document.getElementById('btn-add-shell-cmd');
+    var cmdInput = document.getElementById('shell-cmd-input');
+    var descInput = document.getElementById('shell-cmd-desc');
+    var catSelect = document.getElementById('shell-cmd-category');
+
+    function renderCmds() {
+        countEl.textContent = cmds.length;
+        listEl.innerHTML = '';
+        var groups = {};
+        cmds.forEach(function (c, i) {
+            if (!groups[c.cat]) groups[c.cat] = [];
+            groups[c.cat].push({ idx: i, cmd: c.cmd, desc: c.desc });
+        });
+        var catOrder = ['\u7cfb\u7edf\u4fe1\u606f', '\u6587\u4ef6\u64cd\u4f5c', '\u7f51\u7edc', '\u8fdb\u7a0b\u7ba1\u7406', '\u81ea\u5b9a\u4e49'];
+        Object.keys(groups).sort(function (a, b) {
+            var ai = catOrder.indexOf(a), bi = catOrder.indexOf(b);
+            return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+        }).forEach(function (cat) {
+            var g = document.createElement('div');
+            g.className = 'shell-cat-group';
+            var titleHtml = '<div class="shell-cat-title">' + cat + '</div>';
+            var tableObj = document.createElement('div');
+            tableObj.className = 'shell-cmd-table';
+            groups[cat].forEach(function (item) {
+                var row = document.createElement('div');
+                row.className = 'shell-cmd-item';
+                var divHtml = document.createElement('div'); divHtml.textContent = item.cmd; var escCmd = divHtml.innerHTML;
+                divHtml.textContent = item.desc || ''; var escDesc = divHtml.innerHTML;
+                row.innerHTML =
+                    '<div class="shell-cmd-text" title="' + escCmd + '">' + escCmd + '</div>' +
+                    '<div class="shell-cmd-desc" title="' + escDesc + '">' + escDesc + '</div>' +
+                    '<div class="shell-cmd-del-cell"><button class="shell-cmd-del" data-idx="' + item.idx + '" title="\u5220\u9664"><span class="material-icons-round" style="font-size:16px">close</span></button></div>';
+                row.addEventListener('click', function (e) {
+                    if (e.target.closest('.shell-cmd-del')) return;
+                    if (activeSession && activeSession.isConnected && activeSession.writer) {
+                        sendData(activeSession, item.cmd);
+                        if (activeSession.term) activeSession.term.focus();
+                    } else {
+                        sendInput.value = item.cmd;
+                        sendInput.focus();
+                    }
+                });
+                row.addEventListener('contextmenu', function (e) {
+                    e.preventDefault();
+                    if (e.target.closest('.shell-cmd-del')) return;
+                    navigator.clipboard.writeText(item.cmd).then(function () {
+                        showToast('\u5df2\u590d\u5236\u547d\u4ee4', 'ok');
+                    }).catch(function () { showToast('\u590d\u5236\u5931\u8d25', 'error'); });
+                });
+                tableObj.appendChild(row);
+            });
+            g.innerHTML = titleHtml;
+            g.appendChild(tableObj);
+            listEl.appendChild(g);
+        });
+        listEl.querySelectorAll('.shell-cmd-del').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var cmdPanel = document.getElementById('panel-cmd');
+                if (!cmdPanel || !cmdPanel.classList.contains('editing')) return;
+                cmds.splice(parseInt(btn.getAttribute('data-idx')), 1);
+                saveCmds(cmds); renderCmds();
+            });
+        });
+    }
+    addBtn.addEventListener('click', function () {
+        var cmd = cmdInput.value.trim();
+        if (!cmd) { cmdInput.focus(); return; }
+        cmds.push({ cat: catSelect.value, cmd: cmd, desc: descInput.value.trim() });
+        saveCmds(cmds); renderCmds();
+        cmdInput.value = ''; descInput.value = '';
+    });
+    cmdInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') addBtn.click(); });
+    renderCmds();
+
+    var primarySidebar = document.getElementById('primary-sidebar');
+    var resizeHandle = document.getElementById('sidebar-resize-handle');
+    var activityIcon = document.querySelector('.activity-icon');
+    if (activityIcon) {
+        activityIcon.addEventListener('click', function () {
+            var isCollapsed = primarySidebar.classList.toggle('collapsed');
+            resizeHandle.style.display = isCollapsed ? 'none' : 'flex';
+            this.classList.toggle('active', !isCollapsed);
+            setTimeout(function () { sessions.forEach(function (s) { if (s.fitAddon) try { s.fitAddon.fit(); } catch (ex) { } }); }, 250);
+        });
+    }
+    var editBtn = document.getElementById('btn-edit-cmds');
+    var cmdPanel = document.getElementById('panel-cmd');
+    editBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        cmdPanel.classList.toggle('editing');
+        editBtn.classList.toggle('active');
+        renderCmds();
+    });
+})();
+
+initChartJS();
+createSession();
+        }
+
+    
         document.addEventListener('astro:page-load', function() { window.__serialDebugInit = false; initSerialDebug(); });
     </script>
 </Layout>
