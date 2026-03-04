@@ -1092,6 +1092,30 @@ function initTerminal(s) {
         s.term.loadAddon(s.fitAddon);
         if (typeof WebLinksAddon !== 'undefined') s.term.loadAddon(new WebLinksAddon.WebLinksAddon());
         s.term.open(s.container);
+
+        // Prevent wheel scroll chaining to page when terminal is already at top/bottom.
+        // This keeps page scroll unaffected only when pointer leaves terminal area.
+        if (!s._wheelBoundaryLockBound) {
+            s._wheelBoundaryLockBound = true;
+            s.container.addEventListener('wheel', function (e) {
+                var viewport = s.container.querySelector('.xterm-viewport');
+                if (!viewport) return;
+
+                var deltaY = e.deltaY || 0;
+                if (deltaY === 0) return;
+
+                var maxScrollTop = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
+                var current = viewport.scrollTop;
+                var atTop = current <= 0;
+                var atBottom = current >= maxScrollTop - 1;
+
+                if ((deltaY < 0 && atTop) || (deltaY > 0 && atBottom)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, { passive: false });
+        }
+
         setTimeout(function () { s.fitAddon.fit(); }, 50);
         new ResizeObserver(function () { try { s.fitAddon.fit(); } catch (e) { } }).observe(s.container);
 
