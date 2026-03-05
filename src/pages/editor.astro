@@ -1004,6 +1004,87 @@
             syncToast.className = 'sync-toast hide';
         }
 
+        const PUBLISH_RESUME_KEY = 'okay_editor_publish_job_v1';
+
+        function showPublishSuccessOverlay() {
+            const successOverlay = document.getElementById('success-overlay');
+            const successBox = successOverlay?.querySelector('.success-box') as HTMLElement;
+            if (successOverlay) successOverlay.style.display = 'flex';
+            if (successBox) successBox.style.display = 'block';
+        }
+
+        function setPendingPublishJob(publishId: string) {
+            const payload = { publishId, startedAt: Date.now() };
+            sessionStorage.setItem(PUBLISH_RESUME_KEY, JSON.stringify(payload));
+        }
+
+        function clearPendingPublishJob() {
+            sessionStorage.removeItem(PUBLISH_RESUME_KEY);
+        }
+
+        function getPendingPublishId(): string | null {
+            const raw = sessionStorage.getItem(PUBLISH_RESUME_KEY);
+            if (!raw) return null;
+            try {
+                const parsed = JSON.parse(raw);
+                return typeof parsed?.publishId === 'string' ? parsed.publishId : null;
+            } catch {
+                return null;
+            }
+        }
+
+        async function pollPublishResult(publishId: string, timeoutMs = 180000) {
+            const startTime = Date.now();
+
+            while (Date.now() - startTime < timeoutMs) {
+                try {
+                    const res = await fetch(`/api/publishStatus?id=${encodeURIComponent(publishId)}`, {
+                        cache: 'no-store'
+                    });
+                    const data = await res.json();
+                    if (data?.found && (data.status === 'success' || data.status === 'error')) {
+                        return data;
+                    }
+                } catch {
+                    // ignore transient polling failures
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            return null;
+        }
+
+        async function restorePendingPublishIfNeeded() {
+            const pendingId = getPendingPublishId();
+            if (!pendingId) return;
+
+            showToast('\u68c0\u6d4b\u5230\u4e0a\u6b21\u53d1\u5e03\uff0c\u6b63\u5728\u67e5\u8be2\u540c\u6b65\u72b6\u6001...', 'sync', 'sync');
+            const result = await pollPublishResult(pendingId);
+
+            if (!result) {
+                clearPendingPublishJob();
+                toastError('\u53d1\u5e03\u72b6\u6001\u8d85\u65f6\uff0c\u8bf7\u68c0\u67e5 GitHub \u63d0\u4ea4\u7ed3\u679c');
+                return;
+            }
+
+            clearPendingPublishJob();
+            if (result.status === 'success') {
+                if (result.slug) {
+                    slugInput.value = result.slug;
+                    if (!initialIsEdit) {
+                        originalSlug = result.slug;
+                        initialIsEdit = true;
+                    }
+                }
+
+                toastSuccess('\u53d1\u5e03\u6210\u529f\uff0c\u5df2\u540c\u6b65\u81f3 GitHub');
+                setTimeout(showPublishSuccessOverlay, 900);
+            } else {
+                toastError('\u53d1\u5e03\u5931\u8d25: ' + (result.message || '\u672a\u77e5\u9519\u8bef'));
+            }
+        }
+
         // --- Button Events ---
         document.getElementById('btn-save')?.addEventListener('click', () => saveArticle(true));
 
@@ -1042,6 +1123,8 @@
 
                 const tags = getSelectedTags();
                 const desc = descInput.value.trim();
+                const publishId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+                setPendingPublishJob(publishId);
 
                 showToast('\u6b63\u5728\u4fdd\u5b58\u5e76\u540c\u6b65\u5230 GitHub...', 'sync', 'sync');
                 const pRes = await fetch('/api/publish', {
@@ -1056,11 +1139,13 @@
                         isEdit: initialIsEdit,
                         cover: finalCover,
                         tags,
+                        publishId,
                         originalSlug: initialIsEdit ? originalSlug : null
                     })
                 });
                 const pData = await pRes.json();
 
+                clearPendingPublishJob();
                 if (pData.success) {
                     if (pData.slug) {
                         slugInput.value = pData.slug;
@@ -1071,23 +1156,23 @@
                     }
 
                     toastSuccess('\u53d1\u5e03\u6210\u529f\uff0c\u5df2\u540c\u6b65\u81f3 GitHub');
-                    setTimeout(() => {
-                        const successOverlay = document.getElementById('success-overlay');
-                        const successBox = successOverlay?.querySelector('.success-box') as HTMLElement;
-                        if (successOverlay) successOverlay.style.display = 'flex';
-                        if (successBox) successBox.style.display = 'block';
-                    }, 1500);
+                    setTimeout(showPublishSuccessOverlay, 900);
                 } else {
                     toastError('\u540c\u6b65\u5931\u8d25: ' + pData.error);
                 }
             } catch (e: any) {
-                toastError('\u53d1\u5e03\u5931\u8d25: ' + (e.message || '\u672a\u77e5\u9519\u8bef'));
+                if (e?.name !== 'AbortError') {
+                    clearPendingPublishJob();
+                    toastError('\u53d1\u5e03\u5931\u8d25: ' + (e.message || '\u672a\u77e5\u9519\u8bef'));
+                }
             } finally {
                 publishBtn.disabled = false;
                 publishBtn.style.opacity = '1';
                 publishBtn.style.cursor = '';
             }
         });
+
+        restorePendingPublishIfNeeded();
 
         document.getElementById('btn-go-home')?.addEventListener('click', () => {
             window.location.href = '/';
