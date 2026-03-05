@@ -29,6 +29,3 @@ workers/ai-gateway/wrangler.toml
 
 # IDE settings
 .idea/
-
-# local publish status cache (editor dev runtime)
-.okay/

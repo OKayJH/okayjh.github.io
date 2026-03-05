@@ -1004,222 +1004,59 @@
             syncToast.className = 'sync-toast hide';
         }
 
-        const PUBLISH_RESUME_KEY = 'okay_editor_publish_job_v1';
-        type PendingPublishJob = {
-            publishId: string;
-            startedAt: number;
-            stage?: 'running' | 'success';
-            slug?: string;
-        };
-
-        function showPublishSuccessOverlay() {
-            const successOverlay = document.getElementById('success-overlay');
-            const successBox = successOverlay?.querySelector('.success-box') as HTMLElement;
-            if (successOverlay) successOverlay.style.display = 'flex';
-            if (successBox) successBox.style.display = 'block';
-        }
-
-        function readPendingPublishJob(): PendingPublishJob | null {
-            const raw = sessionStorage.getItem(PUBLISH_RESUME_KEY);
-            if (!raw) return null;
-            try {
-                const parsed = JSON.parse(raw);
-                if (!parsed || typeof parsed !== 'object') return null;
-                if (typeof parsed.publishId !== 'string') return null;
-                return parsed as PendingPublishJob;
-            } catch {
-                return null;
-            }
-        }
-
-        function setPendingPublishJob(job: PendingPublishJob) {
-            sessionStorage.setItem(PUBLISH_RESUME_KEY, JSON.stringify(job));
-        }
-
-        function updatePendingPublishJob(patch: Partial<PendingPublishJob>) {
-            const current = readPendingPublishJob();
-            if (!current) return;
-            setPendingPublishJob({ ...current, ...patch });
-        }
-
-        function clearPendingPublishJob() {
-            sessionStorage.removeItem(PUBLISH_RESUME_KEY);
-        }
-
-        async function pollPublishResult(publishId: string, timeoutMs = 180000) {
-            const startTime = Date.now();
-
-            while (Date.now() - startTime < timeoutMs) {
-                try {
-                    const res = await fetch(`/api/publish?id=${encodeURIComponent(publishId)}`, {
-                        cache: 'no-store'
-                    });
-                    const data = await res.json();
-                    if (data?.found && (data.status === 'success' || data.status === 'error')) {
-                        return data;
-                    }
-                } catch {
-                    // ignore transient polling failures
-                }
-
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-
-            return null;
-        }
-
-        async function restorePendingPublishIfNeeded() {
-            const pendingJob = readPendingPublishJob();
-            if (!pendingJob) return;
-
-            if (pendingJob.stage === 'success') {
-                hideLoading();
-                if (pendingJob.slug) {
-                    slugInput.value = pendingJob.slug;
-                    if (!initialIsEdit) {
-                        originalSlug = pendingJob.slug;
-                        initialIsEdit = true;
-                    }
-                }
-                toastSuccess('\u53d1\u5e03\u6210\u529f\uff0c\u5df2\u540c\u6b65\u81f3 GitHub');
-                setTimeout(showPublishSuccessOverlay, 500);
-                return;
-            }
-
-            showLoading('\u6b63\u5728\u540e\u53f0\u540c\u6b65\u81f3 GitHub...');
-            showToast('\u68c0\u6d4b\u5230\u4e0a\u6b21\u53d1\u5e03\uff0c\u6b63\u5728\u67e5\u8be2\u540c\u6b65\u72b6\u6001...', 'sync', 'sync');
-            const result = await pollPublishResult(pendingJob.publishId);
-
-            if (!result) {
-                hideLoading();
-                showToast('\u53d1\u5e03\u540c\u6b65\u8017\u65f6\u8f83\u957f\uff0c\u540e\u53f0\u7ee7\u7eed\u5904\u7406...', 'sync', 'sync');
-                return;
-            }
-
-            if (result.status === 'success') {
-                hideLoading();
-                const resolvedSlug = result.slug || pendingJob.slug || '';
-                if (resolvedSlug) {
-                    slugInput.value = resolvedSlug;
-                    if (!initialIsEdit) {
-                        originalSlug = resolvedSlug;
-                        initialIsEdit = true;
-                    }
-                }
-
-                updatePendingPublishJob({ stage: 'success', slug: resolvedSlug || undefined });
-                toastSuccess('\u53d1\u5e03\u6210\u529f\uff0c\u5df2\u540c\u6b65\u81f3 GitHub');
-                setTimeout(showPublishSuccessOverlay, 900);
-            } else {
-                hideLoading();
-                clearPendingPublishJob();
-                toastError('\u53d1\u5e03\u5931\u8d25: ' + (result.message || '\u672a\u77e5\u9519\u8bef'));
-            }
-        }
-
         // --- Button Events ---
         document.getElementById('btn-save')?.addEventListener('click', () => saveArticle(true));
 
-        const publishBtn = document.getElementById('btn-publish') as HTMLButtonElement | null;
-        publishBtn?.addEventListener('click', async () => {
-            if (publishBtn.disabled) return;
-
-            publishBtn.disabled = true;
-            publishBtn.style.opacity = '0.7';
-            publishBtn.style.cursor = 'not-allowed';
-
-            try {
-                const title = titleInput.value.trim();
-                const slug = slugInput.value.trim();
-                if (!title) throw new Error('\u6807\u9898\u4e0d\u80fd\u4e3a\u7a7a');
-                if (!mdInput.value.trim()) throw new Error('\u6b63\u6587\u4e0d\u80fd\u4e3a\u7a7a');
-
-                showToast('\u6b63\u5728\u51c6\u5907\u53d1\u5e03\u5185\u5bb9...', 'save', 'save');
-
-                // If no cover, generate a default one and upload it.
-                let finalCover = coverUrl;
-                if (!finalCover) {
-                    const defaultBase64 = generateDefaultCover(title);
-                    try {
-                        const upRes = await fetch('/api/uploadImage', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ base64: defaultBase64, filename: `cover-${Date.now()}.png` })
-                        });
-                        const upData = await upRes.json();
-                        if (upData.success) finalCover = upData.url;
-                    } catch {
-                        // keep empty cover when upload fails
-                    }
+        document.getElementById('btn-publish')?.addEventListener('click', async () => {
+            let publishing = true;
+            // Catch the Vite HMR reload by hooking beforeunload purely to show UI, NOT blocking
+            const informReload = () => {
+                if (publishing) {
+                    document.body.innerHTML = '<div style="display:flex;height:100vh;width:100vw;align-items:center;justify-content:center;background:#1a1a2e;color:#fff;font-size:1.5rem;flex-direction:column;gap:20px;"><div class="spinner"></div><div>正在后台同步至 GitHub，请勿关闭页面...</div></div>';
                 }
-
-                const tags = getSelectedTags();
-                const desc = descInput.value.trim();
-                const publishId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-                setPendingPublishJob({ publishId, startedAt: Date.now(), stage: 'running' });
-
-                showLoading('\u6b63\u5728\u540e\u53f0\u540c\u6b65\u81f3 GitHub...');
-                showToast('\u6b63\u5728\u4fdd\u5b58\u5e76\u540c\u6b65\u5230 GitHub...', 'sync', 'sync');
+            };
+            window.addEventListener('beforeunload', informReload);
+            
+            try {
+                showToast('正在保存文章...', 'save', 'save');
+                await saveArticle(false);
+                
+                showToast('等待文件系统同步...', 'hourglass_empty', 'sync');
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                showToast('正在推送至 GitHub...', 'cloud_upload', 'push');
                 const pRes = await fetch('/api/publish', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        slug,
-                        title,
-                        description: desc,
-                        content: mdInput.value,
-                        isDraft: false,
-                        isEdit: initialIsEdit,
-                        cover: finalCover,
-                        tags,
-                        publishId,
-                        originalSlug: initialIsEdit ? originalSlug : null
-                    })
+                    body: JSON.stringify({ title: titleInput.value, originalSlug: initialIsEdit ? originalSlug : null })
                 });
                 const pData = await pRes.json();
-
+                
+                publishing = false;
+                window.removeEventListener('beforeunload', informReload);
+                
                 if (pData.success) {
-                    hideLoading();
-                    if (pData.slug) {
-                        slugInput.value = pData.slug;
-                        if (!initialIsEdit) {
-                            originalSlug = pData.slug;
-                            initialIsEdit = true;
-                        }
-                    }
-
-                    updatePendingPublishJob({
-                        stage: 'success',
-                        slug: pData.slug || slugInput.value
-                    });
-                    toastSuccess('\u53d1\u5e03\u6210\u529f\uff0c\u5df2\u540c\u6b65\u81f3 GitHub');
-                    setTimeout(showPublishSuccessOverlay, 900);
+                    toastSuccess('✅ 发布成功！已同步至 GitHub');
+                    setTimeout(() => {
+                        const successOverlay = document.getElementById('success-overlay');
+                        const successBox = successOverlay?.querySelector('.success-box') as HTMLElement;
+                        if (successOverlay) successOverlay.style.display = 'flex';
+                        if (successBox) successBox.style.display = 'block';
+                    }, 1500);
                 } else {
-                    hideLoading();
-                    clearPendingPublishJob();
-                    toastError('\u540c\u6b65\u5931\u8d25: ' + pData.error);
+                    toastError('同步失败: ' + pData.error);
                 }
             } catch (e: any) {
-                if (e?.name !== 'AbortError') {
-                    hideLoading();
-                    clearPendingPublishJob();
-                    toastError('\u53d1\u5e03\u5931\u8d25: ' + (e.message || '\u672a\u77e5\u9519\u8bef'));
-                }
-            } finally {
-                publishBtn.disabled = false;
-                publishBtn.style.opacity = '1';
-                publishBtn.style.cursor = '';
+                publishing = false;
+                window.removeEventListener('beforeunload', informReload);
+                toastError('发布失败: ' + (e.message || '未知错误'));
             }
         });
 
-        restorePendingPublishIfNeeded();
-
         document.getElementById('btn-go-home')?.addEventListener('click', () => {
-            clearPendingPublishJob();
             window.location.href = '/';
         });
         document.getElementById('btn-view-article')?.addEventListener('click', () => {
-            clearPendingPublishJob();
             window.location.href = `/blog/${slugInput.value}`;
         });
 
