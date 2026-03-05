@@ -47,9 +47,12 @@ export const POST: APIRoute = async ({ request }) => {
         let tagsString = Array.isArray(tags) ? `\n  - ${tags.join('\n  - ')}` : '';
         if (tagsString === '') tagsString = '\n  - 技术'; // default tag
 
+        // Get local YYYY-MM-DD date using timezone offset
+        const localDate = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+
         const fileContent = `---
 title: ${JSON.stringify(title)}
-date: ${date || new Date().toISOString().split('T')[0]}
+date: ${date || localDate}
 description: ${JSON.stringify(description || '')}
 tags:${tagsString}
 cover: ${JSON.stringify(cover || '')}

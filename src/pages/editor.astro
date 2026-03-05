@@ -1011,23 +1011,42 @@
             try {
                 // Determine save parameters
                 const title = titleInput.value.trim();
-                const slug = slugInput.value.trim();
+                let slug = slugInput.value.trim();
                 if (!title) { alert('标题不能为空'); return; }
+
+                // Fallback deterministic slug logic from backend to predict the slug
+                if (!slug) {
+                    slug = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+                    if (!slug || slug === '-') slug = `post-${Date.now()}`;
+                    slugInput.value = slug; // <-- CRITICAL: Update DOM so saveArticle() uses this exact slug!
+                }
 
                 // Save pending task into sessionStorage before HMR strikes
                 sessionStorage.setItem('__editor_publish_task', JSON.stringify({
                     pending: true,
                     title: title,
+                    slug: slug, // Save the exact slug so we can redirect correctly later!
                     originalSlug: initialIsEdit ? originalSlug : null,
                     timestamp: Date.now()
                 }));
 
                 showToast('正在保存文章...', 'save', 'save');
                 // The following call will save the file to disk, causing Vite to HMR reload!
-                await saveArticle(false);
+                const saveData = await saveArticle(false);
                 
+                // Try updating with the exact true slug from the backend (if HMR doesn't kill us first)
+                if (saveData && saveData.slug) {
+                    const t = JSON.parse(sessionStorage.getItem('__editor_publish_task') || '{}');
+                    t.slug = saveData.slug;
+                    sessionStorage.setItem('__editor_publish_task', JSON.stringify(t));
+                }
+
                 // If by some miracle HMR is disabled or extremely slow, we resume here naturally.
-                // We'll just let the reload happen or fall through to resumePublishTask if no reload.
+                // If it reloads, this entire timeout is destroyed and `astro:page-load` does the work.
+                setTimeout(() => {
+                    resumePublishTask();
+                }, 500);
+
             } catch (e: any) {
                 sessionStorage.removeItem('__editor_publish_task');
                 toastError('保存失败: ' + (e.message || '未知错误'));
@@ -1067,6 +1086,13 @@
                         setTimeout(() => {
                             const successOverlay = document.getElementById('success-overlay');
                             const successBox = successOverlay?.querySelector('.success-box') as HTMLElement;
+                            
+                            // OVERRIDE the view-article button behavior using our persisted slug!
+                            const btnView = document.getElementById('btn-view-article');
+                            if (btnView) {
+                                btnView.onclick = () => window.location.href = `/blog/${task.slug}`;
+                            }
+
                             if (successOverlay) successOverlay.style.display = 'flex';
                             if (successBox) successBox.style.display = 'block';
                         }, 1500);
@@ -1083,6 +1109,7 @@
         document.getElementById('btn-go-home')?.addEventListener('click', () => {
             window.location.href = '/';
         });
+        // This is a generic fallback. The actual override happens in resumePublishTask
         document.getElementById('btn-view-article')?.addEventListener('click', () => {
             window.location.href = `/blog/${slugInput.value}`;
         });
