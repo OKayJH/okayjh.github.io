@@ -193,3 +193,39 @@ ${content}
         return new Response(JSON.stringify({ error: e.message }), { status: 500 });
     }
 };
+
+export const GET: APIRoute = async ({ request }) => {
+    if (import.meta.env.PROD) {
+        return new Response(JSON.stringify({ error: 'Endpoint only available in dev mode' }), { status: 403 });
+    }
+
+    try {
+        const url = new URL(request.url);
+        const id = (url.searchParams.get('id') || '').trim();
+        if (!id) {
+            return new Response(JSON.stringify({ error: 'Missing id' }), { status: 400 });
+        }
+
+        const projectRoot = process.cwd();
+        const store = readPublishStore(projectRoot);
+        const item = store[id];
+        if (!item) {
+            return new Response(JSON.stringify({ success: true, found: false }), { status: 200 });
+        }
+
+        return new Response(
+            JSON.stringify({
+                success: true,
+                found: true,
+                id,
+                status: item.status,
+                message: item.message,
+                slug: item.slug || null,
+                updatedAt: item.updatedAt
+            }),
+            { status: 200 }
+        );
+    } catch (e: any) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+    }
+};

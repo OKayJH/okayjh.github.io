@@ -1051,7 +1051,7 @@
 
             while (Date.now() - startTime < timeoutMs) {
                 try {
-                    const res = await fetch(`/api/publishStatus?id=${encodeURIComponent(publishId)}`, {
+                    const res = await fetch(`/api/publish?id=${encodeURIComponent(publishId)}`, {
                         cache: 'no-store'
                     });
                     const data = await res.json();
@@ -1073,6 +1073,7 @@
             if (!pendingJob) return;
 
             if (pendingJob.stage === 'success') {
+                hideLoading();
                 if (pendingJob.slug) {
                     slugInput.value = pendingJob.slug;
                     if (!initialIsEdit) {
@@ -1085,15 +1086,18 @@
                 return;
             }
 
+            showLoading('\u6b63\u5728\u540e\u53f0\u540c\u6b65\u81f3 GitHub...');
             showToast('\u68c0\u6d4b\u5230\u4e0a\u6b21\u53d1\u5e03\uff0c\u6b63\u5728\u67e5\u8be2\u540c\u6b65\u72b6\u6001...', 'sync', 'sync');
             const result = await pollPublishResult(pendingJob.publishId);
 
             if (!result) {
+                hideLoading();
                 showToast('\u53d1\u5e03\u540c\u6b65\u8017\u65f6\u8f83\u957f\uff0c\u540e\u53f0\u7ee7\u7eed\u5904\u7406...', 'sync', 'sync');
                 return;
             }
 
             if (result.status === 'success') {
+                hideLoading();
                 const resolvedSlug = result.slug || pendingJob.slug || '';
                 if (resolvedSlug) {
                     slugInput.value = resolvedSlug;
@@ -1107,6 +1111,7 @@
                 toastSuccess('\u53d1\u5e03\u6210\u529f\uff0c\u5df2\u540c\u6b65\u81f3 GitHub');
                 setTimeout(showPublishSuccessOverlay, 900);
             } else {
+                hideLoading();
                 clearPendingPublishJob();
                 toastError('\u53d1\u5e03\u5931\u8d25: ' + (result.message || '\u672a\u77e5\u9519\u8bef'));
             }
@@ -1153,6 +1158,7 @@
                 const publishId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
                 setPendingPublishJob({ publishId, startedAt: Date.now(), stage: 'running' });
 
+                showLoading('\u6b63\u5728\u540e\u53f0\u540c\u6b65\u81f3 GitHub...');
                 showToast('\u6b63\u5728\u4fdd\u5b58\u5e76\u540c\u6b65\u5230 GitHub...', 'sync', 'sync');
                 const pRes = await fetch('/api/publish', {
                     method: 'POST',
@@ -1173,6 +1179,7 @@
                 const pData = await pRes.json();
 
                 if (pData.success) {
+                    hideLoading();
                     if (pData.slug) {
                         slugInput.value = pData.slug;
                         if (!initialIsEdit) {
@@ -1188,11 +1195,13 @@
                     toastSuccess('\u53d1\u5e03\u6210\u529f\uff0c\u5df2\u540c\u6b65\u81f3 GitHub');
                     setTimeout(showPublishSuccessOverlay, 900);
                 } else {
+                    hideLoading();
                     clearPendingPublishJob();
                     toastError('\u540c\u6b65\u5931\u8d25: ' + pData.error);
                 }
             } catch (e: any) {
                 if (e?.name !== 'AbortError') {
+                    hideLoading();
                     clearPendingPublishJob();
                     toastError('\u53d1\u5e03\u5931\u8d25: ' + (e.message || '\u672a\u77e5\u9519\u8bef'));
                 }
