@@ -1,5 +1,19 @@
 ---
 // src/components/Header.astro
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+});
+
+const headerSearchIndex = posts.map((post) => ({
+    title: post.data.title,
+    slug: post.slug,
+    url: `/blog/${post.slug}`,
+    description: post.data.description || '',
+    tags: Array.isArray(post.data.tags) ? post.data.tags : [],
+    timestamp: new Date(post.data.date).getTime()
+}));
 ---
 
 <nav class="navbar" id="navbar">
@@ -81,14 +95,21 @@
     }
 </style>
 
+<script define:vars={{ headerSearchIndex }}>
+    window.headerSearchIndex = headerSearchIndex;
+</script>
+
 <script>
     const setupHeader = () => {
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
         const createBtn = document.getElementById('nav-create-btn');
         const exitDevBtn = document.getElementById('nav-exit-dev-btn');
+        const searchBar = document.getElementById('search-bar');
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
         
-        const updateIcon = (theme: string) => {
+        const updateIcon = (theme) => {
             if(themeIcon) {
                 themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
             }
@@ -139,6 +160,118 @@
                 checkDevMode();
                 window.dispatchEvent(new Event('dev-mode-changed')); // Notify others
             });
+        }
+
+        if (searchBar && searchInput && searchResults && !searchBar.dataset.searchReady) {
+            const searchIndex = Array.isArray(window.headerSearchIndex) ? window.headerSearchIndex : [];
+            const maxResults = 8;
+            let currentResults = [];
+
+            const escapeHtml = (value = '') => {
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            };
+
+            const hideResults = () => {
+                currentResults = [];
+                searchResults.classList.remove('visible');
+                searchResults.innerHTML = '';
+            };
+
+            const renderResults = (query) => {
+                const keyword = String(query || '').trim().toLowerCase();
+                if (!keyword) {
+                    hideResults();
+                    return;
+                }
+
+                const ranked = searchIndex
+                    .map((post) => {
+                        const title = String(post.title || '').toLowerCase();
+                        const description = String(post.description || '').toLowerCase();
+                        const slug = String(post.slug || '').toLowerCase();
+                        const tags = Array.isArray(post.tags) ? post.tags.map((tag) => String(tag).toLowerCase()) : [];
+
+                        let score = 0;
+                        if (title.startsWith(keyword)) score += 120;
+                        if (title.includes(keyword)) score += 80;
+                        if (description.includes(keyword)) score += 35;
+                        if (slug.includes(keyword)) score += 20;
+                        if (tags.some((tag) => tag.includes(keyword))) score += 50;
+
+                        return { ...post, score };
+                    })
+                    .filter((post) => post.score > 0)
+                    .sort((a, b) => {
+                        if (b.score !== a.score) return b.score - a.score;
+                        return (b.timestamp || 0) - (a.timestamp || 0);
+                    })
+                    .slice(0, maxResults);
+
+                currentResults = ranked;
+
+                if (ranked.length === 0) {
+                    searchResults.innerHTML = '<div class="search-no-result">未找到相关文章</div>';
+                    searchResults.classList.add('visible');
+                    return;
+                }
+
+                searchResults.innerHTML = ranked
+                    .map((post) => {
+                        const summary = post.description || (post.tags || []).join(' / ') || post.url;
+                        return `
+                            <a class="search-result-item" href="${post.url}">
+                                <h4>${escapeHtml(post.title)}</h4>
+                                <p>${escapeHtml(summary)}</p>
+                            </a>
+                        `;
+                    })
+                    .join('');
+                searchResults.classList.add('visible');
+            };
+
+            searchInput.addEventListener('input', (event) => {
+                renderResults(event.target.value);
+            });
+
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value.trim()) {
+                    renderResults(searchInput.value);
+                }
+            });
+
+            searchInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    hideResults();
+                    searchInput.blur();
+                    return;
+                }
+
+                if (event.key === 'Enter') {
+                    const keyword = searchInput.value.trim();
+                    if (!keyword) return;
+
+                    if (currentResults.length > 0) {
+                        window.location.href = currentResults[0].url;
+                    } else {
+                        window.location.href = `/search?q=${encodeURIComponent(keyword)}`;
+                    }
+                }
+            });
+
+            searchInput.addEventListener('blur', () => {
+                window.setTimeout(() => {
+                    if (!searchBar.contains(document.activeElement)) {
+                        hideResults();
+                    }
+                }, 120);
+            });
+
+            searchBar.dataset.searchReady = 'true';
         }
     };
 
