@@ -1008,50 +1008,77 @@
         document.getElementById('btn-save')?.addEventListener('click', () => saveArticle(true));
 
         document.getElementById('btn-publish')?.addEventListener('click', async () => {
-            let publishing = true;
-            // Catch the Vite HMR reload by hooking beforeunload purely to show UI, NOT blocking
-            const informReload = () => {
-                if (publishing) {
-                    document.body.innerHTML = '<div style="display:flex;height:100vh;width:100vw;align-items:center;justify-content:center;background:#1a1a2e;color:#fff;font-size:1.5rem;flex-direction:column;gap:20px;"><div class="spinner"></div><div>正在后台同步至 GitHub，请勿关闭页面...</div></div>';
-                }
-            };
-            window.addEventListener('beforeunload', informReload);
-            
             try {
+                // Determine save parameters
+                const title = titleInput.value.trim();
+                const slug = slugInput.value.trim();
+                if (!title) { alert('标题不能为空'); return; }
+
+                // Save pending task into sessionStorage before HMR strikes
+                sessionStorage.setItem('__editor_publish_task', JSON.stringify({
+                    pending: true,
+                    title: title,
+                    originalSlug: initialIsEdit ? originalSlug : null,
+                    timestamp: Date.now()
+                }));
+
                 showToast('正在保存文章...', 'save', 'save');
+                // The following call will save the file to disk, causing Vite to HMR reload!
                 await saveArticle(false);
                 
-                showToast('等待文件系统同步...', 'hourglass_empty', 'sync');
-                await new Promise(resolve => setTimeout(resolve, 3000));
-                
-                showToast('正在推送至 GitHub...', 'cloud_upload', 'push');
-                const pRes = await fetch('/api/publish', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title: titleInput.value, originalSlug: initialIsEdit ? originalSlug : null })
-                });
-                const pData = await pRes.json();
-                
-                publishing = false;
-                window.removeEventListener('beforeunload', informReload);
-                
-                if (pData.success) {
-                    toastSuccess('✅ 发布成功！已同步至 GitHub');
-                    setTimeout(() => {
-                        const successOverlay = document.getElementById('success-overlay');
-                        const successBox = successOverlay?.querySelector('.success-box') as HTMLElement;
-                        if (successOverlay) successOverlay.style.display = 'flex';
-                        if (successBox) successBox.style.display = 'block';
-                    }, 1500);
-                } else {
-                    toastError('同步失败: ' + pData.error);
-                }
+                // If by some miracle HMR is disabled or extremely slow, we resume here naturally.
+                // We'll just let the reload happen or fall through to resumePublishTask if no reload.
             } catch (e: any) {
-                publishing = false;
-                window.removeEventListener('beforeunload', informReload);
-                toastError('发布失败: ' + (e.message || '未知错误'));
+                sessionStorage.removeItem('__editor_publish_task');
+                toastError('保存失败: ' + (e.message || '未知错误'));
             }
         });
+
+        // --- Resume Publish Task after HMR Reload ---
+        async function resumePublishTask() {
+            const taskStr = sessionStorage.getItem('__editor_publish_task');
+            if (!taskStr) return;
+            try {
+                const task = JSON.parse(taskStr);
+                if (task && task.pending) {
+                    // Check if it's too old (e.g., > 5 minutes), prevent infinite loops
+                    if (Date.now() - task.timestamp > 5 * 60 * 1000) {
+                        sessionStorage.removeItem('__editor_publish_task');
+                        return;
+                    }
+
+                    // We just woke up from a reload! Show the UI immediately.
+                    showToast('等待文件系统同步...', 'hourglass_empty', 'sync');
+                    
+                    // Wait a bit to ensure the file system caught up from the pre-reload save
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    
+                    showToast('正在推送至 GitHub...', 'cloud_upload', 'push');
+                    const pRes = await fetch('/api/publish', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: task.title, originalSlug: task.originalSlug })
+                    });
+                    const pData = await pRes.json();
+                    
+                    if (pData.success) {
+                        sessionStorage.removeItem('__editor_publish_task');
+                        toastSuccess('✅ 发布成功！已同步至 GitHub');
+                        setTimeout(() => {
+                            const successOverlay = document.getElementById('success-overlay');
+                            const successBox = successOverlay?.querySelector('.success-box') as HTMLElement;
+                            if (successOverlay) successOverlay.style.display = 'flex';
+                            if (successBox) successBox.style.display = 'block';
+                        }, 1500);
+                    } else {
+                        throw new Error(pData.error);
+                    }
+                }
+            } catch (e: any) {
+                sessionStorage.removeItem('__editor_publish_task');
+                toastError('同步失败: ' + (e.message || '未知错误'));
+            }
+        }
 
         document.getElementById('btn-go-home')?.addEventListener('click', () => {
             window.location.href = '/';
@@ -1068,6 +1095,13 @@
 
         // --- Initial Preview ---
         updatePreview();
+
+        // --- Resume any pending publish task ---
+        document.addEventListener('astro:page-load', () => {
+            resumePublishTask();
+        }, { once: true });
+        // Also call immediately in case page-load already fired
+        resumePublishTask();
     </script>
 </body>
 </html>
