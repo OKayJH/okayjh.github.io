@@ -1007,36 +1007,70 @@
         // --- Button Events ---
         document.getElementById('btn-save')?.addEventListener('click', () => saveArticle(true));
 
-        document.getElementById('btn-publish')?.addEventListener('click', async () => {
-            let publishing = true;
-            // Catch the Vite HMR reload by hooking beforeunload purely to show UI, NOT blocking
-            const informReload = () => {
-                if (publishing) {
-                    document.body.innerHTML = '<div style="display:flex;height:100vh;width:100vw;align-items:center;justify-content:center;background:#1a1a2e;color:#fff;font-size:1.5rem;flex-direction:column;gap:20px;"><div class="spinner"></div><div>正在后台同步至 GitHub，请勿关闭页面...</div></div>';
-                }
-            };
-            window.addEventListener('beforeunload', informReload);
-            
+        const publishBtn = document.getElementById('btn-publish') as HTMLButtonElement | null;
+        publishBtn?.addEventListener('click', async () => {
+            if (publishBtn.disabled) return;
+
+            publishBtn.disabled = true;
+            publishBtn.style.opacity = '0.7';
+            publishBtn.style.cursor = 'not-allowed';
+
             try {
-                showToast('正在保存文章...', 'save', 'save');
-                await saveArticle(false);
-                
-                showToast('等待文件系统同步...', 'hourglass_empty', 'sync');
-                await new Promise(resolve => setTimeout(resolve, 3000));
-                
-                showToast('正在推送至 GitHub...', 'cloud_upload', 'push');
+                const title = titleInput.value.trim();
+                const slug = slugInput.value.trim();
+                if (!title) throw new Error('\u6807\u9898\u4e0d\u80fd\u4e3a\u7a7a');
+                if (!mdInput.value.trim()) throw new Error('\u6b63\u6587\u4e0d\u80fd\u4e3a\u7a7a');
+
+                showToast('\u6b63\u5728\u51c6\u5907\u53d1\u5e03\u5185\u5bb9...', 'save', 'save');
+
+                // If no cover, generate a default one and upload it.
+                let finalCover = coverUrl;
+                if (!finalCover) {
+                    const defaultBase64 = generateDefaultCover(title);
+                    try {
+                        const upRes = await fetch('/api/uploadImage', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ base64: defaultBase64, filename: `cover-${Date.now()}.png` })
+                        });
+                        const upData = await upRes.json();
+                        if (upData.success) finalCover = upData.url;
+                    } catch {
+                        // keep empty cover when upload fails
+                    }
+                }
+
+                const tags = getSelectedTags();
+                const desc = descInput.value.trim();
+
+                showToast('\u6b63\u5728\u4fdd\u5b58\u5e76\u540c\u6b65\u5230 GitHub...', 'sync', 'sync');
                 const pRes = await fetch('/api/publish', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title: titleInput.value, originalSlug: initialIsEdit ? originalSlug : null })
+                    body: JSON.stringify({
+                        slug,
+                        title,
+                        description: desc,
+                        content: mdInput.value,
+                        isDraft: false,
+                        isEdit: initialIsEdit,
+                        cover: finalCover,
+                        tags,
+                        originalSlug: initialIsEdit ? originalSlug : null
+                    })
                 });
                 const pData = await pRes.json();
-                
-                publishing = false;
-                window.removeEventListener('beforeunload', informReload);
-                
+
                 if (pData.success) {
-                    toastSuccess('✅ 发布成功！已同步至 GitHub');
+                    if (pData.slug) {
+                        slugInput.value = pData.slug;
+                        if (!initialIsEdit) {
+                            originalSlug = pData.slug;
+                            initialIsEdit = true;
+                        }
+                    }
+
+                    toastSuccess('\u53d1\u5e03\u6210\u529f\uff0c\u5df2\u540c\u6b65\u81f3 GitHub');
                     setTimeout(() => {
                         const successOverlay = document.getElementById('success-overlay');
                         const successBox = successOverlay?.querySelector('.success-box') as HTMLElement;
@@ -1044,12 +1078,14 @@
                         if (successBox) successBox.style.display = 'block';
                     }, 1500);
                 } else {
-                    toastError('同步失败: ' + pData.error);
+                    toastError('\u540c\u6b65\u5931\u8d25: ' + pData.error);
                 }
             } catch (e: any) {
-                publishing = false;
-                window.removeEventListener('beforeunload', informReload);
-                toastError('发布失败: ' + (e.message || '未知错误'));
+                toastError('\u53d1\u5e03\u5931\u8d25: ' + (e.message || '\u672a\u77e5\u9519\u8bef'));
+            } finally {
+                publishBtn.disabled = false;
+                publishBtn.style.opacity = '1';
+                publishBtn.style.cursor = '';
             }
         });
 
