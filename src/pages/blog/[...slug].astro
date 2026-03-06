@@ -22,6 +22,8 @@ const { Content, headings } = await post.render();
     <span class="material-icons-round">arrow_back</span> 返回
   </a>
 
+  <TableOfContents headings={headings} />
+
   <article class="blog-post article-detail">
 
     <header class="post-header article-header">
@@ -43,8 +45,6 @@ const { Content, headings } = await post.render();
       </div>
       <h1>{post.data.title}</h1>
     </header>
-
-    <TableOfContents headings={headings} />
 
     <div class="content markdown-body">
       <Content />

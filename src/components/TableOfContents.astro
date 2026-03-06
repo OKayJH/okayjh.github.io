@@ -61,37 +61,68 @@ const tocHeadings = headings.filter((h) => h.depth > 1 && h.depth <= 4);
   }
 
   function setupScrollSpy() {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const id = entry.target.getAttribute('id');
-          if (!id) return;
-          const tocLink = document.querySelector(`.toc-link[data-slug="${id}"]`);
-          if (!tocLink) return;
+    const headings = Array.from(document.querySelectorAll('.markdown-body h2[id], .markdown-body h3[id], .markdown-body h4[id]'));
+    if (headings.length === 0) return;
 
-          if (entry.isIntersecting) {
-            document.querySelectorAll('.toc-link').forEach((link) => {
-              link.classList.remove('active');
-            });
-            tocLink.classList.add('active');
-            tocLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }
-        });
-      },
-      {
-        rootMargin: '-80px 0px -60% 0px',
-        threshold: 0,
+    function onScroll() {
+      // Find the heading that is closest to the top of the screen (or currently past it)
+      let activeHeading = headings[0];
+      for (const heading of headings) {
+        // Adjust the offset threshold so it becomes active just as it enters the readable area
+        if (heading.getBoundingClientRect().top < 200) {
+          activeHeading = heading;
+        } else {
+          break; // Since headings are in order, we can stop checking once we find one below the threshold
+        }
       }
-    );
 
-    document.querySelectorAll('.markdown-body h2[id], .markdown-body h3[id], .markdown-body h4[id]').forEach((section) => {
-      observer.observe(section);
-    });
+      if (!activeHeading) return;
+      const id = activeHeading.getAttribute('id');
+      
+      const tocLinks = document.querySelectorAll('.toc-link');
+      let currentActiveLink = null;
+      
+      tocLinks.forEach((link) => {
+        if (link.getAttribute('data-slug') === id) {
+          link.classList.add('active');
+          currentActiveLink = link;
+        } else {
+          link.classList.remove('active');
+        }
+      });
+
+      // Optionally animate the TOC container's scroll position without hijacking the main window
+      if (currentActiveLink) {
+        const tocContainer = document.querySelector('.article-toc');
+        if (tocContainer) {
+          const linkTop = currentActiveLink.offsetTop;
+          const containerHeight = tocContainer.clientHeight;
+          // Smoothly scroll the container so the link is visible in the middle
+          tocContainer.scrollTo({
+            top: linkTop - containerHeight / 2 + 20, 
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    // Attach scroll listener, remove previous to prevent duplicates on view transition
+    if (window._tocScrollListener) {
+      window.removeEventListener('scroll', window._tocScrollListener);
+    }
+    window._tocScrollListener = onScroll;
+    window.addEventListener('scroll', window._tocScrollListener, { passive: true });
+    
+    // Trigger once on load wrapper
+    onScroll();
   }
 
   function initToc() {
-    setupScrollSpy();
-    setupTocToggle();
+    // Small delay ensures DOM is fully painted and rects are accurate
+    setTimeout(() => {
+      setupScrollSpy();
+      setupTocToggle();
+    }, 100);
   }
 
   if (document.readyState === 'loading') {
