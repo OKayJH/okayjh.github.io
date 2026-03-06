@@ -1095,6 +1095,18 @@ function initTerminal(s) {
         if (typeof WebLinksAddon !== 'undefined') s.term.loadAddon(new WebLinksAddon.WebLinksAddon());
         s.term.open(s.container);
 
+        // Right-click to copy selected text (PuTTY-style)
+        s.container.addEventListener('contextmenu', function (e) {
+            var sel = s.term.getSelection();
+            if (sel && sel.length > 0) {
+                e.preventDefault();
+                navigator.clipboard.writeText(sel).then(function () {
+                    showToast('已复制 ' + sel.length + ' 个字符', 'ok');
+                    s.term.clearSelection();
+                });
+            }
+        });
+
         // Prevent wheel scroll chaining to page when terminal is already at top/bottom.
         // This keeps page scroll unaffected only when pointer leaves terminal area.
         if (!s._wheelBoundaryLockBound) {
