@@ -3,6 +3,7 @@
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import Comments from '../../components/Comments.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -13,7 +14,7 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await post.render();
+const { Content, headings } = await post.render();
 ---
 
 <Layout title={`${post.data.title} | OKay's Blog`} description={post.data.description}>
@@ -43,11 +44,19 @@ const { Content } = await post.render();
       <h1>{post.data.title}</h1>
     </header>
 
-    <div class="content markdown-body">
-      <Content />
-    </div>
+    <div class="article-layout-grid">
+      <div class="article-main-column">
+        <div class="content markdown-body">
+          <Content />
+        </div>
 
-    <Comments />
+        <Comments />
+      </div>
+      
+      <aside class="article-sidebar-column">
+        <TableOfContents headings={headings} />
+      </aside>
+    </div>
   </article>
 </Layout>
 
