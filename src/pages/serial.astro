@@ -70,6 +70,14 @@ import Layout from '../layouts/Layout.astro';
                     </select>
                 </div>
                 <div class="toolbar-group">
+                    <label>强制驱动</label>
+                    <label class="toggle-label" title="开启此项后，将强制浏览器绕过Windows底层隐藏策略，只显示常见的单片机串口芯片（如CH340/CP2102/FTDI等）。用于解决由于系统驱动问题导致网页检测不到设备的问题。" style="display: flex; align-items: center; gap: 4px; padding: 2px 4px;">
+                        <input type="checkbox" id="chk-force-serial">
+                        <span class="material-icons-round" style="font-size: 16px; color: var(--text-color);">memory</span>
+                        <span style="font-size: 0.85rem; color: var(--text-color);">CH340/嵌入式</span>
+                    </label>
+                </div>
+                <div class="toolbar-group">
                     <label>数据位</label>
                     <select id="data-bits">
                         <option value="7">7</option>
@@ -740,7 +748,25 @@ function initSerialDebug() {
             await cleanupConnection(s);
         }
         try {
-            s.port = await navigator.serial.requestPort();
+            var forceFindEnabled = document.getElementById('chk-force-serial').checked;
+            
+            if (forceFindEnabled) {
+                // Known embedded serial hardware IDs
+                var filters = [
+                    { usbVendorId: 0x1A86 }, // QinHeng (CH340/CH341/CH9102)
+                    { usbVendorId: 0x10C4 }, // Silicon Labs (CP210x)
+                    { usbVendorId: 0x0403 }, // FTDI
+                    { usbVendorId: 0x067B }, // Prolific (PL2303)
+                    { usbVendorId: 0x2341 }, // Arduino SA
+                    { usbVendorId: 0x303A }, // Espressif (ESP32)
+                    { usbVendorId: 0x0483 }  // STMicroelectronics (STM32)
+                ];
+                s.port = await navigator.serial.requestPort({ filters: filters } as unknown as void);
+            } else {
+                // Default: shows everything the OS openly allows
+                s.port = await navigator.serial.requestPort();
+            }
+
             var info = s.port.getInfo();
             var portName = info.usbVendorId
                 ? 'USB(' + info.usbVendorId.toString(16).toUpperCase() + ':' + (info.usbProductId || 0).toString(16).toUpperCase() + ')'
