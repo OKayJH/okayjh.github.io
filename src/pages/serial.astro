@@ -184,8 +184,10 @@ import Layout from '../layouts/Layout.astro';
                                 <select id="shell-cmd-category" class="shell-cat-select" title="分类">
                                     <option value="系统信息">系统</option>
                                     <option value="文件操作">文件</option>
-                                    <option value="网络">网络</option>
+                                    <option value="网络相关">网络</option>
                                     <option value="进程管理">进程</option>
+                                    <option value="外设硬件">外设</option>
+                                    <option value="高级调试">高级</option>
                                     <option value="自定义">自定义</option>
                                 </select>
                                 <input type="text" class="shell-cmd-input" id="shell-cmd-input" placeholder="命令">
@@ -1291,22 +1293,31 @@ document.querySelector('.back-link').addEventListener('click', function (e) {
 })();
 
 (function () {
-    var STORAGE_KEY = 'serialDebug_shellCmds';
+    var STORAGE_KEY = 'serialDebug_shellCmds_v2';
     var defaultCmds = [
-        { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'uname -a', desc: '\u5185\u6838\u7248\u672c' },
-        { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'cat /proc/cpuinfo', desc: 'CPU \u4fe1\u606f' },
-        { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'free -h', desc: '\u5185\u5b58\u4f7f\u7528' },
-        { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'df -h', desc: '\u78c1\u76d8\u4f7f\u7528' },
-        { cat: '\u7cfb\u7edf\u4fe1\u606f', cmd: 'uptime', desc: '\u8fd0\u884c\u65f6\u95f4' },
-        { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'ls -la', desc: '\u5217\u51fa\u6587\u4ef6' },
-        { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'pwd', desc: '\u5f53\u524d\u76ee\u5f55' },
-        { cat: '\u6587\u4ef6\u64cd\u4f5c', cmd: 'cat /etc/os-release', desc: '\u7cfb\u7edf\u7248\u672c' },
-        { cat: '\u7f51\u7edc', cmd: 'ifconfig', desc: '\u7f51\u5361\u4fe1\u606f' },
-        { cat: '\u7f51\u7edc', cmd: 'ping -c 3 8.8.8.8', desc: '\u7f51\u7edc\u6d4b\u8bd5' },
-        { cat: '\u7f51\u7edc', cmd: 'ip addr', desc: 'IP \u5730\u5740' },
-        { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'ps aux', desc: '\u8fdb\u7a0b\u5217\u8868' },
-        { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'top -bn1 | head -20', desc: 'CPU \u5360\u7528' },
-        { cat: '\u8fdb\u7a0b\u7ba1\u7406', cmd: 'dmesg | tail -30', desc: '\u5185\u6838\u65e5\u5fd7' }
+        { cat: '系统信息', cmd: 'uname -a', desc: '内核信息' },
+        { cat: '系统信息', cmd: 'cat /etc/os-release', desc: '发行版信息' },
+        { cat: '系统信息', cmd: 'cat /proc/cpuinfo', desc: 'CPU 详情' },
+        { cat: '系统信息', cmd: 'cat /proc/device-tree/model', desc: '设备型号' },
+        { cat: '系统信息', cmd: 'free -m', desc: '内存使用' },
+        { cat: '系统信息', cmd: 'df -h', desc: '磁盘使用' },
+        { cat: '系统信息', cmd: 'uptime', desc: '运行时间' },
+        { cat: '文件操作', cmd: 'ls -la', desc: '详细列表' },
+        { cat: '文件操作', cmd: 'pwd', desc: '当前目录' },
+        { cat: '文件操作', cmd: 'du -sh *', desc: '目录大小' },
+        { cat: '文件操作', cmd: 'mount | column -t', desc: '查看挂载' },
+        { cat: '网络工具', cmd: 'ifconfig', desc: '网卡信息' },
+        { cat: '网络工具', cmd: 'ip addr', desc: 'IP 地址' },
+        { cat: '网络工具', cmd: 'ping -c 4 114.114.114.114', desc: '外网连通' },
+        { cat: '网络工具', cmd: 'netstat -tulnp', desc: '监听端口' },
+        { cat: '进程管理', cmd: 'ps aux', desc: '进程列表' },
+        { cat: '进程管理', cmd: 'top -n 1 -b', desc: 'CPU快照' },
+        { cat: '进程管理', cmd: 'htop', desc: '高级管理' },
+        { cat: '外设硬件', cmd: 'lsusb', desc: 'USB 设备' },
+        { cat: '外设硬件', cmd: 'lsmod', desc: '内核模块' },
+        { cat: '外设硬件', cmd: 'i2cdetect -y -r 1', desc: 'I2C扫描(总线1)' },
+        { cat: '系统调优', cmd: 'dmesg | tail -30', desc: '最新内核日志' },
+        { cat: '系统调优', cmd: 'dmesg | grep -i err', desc: '内核错误过滤' }
     ];
     function loadCmds() { try { var d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch (e) { return null; } }
     function saveCmds(cmds) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cmds)); } catch (e) { } }
@@ -1328,7 +1339,7 @@ document.querySelector('.back-link').addEventListener('click', function (e) {
             if (!groups[c.cat]) groups[c.cat] = [];
             groups[c.cat].push({ idx: i, cmd: c.cmd, desc: c.desc });
         });
-        var catOrder = ['\u7cfb\u7edf\u4fe1\u606f', '\u6587\u4ef6\u64cd\u4f5c', '\u7f51\u7edc', '\u8fdb\u7a0b\u7ba1\u7406', '\u81ea\u5b9a\u4e49'];
+        var catOrder = ['系统信息', '文件操作', '网络相关', '进程管理', '外设硬件', '高级调试', '自定义'];
         Object.keys(groups).sort(function (a, b) {
             var ai = catOrder.indexOf(a), bi = catOrder.indexOf(b);
             return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
