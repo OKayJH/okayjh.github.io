@@ -13,24 +13,53 @@ const tocHeadings = headings.filter((h) => h.depth > 1 && h.depth <= 4);
 ---
 
 {tocHeadings.length > 0 && (
-  <nav class="article-toc" aria-label="Table of Contents">
-    <div class="toc-header">
-      <span class="material-icons-round">list</span>
-      <span class="toc-title">目录</span>
-    </div>
-    <ul class="toc-list" id="toc-list">
-      {tocHeadings.map((heading) => (
-        <li class={`toc-item depth-${heading.depth}`}>
-          <a href={`#${heading.slug}`} class="toc-link" data-slug={heading.slug}>
-            {heading.text}
-          </a>
-        </li>
-      ))}
-    </ul>
-  </nav>
+  <div class="toc-fixed-container" id="toc-container">
+    <button class="toc-toggle-btn" id="toc-toggle-btn" title="收起/展开目录">
+      <span class="material-icons-round" id="toc-toggle-icon">menu_open</span>
+    </button>
+    <nav class="article-toc" aria-label="Table of Contents">
+      <div class="toc-header">
+        <span class="material-icons-round">list</span>
+        <span class="toc-title">目录</span>
+      </div>
+      <ul class="toc-list" id="toc-list">
+        {tocHeadings.map((heading) => (
+          <li class={`toc-item depth-${heading.depth}`}>
+            <a href={`#${heading.slug}`} class="toc-link" data-slug={heading.slug}>
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
 )}
 
 <script>
+  function setupTocToggle() {
+    const btn = document.getElementById('toc-toggle-btn');
+    const container = document.getElementById('toc-container');
+    const icon = document.getElementById('toc-toggle-icon');
+    if (!btn || !container || !icon) return;
+
+    // Check localStorage for preferred state
+    const isCollapsed = localStorage.getItem('okay_toc_collapsed') === 'true';
+    if (isCollapsed) {
+      container.classList.add('collapsed');
+      icon.textContent = 'menu';
+    }
+
+    // Ensure only one listener is attached (important for Astro view transitions)
+    btn.removeEventListener('click', btn._toggleHandler);
+    btn._toggleHandler = () => {
+      container.classList.toggle('collapsed');
+      const collapsed = container.classList.contains('collapsed');
+      localStorage.setItem('okay_toc_collapsed', collapsed ? 'true' : 'false');
+      icon.textContent = collapsed ? 'menu' : 'menu_open';
+    };
+    btn.addEventListener('click', btn._toggleHandler);
+  }
+
   function setupScrollSpy() {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -41,35 +70,34 @@ const tocHeadings = headings.filter((h) => h.depth > 1 && h.depth <= 4);
           if (!tocLink) return;
 
           if (entry.isIntersecting) {
-            // Remove active class from all links
             document.querySelectorAll('.toc-link').forEach((link) => {
               link.classList.remove('active');
             });
-            // Add active class to the current link
             tocLink.classList.add('active');
-            
-            // Optional: scroll the active TOC item into view smoothly within the TOC container
             tocLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }
         });
       },
       {
-        rootMargin: '-80px 0px -60% 0px', // Trigger when heading is near the top of the viewport
+        rootMargin: '-80px 0px -60% 0px',
         threshold: 0,
       }
     );
 
-    // Observe all headings that have an ID matching our TOC
     document.querySelectorAll('.markdown-body h2[id], .markdown-body h3[id], .markdown-body h4[id]').forEach((section) => {
       observer.observe(section);
     });
   }
 
-  // Setup immediately for SPA, and also hook into astro:page-load for ViewTransitions
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupScrollSpy);
-  } else {
+  function initToc() {
     setupScrollSpy();
+    setupTocToggle();
   }
-  document.addEventListener('astro:page-load', setupScrollSpy);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initToc);
+  } else {
+    initToc();
+  }
+  document.addEventListener('astro:page-load', initToc);
 </script>

@@ -44,19 +44,13 @@ const { Content, headings } = await post.render();
       <h1>{post.data.title}</h1>
     </header>
 
-    <div class="article-layout-grid">
-      <div class="article-main-column">
-        <div class="content markdown-body">
-          <Content />
-        </div>
+    <TableOfContents headings={headings} />
 
-        <Comments />
-      </div>
-      
-      <aside class="article-sidebar-column">
-        <TableOfContents headings={headings} />
-      </aside>
+    <div class="content markdown-body">
+      <Content />
     </div>
+
+    <Comments />
   </article>
 </Layout>
 
