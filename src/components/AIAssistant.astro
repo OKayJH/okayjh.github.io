@@ -274,6 +274,7 @@ const sendText = '\u53d1\u9001';
             throw new Error(textResp || `\u8bf7\u6c42\u5931\u8d25\uff08${response.status}\uff09`);
           }
 
+          const contentType = response.headers.get('content-type') || '';
           if (contentType.includes('text/event-stream') && response.body) {
             // Start speaking animation once we know we are getting a stream
             root.classList.remove('is-thinking');
