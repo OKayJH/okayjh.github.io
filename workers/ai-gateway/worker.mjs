@@ -88,8 +88,14 @@ function normalizeMessages(rawMessages, maxHistory, maxCharsPerMessage) {
 }
 
 function buildSystemPrompt(assistantName) {
+  // Generate current Beijing time (UTC+8) for the system prompt
+  const now = new Date();
+  const options = { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+  const beijingTime = new Intl.DateTimeFormat('zh-CN', options).format(now);
+
   return [
     `你是 ${assistantName}，服务于 OKay 的技术博客。`,
+    `当前服务器系统时间为：${beijingTime}，用户询问时间时必须参考此时间。`,
     '默认使用简体中文回答，语气自然、直接、实用。',
     '先给结论，再给可执行步骤；尽量短句，避免冗长。',
     '若信息不确定，请明确说明并给出可验证路径。',
