@@ -24,13 +24,37 @@ const sendText = '\u53d1\u9001';
       aria-expanded="false"
       title={titleText}
     >
-      <div class="robot-face">
-        <div class="robot-eyes">
-          <div class="robot-eye left"></div>
-          <div class="robot-eye right"></div>
-        </div>
-        <div class="robot-mouth"></div>
-      </div>
+      <span class="ai-mini-robot" aria-hidden="true">
+        <span class="ai-robot-shadow"></span>
+        <span class="ai-robot">
+          <span class="ai-robot-antenna">
+            <span class="ai-robot-antenna-dot"></span>
+          </span>
+          <span class="ai-robot-head">
+            <span class="ai-robot-head-gloss"></span>
+            <span class="ai-robot-screen">
+              <span class="ai-robot-eyes">
+                <span class="ai-robot-eye">
+                  <span class="ai-robot-pupil"></span>
+                </span>
+                <span class="ai-robot-eye">
+                  <span class="ai-robot-pupil"></span>
+                </span>
+              </span>
+              <span class="ai-robot-mouth"></span>
+            </span>
+          </span>
+          <span class="ai-robot-body">
+            <span class="ai-robot-body-core"></span>
+            <span class="ai-robot-arm ai-robot-arm-left"></span>
+            <span class="ai-robot-arm ai-robot-arm-right"></span>
+          </span>
+          <span class="ai-robot-legs">
+            <span class="ai-robot-leg"><span class="ai-robot-foot"></span></span>
+            <span class="ai-robot-leg"><span class="ai-robot-foot"></span></span>
+          </span>
+        </span>
+      </span>
       <span class="ai-toggle-label">{assistantName}</span>
     </button>
 
@@ -98,6 +122,8 @@ const sendText = '\u53d1\u9001';
       const stopBtn = document.getElementById('ai-stop-btn');
       const statusEl = document.getElementById('ai-status');
       const messagesWrap = document.getElementById('ai-messages');
+      const robot = root.querySelector('.ai-robot');
+      const pupils = Array.from(root.querySelectorAll('.ai-robot-pupil'));
 
       /** @type {{ role: 'user' | 'assistant'; content: string }[]} */
       const messages = [];
@@ -117,6 +143,54 @@ const sendText = '\u53d1\u9001';
           hour: '2-digit',
           minute: '2-digit',
         });
+
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+      const resetRobotPose = () => {
+        root.style.setProperty('--bot-shift-x', '0px');
+        root.style.setProperty('--bot-shift-y', '0px');
+        root.style.setProperty('--bot-tilt', '0deg');
+        pupils.forEach((pupil) => {
+          pupil.style.setProperty('--bot-look-x', '0px');
+          pupil.style.setProperty('--bot-look-y', '0px');
+        });
+      };
+
+      const setRobotPose = (clientX, clientY, intensity = 1) => {
+        if (!robot) return;
+
+        pupils.forEach((pupil) => {
+          const eye = pupil.parentElement;
+          if (!eye) return;
+          const rect = eye.getBoundingClientRect();
+          const eyeX = rect.left + rect.width / 2;
+          const eyeY = rect.top + rect.height / 2;
+          const deltaX = clientX - eyeX;
+          const deltaY = clientY - eyeY;
+          const angle = Math.atan2(deltaY, deltaX);
+          const distance = Math.min(3, Math.hypot(deltaX, deltaY) / 22) * intensity;
+          pupil.style.setProperty('--bot-look-x', `${(Math.cos(angle) * distance).toFixed(2)}px`);
+          pupil.style.setProperty('--bot-look-y', `${(Math.sin(angle) * distance).toFixed(2)}px`);
+        });
+
+        const rect = robot.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height * 0.42;
+        const deltaX = clientX - centerX;
+        const deltaY = clientY - centerY;
+
+        root.style.setProperty('--bot-shift-x', `${clamp(deltaX * 0.04 * intensity, -6, 6).toFixed(2)}px`);
+        root.style.setProperty('--bot-shift-y', `${clamp(deltaY * 0.016 * intensity, -4, 4).toFixed(2)}px`);
+        root.style.setProperty('--bot-tilt', `${clamp(deltaX * 0.028 * intensity, -10, 10).toFixed(2)}deg`);
+      };
+
+      const lookAtElement = (element, intensity = 0.78) => {
+        if (!element) return;
+        const rect = element.getBoundingClientRect();
+        const targetX = rect.left + rect.width * 0.78;
+        const targetY = rect.top + rect.height / 2;
+        setRobotPose(targetX, targetY, intensity);
+      };
 
       const setStatus = (text, kind = 'normal') => {
         if (!statusEl) return;
@@ -153,8 +227,14 @@ const sendText = '\u53d1\u9001';
       const setPanelOpen = (open) => {
         if (!panel || !toggleBtn) return;
         panel.classList.toggle('hidden', !open);
+        root.classList.toggle('panel-open', open);
         toggleBtn.setAttribute('aria-expanded', String(open));
-        if (open && input) input.focus();
+        if (open && input) {
+          input.focus();
+        } else {
+          root.classList.remove('input-focused');
+          resetRobotPose();
+        }
       };
 
       const setBusy = (busy) => {
@@ -162,6 +242,9 @@ const sendText = '\u53d1\u9001';
         if (sendBtn) sendBtn.disabled = busy;
         if (input) input.disabled = busy;
         if (stopBtn) stopBtn.classList.toggle('hidden', !busy);
+        if (busy) {
+          root.classList.remove('input-focused');
+        }
       };
 
       const buildRequestMessages = () => {
@@ -320,6 +403,24 @@ const sendText = '\u53d1\u9001';
           const isOpen = panel ? !panel.classList.contains('hidden') : false;
           setPanelOpen(!isOpen);
         });
+
+        toggleBtn.addEventListener('mouseenter', () => {
+          root.classList.add('is-hovered');
+        });
+
+        toggleBtn.addEventListener('mouseleave', () => {
+          root.classList.remove('is-hovered');
+        });
+
+        toggleBtn.addEventListener('focus', () => {
+          root.classList.add('is-hovered');
+        });
+
+        toggleBtn.addEventListener('blur', () => {
+          if (document.activeElement !== input) {
+            root.classList.remove('is-hovered');
+          }
+        });
       }
 
       if (closeBtn) {
@@ -342,6 +443,24 @@ const sendText = '\u53d1\u9001';
       }
 
       if (input) {
+        input.addEventListener('focus', () => {
+          root.classList.add('input-focused');
+          lookAtElement(input);
+        });
+
+        input.addEventListener('blur', () => {
+          root.classList.remove('input-focused');
+          if (!root.classList.contains('panel-open')) {
+            resetRobotPose();
+          }
+        });
+
+        input.addEventListener('input', () => {
+          if (root.classList.contains('input-focused')) {
+            lookAtElement(input);
+          }
+        });
+
         input.addEventListener('keydown', (event) => {
           if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
@@ -349,6 +468,13 @@ const sendText = '\u53d1\u9001';
           }
         });
       }
+
+      document.addEventListener('mousemove', (event) => {
+        if (root.classList.contains('input-focused') || root.classList.contains('is-thinking')) return;
+        setRobotPose(event.clientX, event.clientY, root.classList.contains('panel-open') ? 0.86 : 1);
+      }, { passive: true });
+
+      resetRobotPose();
 
       if (form) {
         form.addEventListener('submit', (event) => {
@@ -371,125 +497,401 @@ const sendText = '\u53d1\u9001';
 <style>
   .ai-assistant-root {
     position: fixed;
-    right: 20px;
-    bottom: 84px;
+    right: 18px;
+    bottom: 82px;
     z-index: 5500;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 12px;
+    --bot-shift-x: 0px;
+    --bot-shift-y: 0px;
+    --bot-tilt: 0deg;
   }
 
   .ai-toggle-btn {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 8px;
     border: none;
-    border-radius: 999px;
-    background: linear-gradient(135deg, var(--accent), #2f9bff);
-    color: #fff;
-    padding: 10px 16px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    box-shadow: var(--shadow-lg);
+    background: transparent;
+    color: var(--text);
+    padding: 0;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .ai-toggle-btn:hover {
-    filter: brightness(1.03);
-    transform: scale(1.05);
+  .ai-toggle-btn:focus-visible {
+    outline: none;
   }
 
-  .ai-toggle-btn:active {
-    transform: scale(0.95);
-  }
-
-  /* 2D Robot Face Styles */
-  .robot-face {
-    width: 28px;
-    height: 28px;
-    background: #ffffff;
-    border-radius: 8px;
+  .ai-mini-robot {
     position: relative;
+    width: 74px;
+    height: 88px;
+    flex: 0 0 auto;
+  }
+
+  .ai-robot-shadow {
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 48px;
+    height: 14px;
+    border-radius: 999px;
+    background: rgba(59, 130, 246, 0.24);
+    filter: blur(10px);
+    transform: translateX(-50%);
+    animation: aiRobotShadow 3.6s ease-in-out infinite;
+  }
+
+  .ai-robot {
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translate(calc(-50% + var(--bot-shift-x)), var(--bot-shift-y)) rotate(var(--bot-tilt));
+    transform-origin: center bottom;
+    transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  .ai-robot-antenna {
+    position: relative;
+    width: 4px;
+    height: 12px;
+    margin-bottom: -2px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #8fb8ff, #5e81ff);
+  }
+
+  .ai-robot-antenna-dot {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    background: radial-gradient(circle at 35% 35%, #ffffff, #8bd0ff 48%, #4f7cff 100%);
+    box-shadow: 0 0 0 4px rgba(79, 124, 255, 0.12);
+    animation: aiRobotPulse 2.4s ease-in-out infinite;
+  }
+
+  .ai-robot-head {
+    position: relative;
+    width: 56px;
+    height: 44px;
+    border-radius: 18px 18px 16px 16px;
+    background: linear-gradient(180deg, #ffffff, #edf4ff);
+    border: 1px solid rgba(79, 124, 255, 0.18);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.14);
+    overflow: hidden;
+  }
+
+  .ai-robot-head-gloss {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(140deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.18) 45%, transparent 46%);
+    opacity: 0.72;
+    pointer-events: none;
+  }
+
+  .ai-robot-screen {
+    position: absolute;
+    inset: 8px 9px 9px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #3753a8, #263f81);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+    gap: 4px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
-  .robot-eyes {
+  .ai-robot-eyes {
     display: flex;
-    gap: 6px;
-    margin-bottom: 3px;
+    gap: 10px;
   }
 
-  .robot-eye {
-    width: 6px;
-    height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: blink 4s infinite ease-in-out;
-    transition: all 0.3s ease;
-  }
-
-  .robot-mouth {
+  .ai-robot-eye {
+    position: relative;
     width: 10px;
-    height: 3px;
-    background: var(--accent);
-    border-radius: 2px;
-    transition: all 0.3s ease;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.96);
+    overflow: hidden;
+    transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease, transform 0.2s ease;
   }
 
-  /* Idle Animations */
-  @keyframes blink {
-    0%, 96%, 100% { transform: scaleY(1); }
-    98% { transform: scaleY(0.1); }
+  .ai-robot-eye::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #263f81;
+    transform-origin: top;
+    transform: scaleY(0);
+    animation: aiRobotBlink 4.8s infinite;
+    transition: transform 0.2s ease;
   }
 
-  /* Thinking State */
-  .is-thinking .robot-eye {
-    animation: none;
+  .ai-robot-pupil {
+    position: absolute;
+    top: 50%;
+    left: 50%;
     height: 4px;
-    width: 8px;
-    border-radius: 2px;
-    background: #ffab00; /* Yellow */
-    transform: translateY(-2px);
-  }
-  
-  .is-thinking .robot-eyes {
-    animation: look-around 2s infinite alternate ease-in-out;
+    width: 4px;
+    border-radius: 50%;
+    background: #4f7cff;
+    box-shadow: 0 0 8px rgba(79, 124, 255, 0.42);
+    transform: translate(calc(-50% + var(--bot-look-x, 0px)), calc(-50% + var(--bot-look-y, 0px)));
+    transition: transform 0.08s ease-out;
   }
 
-  .is-thinking .robot-mouth {
-    width: 6px;
-    background: #ffab00;
+  .ai-robot-mouth {
+    width: 16px;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #8de0ff, #d8f2ff);
+    transition: all 0.2s ease;
   }
 
-  @keyframes look-around {
-    0% { transform: translateX(-2px); }
-    100% { transform: translateX(2px); }
+  .ai-robot-body {
+    position: relative;
+    width: 44px;
+    height: 30px;
+    margin-top: -4px;
+    border-radius: 16px 16px 18px 18px;
+    background: linear-gradient(180deg, #ffffff, #eaf2ff);
+    border: 1px solid rgba(79, 124, 255, 0.16);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.1);
   }
 
-  /* Speaking State */
-  .is-speaking .robot-eye {
-    animation: none;
-    transform: scaleY(1.1);
+  .ai-robot-body-core {
+    position: absolute;
+    inset: 8px 11px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(79, 124, 255, 0.2), rgba(79, 124, 255, 0.06));
+    border: 1px solid rgba(79, 124, 255, 0.18);
   }
 
-  .is-speaking .robot-mouth {
+  .ai-robot-arm {
+    position: absolute;
+    top: 6px;
+    width: 18px;
     height: 6px;
-    width: 8px;
-    border-radius: 50% 50% 2px 2px;
-    animation: speak 0.3s infinite alternate;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #7f92ff, #5d7bff);
+    box-shadow: 0 2px 4px rgba(79, 124, 255, 0.2);
+    transition: transform 0.22s ease;
   }
 
-  @keyframes speak {
-    0% { height: 3px; transform: scaleX(1); }
-    100% { height: 7px; transform: scaleX(0.8); }
+  .ai-robot-arm-left {
+    left: -10px;
+    transform-origin: right center;
+    transform: rotate(24deg);
+  }
+
+  .ai-robot-arm-right {
+    right: -10px;
+    transform-origin: left center;
+    transform: rotate(-24deg);
+  }
+
+  .ai-robot-legs {
+    display: flex;
+    gap: 12px;
+    margin-top: -1px;
+  }
+
+  .ai-robot-leg {
+    position: relative;
+    width: 4px;
+    height: 18px;
+    border-radius: 999px;
+    background: #4b5563;
+  }
+
+  .ai-robot-foot {
+    position: absolute;
+    left: 50%;
+    bottom: -4px;
+    width: 14px;
+    height: 7px;
+    border-radius: 6px 6px 4px 4px;
+    background: #4f7cff;
+    box-shadow: 0 2px 0 rgba(15, 23, 42, 0.08);
+    transform: translateX(-50%);
+  }
+
+  .ai-toggle-label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    margin-bottom: 10px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent), #2f9bff);
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 700;
+    box-shadow: 0 12px 24px rgba(47, 155, 255, 0.22);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+
+  .ai-toggle-btn:hover .ai-toggle-label,
+  .ai-assistant-root.panel-open .ai-toggle-label {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 28px rgba(47, 155, 255, 0.26);
+    filter: brightness(1.02);
+  }
+
+  .ai-toggle-btn:hover .ai-robot-shadow,
+  .ai-assistant-root.panel-open .ai-robot-shadow {
+    transform: translateX(-50%) scale(1.08);
+    opacity: 0.42;
+  }
+
+  .ai-assistant-root.is-hovered .ai-robot-arm-right,
+  .ai-assistant-root.panel-open .ai-robot-arm-right {
+    transform: rotate(-56deg) translateY(-1px);
+  }
+
+  .ai-assistant-root.is-hovered .ai-robot-arm-left {
+    transform: rotate(18deg);
+  }
+
+  .ai-assistant-root.panel-open .ai-robot-head {
+    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.16);
+  }
+
+  .ai-assistant-root.input-focused .ai-robot-arm-left {
+    transform: rotate(32deg);
+  }
+
+  .ai-assistant-root.input-focused .ai-robot-arm-right {
+    transform: rotate(-14deg);
+  }
+
+  .is-thinking .ai-robot-screen {
+    animation: aiThinkingScreen 1.6s ease-in-out infinite alternate;
+  }
+
+  .is-thinking .ai-robot-antenna-dot {
+    animation: aiThinkingPulse 0.7s ease-in-out infinite alternate;
+    background: radial-gradient(circle at 35% 35%, #fff6d5, #ffd166 52%, #ff9f1c 100%);
+    box-shadow: 0 0 0 5px rgba(255, 209, 102, 0.16);
+  }
+
+  .is-thinking .ai-robot-eye {
+    width: 12px;
+    height: 4px;
+    border-radius: 4px;
+    transform: translateY(-1px);
+  }
+
+  .is-thinking .ai-robot-eye::before {
+    animation: none;
+    transform: scaleY(0);
+  }
+
+  .is-thinking .ai-robot-pupil {
+    opacity: 0;
+  }
+
+  .is-thinking .ai-robot-mouth {
+    width: 10px;
+    background: linear-gradient(135deg, #ffe08a, #ffd166);
+  }
+
+  .is-speaking .ai-robot {
+    animation: aiRobotTalkBob 0.55s ease-in-out infinite;
+  }
+
+  .is-speaking .ai-robot-eye::before {
+    animation: none;
+    transform: scaleY(0);
+  }
+
+  .is-speaking .ai-robot-mouth {
+    width: 10px;
+    height: 8px;
+    border-radius: 50% 50% 4px 4px;
+    animation: aiRobotSpeak 0.24s ease-in-out infinite alternate;
+  }
+
+  @keyframes aiRobotBlink {
+    0%, 94%, 100% { transform: scaleY(0); }
+    97% { transform: scaleY(1); }
+  }
+
+  @keyframes aiRobotPulse {
+    0%, 100% {
+      transform: translateX(-50%) scale(1);
+      opacity: 0.95;
+    }
+    50% {
+      transform: translateX(-50%) scale(1.08);
+      opacity: 1;
+    }
+  }
+
+  @keyframes aiThinkingPulse {
+    0% {
+      transform: translateX(-50%) scale(0.96);
+    }
+    100% {
+      transform: translateX(-50%) scale(1.12);
+    }
+  }
+
+  @keyframes aiRobotShadow {
+    0%, 100% {
+      transform: translateX(-50%) scale(1);
+      opacity: 0.28;
+    }
+    50% {
+      transform: translateX(-50%) scale(0.9);
+      opacity: 0.4;
+    }
+  }
+
+  @keyframes aiThinkingScreen {
+    0% {
+      box-shadow: inset 0 0 0 0 rgba(255, 209, 102, 0.08);
+    }
+    100% {
+      box-shadow: inset 0 0 24px rgba(255, 209, 102, 0.12);
+    }
+  }
+
+  @keyframes aiRobotSpeak {
+    0% {
+      height: 4px;
+      transform: scaleX(1);
+    }
+    100% {
+      height: 9px;
+      transform: scaleX(0.84);
+    }
+  }
+
+  @keyframes aiRobotTalkBob {
+    0%, 100% {
+      transform: translate(calc(-50% + var(--bot-shift-x)), var(--bot-shift-y)) rotate(var(--bot-tilt));
+    }
+    50% {
+      transform: translate(calc(-50% + var(--bot-shift-x)), calc(var(--bot-shift-y) - 2px)) rotate(calc(var(--bot-tilt) + 1.5deg));
+    }
   }
 
   .ai-panel {
     width: min(380px, calc(100vw - 24px));
     height: min(560px, calc(100vh - 160px));
-    margin-bottom: 12px;
     border-radius: 18px;
     border: 1px solid var(--border);
     background: var(--surface);
@@ -689,21 +1091,34 @@ const sendText = '\u53d1\u9001';
       bottom: 78px;
     }
 
+    .ai-mini-robot {
+      width: 68px;
+      height: 82px;
+    }
+
     .ai-toggle-label {
-      display: none;
+      min-height: 30px;
+      padding: 0 11px;
+      font-size: 0.8rem;
     }
 
     .ai-toggle-btn {
-      width: 48px;
-      height: 48px;
-      padding: 0;
-      justify-content: center;
-      border-radius: 50%;
+      gap: 6px;
     }
 
     .ai-panel {
       width: calc(100vw - 24px);
       height: min(70vh, 560px);
+    }
+  }
+
+  @media (max-width: 540px) {
+    .ai-toggle-label {
+      display: none;
+    }
+
+    .ai-toggle-btn {
+      gap: 0;
     }
   }
 </style>

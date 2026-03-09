@@ -148,89 +148,1654 @@ const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.p
 			})();
 		</script>
 	<!-- Developer Mode Hidden Trigger & Modal -->
-		<div id="dev-trigger-area" style="position: fixed; bottom: 0; right: 0; width: 50px; height: 50px; z-index: 9999; cursor: default;"></div>
+		<div id="dev-trigger-area" style="position: fixed; bottom: 0; right: 0; width: 50px; height: 50px; z-index: 9998; cursor: default;"></div>
 		
-		<div id="dev-auth-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-			<div style="background: var(--surface); padding: 30px; border-radius: 16px; width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid var(--border);">
-				<h3 style="margin-bottom: 20px; font-size: 1.2rem;">开发者模式</h3>
-				<input type="text" id="dev-username" placeholder="用户名" style="width: 100%; padding: 10px; margin-bottom: 15px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); outline: none;">
-				<input type="password" id="dev-password" placeholder="密码" style="width: 100%; padding: 10px; margin-bottom: 20px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); outline: none;">
-				<div style="display: flex; gap: 10px;">
-					<button id="dev-cancel-btn" style="flex: 1; padding: 10px; background: var(--bg-secondary); border: none; border-radius: 8px; color: var(--text); cursor: pointer; font-weight: 600;">取消</button>
-					<button id="dev-login-btn" style="flex: 1; padding: 10px; background: var(--accent); border: none; border-radius: 8px; color: #fff; cursor: pointer; font-weight: 600;">进入</button>
+		<style is:inline>
+			body.dev-modal-open { overflow: hidden; }
+			.dev-auth-modal {
+				position: fixed;
+				inset: 0;
+				z-index: 9999;
+				display: none;
+				align-items: center;
+				justify-content: center;
+				padding: 24px;
+				background: rgba(10, 13, 24, 0.74);
+				backdrop-filter: blur(18px);
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+				opacity: 0;
+				transition: opacity 0.28s ease;
+				user-select: none;
+			}
+			.dev-auth-modal.visible { opacity: 1; }
+			.dev-login-card {
+				position: relative;
+				display: grid;
+				grid-template-columns: minmax(320px, 44%) minmax(340px, 1fr);
+				width: min(920px, 96vw);
+				min-height: 540px;
+				border-radius: 30px;
+				overflow: hidden;
+				border: 1px solid rgba(148, 163, 184, 0.18);
+				background: var(--surface, #ffffff);
+				box-shadow: 0 28px 80px rgba(15, 23, 42, 0.26);
+				opacity: 0;
+				transform: translateY(24px) scale(0.96);
+				transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+			}
+			.dev-auth-modal.visible .dev-login-card {
+				opacity: 1;
+				transform: translateY(0) scale(1);
+			}
+			.dev-login-scene {
+				position: relative;
+				overflow: hidden;
+				isolation: isolate;
+				background: linear-gradient(180deg, #fffdf4 0%, #f4f4ee 58%, #f0efe7 100%);
+			}
+			html[data-theme="dark"] .dev-login-scene {
+				background: linear-gradient(180deg, #1f2638 0%, #171f30 58%, #101827 100%);
+			}
+			.dev-login-scene::before {
+				content: "";
+				position: absolute;
+				inset: 18px;
+				border-radius: 28px;
+				border: 1px solid rgba(255, 214, 10, 0.44);
+				pointer-events: none;
+				opacity: 0.78;
+			}
+			.scene-glow {
+				position: absolute;
+				border-radius: 999px;
+				filter: blur(18px);
+				opacity: 0.72;
+				pointer-events: none;
+			}
+			.scene-glow-left {
+				top: 42px;
+				left: -12px;
+				width: 160px;
+				height: 160px;
+				background: rgba(255, 111, 34, 0.18);
+			}
+			.scene-glow-right {
+				top: 86px;
+				right: -24px;
+				width: 180px;
+				height: 180px;
+				background: rgba(141, 209, 229, 0.22);
+			}
+			.scene-orbit {
+				position: absolute;
+				border: 4px solid rgba(255, 214, 10, 0.78);
+				border-radius: 999px;
+				opacity: 0.58;
+				animation: orbitFloat 9s ease-in-out infinite;
+			}
+			.orbit-a {
+				top: 48px;
+				right: 42px;
+				width: 120px;
+				height: 120px;
+			}
+			.orbit-b {
+				top: 142px;
+				left: 42px;
+				width: 72px;
+				height: 72px;
+				animation-delay: -2.8s;
+			}
+			.orbit-c {
+				top: 220px;
+				right: 118px;
+				width: 28px;
+				height: 28px;
+				background: rgba(255, 255, 255, 0.42);
+				border: none;
+				animation-duration: 6s;
+				animation-delay: -1.4s;
+			}
+			.scene-stage {
+				position: absolute;
+				left: 20px;
+				right: 20px;
+				bottom: 18px;
+				height: 18px;
+				border-radius: 999px;
+				background: linear-gradient(180deg, rgba(255, 214, 10, 0.72), rgba(255, 214, 10, 0.18));
+				box-shadow: 0 24px 40px rgba(255, 214, 10, 0.2);
+			}
+			html[data-theme="dark"] .scene-stage {
+				background: linear-gradient(180deg, rgba(255, 214, 10, 0.28), rgba(255, 214, 10, 0.05));
+				box-shadow: 0 24px 40px rgba(2, 6, 23, 0.38);
+			}
+			.chars-container {
+				position: absolute;
+				left: 50%;
+				bottom: 18px;
+				width: min(390px, 92%);
+				height: 360px;
+				transform: translateX(-50%);
+			}
+			.dev-char {
+				--char-color: #9a74e8;
+				--lid-color: var(--char-color);
+				--shape-width: 120px;
+				--shape-height: 120px;
+				--eye-width: 10px;
+				--eye-height: 20px;
+				--eye-gap: 18px;
+				--face-top: 42px;
+				--cheek-color: #ff9b9b;
+				--cheek-size: 18px;
+				--cheek-gap: 64px;
+				--leg-span: 54px;
+				--leg-height: 26px;
+				--shoe-color: #ffffff;
+				--shoe-accent: #7aa7f8;
+				--shadow-width: 82px;
+				--blink-delay: 0s;
+				--turn-direction: 1;
+				--turn-scale: -0.94;
+				--buddy-x: 0px;
+				--buddy-y: 0px;
+				--buddy-rotate: 0deg;
+				--buddy-face-x: 0px;
+				--buddy-face-y: 0px;
+				--privacy-x: 0px;
+				--privacy-y: 0px;
+				--privacy-rotate: 0deg;
+				--privacy-scale-x: 1;
+				--privacy-face-x: 0px;
+				--privacy-face-y: 0px;
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				opacity: 0;
+				transform-origin: bottom center;
+				filter: drop-shadow(0 18px 24px rgba(15, 23, 42, 0.14));
+			}
+			.dev-char::after {
+				content: "";
+				position: absolute;
+				left: 50%;
+				bottom: 8px;
+				width: var(--shadow-width);
+				height: 18px;
+				border-radius: 999px;
+				background: rgba(15, 23, 42, 0.2);
+				filter: blur(11px);
+				transform: translateX(-50%);
+				opacity: 0.4;
+				z-index: -1;
+				animation: shadowPulse 3.2s ease-in-out infinite;
+				animation-play-state: paused;
+			}
+			.dev-auth-modal.visible .dev-char::after { animation-play-state: running; }
+			.dev-char-motion {
+				position: relative;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				transform:
+					translate3d(
+						calc(var(--body-x, 0px) + var(--buddy-x, 0px) + var(--privacy-x, 0px)),
+						calc(var(--body-y, 0px) + var(--buddy-y, 0px) + var(--privacy-y, 0px)),
+						0
+					)
+					rotate(calc(var(--body-rotate, 0deg) + var(--buddy-rotate, 0deg) + var(--privacy-rotate, 0deg)));
+				transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+				will-change: transform;
+			}
+			.dev-char-shape {
+				position: relative;
+				width: var(--shape-width);
+				height: var(--shape-height);
+				background: var(--char-color);
+				box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.06);
+				overflow: hidden;
+			}
+			.dev-char-back {
+				position: absolute;
+				inset: 24% 26%;
+				opacity: 0;
+				transform: scale(0.84);
+				transition: opacity 0.24s ease, transform 0.24s ease;
+			}
+			.dev-char-back::before,
+			.dev-char-back::after {
+				content: "";
+				position: absolute;
+				top: 18%;
+				width: 16%;
+				height: 48%;
+				border-radius: 999px;
+				background: rgba(255, 255, 255, 0.18);
+			}
+			.dev-char-back::before { left: 24%; }
+			.dev-char-back::after { right: 24%; }
+			.dev-face {
+				position: absolute;
+				left: 50%;
+				top: var(--face-top);
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 10px;
+				transform:
+					translate(
+						calc(-50% + var(--face-x, 0px) + var(--buddy-face-x, 0px) + var(--privacy-face-x, 0px)),
+						calc(var(--face-y, 0px) + var(--buddy-face-y, 0px) + var(--privacy-face-y, 0px))
+					);
+				transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+				will-change: transform;
+				z-index: 2;
+			}
+			.dev-cheeks {
+				position: absolute;
+				top: 10px;
+				left: 50%;
+				width: var(--cheek-gap);
+				transform: translateX(-50%);
+				display: flex;
+				justify-content: space-between;
+				pointer-events: none;
+			}
+			.dev-cheek {
+				width: var(--cheek-size);
+				height: var(--cheek-size);
+				border-radius: 50%;
+				background: var(--cheek-color);
+				opacity: 0.94;
+			}
+			.dev-eyes {
+				position: relative;
+				z-index: 2;
+				display: flex;
+				gap: var(--eye-gap);
+			}
+			.dev-eye {
+				position: relative;
+				width: var(--eye-width);
+				height: var(--eye-height);
+				overflow: hidden;
+			}
+			.dev-eye::before {
+				content: "";
+				position: absolute;
+				inset: -1px;
+				background: var(--lid-color);
+				transform-origin: top;
+				transform: scaleY(0);
+				transition: transform 0.24s ease;
+				animation: blink 6.1s infinite;
+				animation-delay: var(--blink-delay);
+				z-index: 2;
+			}
+			.dev-pupil {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: max(3px, calc(var(--eye-width) * 0.34));
+				height: calc(var(--eye-height) * 0.82);
+				border-radius: 999px;
+				background: #111827;
+				transform: translate(calc(-50% + var(--look-x, 0px)), calc(-50% + var(--look-y, 0px)));
+				transition: transform 0.08s ease-out, opacity 0.18s ease;
+			}
+			.dev-mouth {
+				position: relative;
+				z-index: 2;
+				width: 28px;
+				height: 14px;
+				transition: all 0.28s ease;
+			}
+			.mouth-frown {
+				border-top: 3px solid #111827;
+				border-radius: 28px 28px 0 0;
+			}
+			.mouth-smile {
+				border-bottom: 3px solid #111827;
+				border-radius: 0 0 28px 28px;
+			}
+			.mouth-smile-wide {
+				width: 54px;
+				height: 18px;
+				border-bottom: 4px solid #111827;
+				border-radius: 0 0 56px 56px;
+			}
+			.mouth-o {
+				width: 14px;
+				height: 14px;
+				border: 3px solid #111827;
+				border-radius: 50%;
+			}
+			.mouth-zigzag {
+				width: 34px;
+				height: 16px;
+				background:
+					linear-gradient(45deg, transparent 42%, #111827 42% 54%, transparent 54%) left center / 50% 100% no-repeat,
+					linear-gradient(-45deg, transparent 42%, #111827 42% 54%, transparent 54%) center center / 50% 100% no-repeat,
+					linear-gradient(45deg, transparent 42%, #111827 42% 54%, transparent 54%) right center / 50% 100% no-repeat;
+			}
+			.face-angry .dev-eye:first-child,
+			.face-playful .dev-eye:first-child { transform: rotate(16deg); }
+			.face-angry .dev-eye:last-child,
+			.face-playful .dev-eye:last-child { transform: rotate(-16deg); }
+			.face-sad .dev-eye:first-child { transform: rotate(14deg); }
+			.face-sad .dev-eye:last-child { transform: rotate(-14deg); }
+			.dev-legs {
+				display: flex;
+				justify-content: space-between;
+				width: var(--leg-span);
+				margin-top: -4px;
+			}
+			.dev-leg {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+			.dev-shin {
+				width: 2.5px;
+				height: var(--leg-height);
+				border-radius: 999px;
+				background: #111827;
+			}
+			.dev-leg:first-child .dev-shin { transform: rotate(1deg); }
+			.dev-leg:last-child .dev-shin { transform: rotate(-1deg); }
+			.dev-shoe {
+				width: 16px;
+				height: 10px;
+				margin-top: 2px;
+				border-radius: 2px 2px 0 0;
+				background: var(--shoe-color);
+				box-shadow: 6px 3px 0 var(--shoe-accent);
+			}
+			.dev-leg:first-child .dev-shoe { transform: translateX(-5px) rotate(2deg); }
+			.dev-leg:last-child .dev-shoe { transform: translateX(5px) rotate(-2deg); }
+			.char-star {
+				left: 0;
+				bottom: 44px;
+				z-index: 4;
+				--turn-direction: -1;
+				--turn-scale: -0.96;
+				--char-color: #ff5d17;
+				--shape-width: 176px;
+				--shape-height: 168px;
+				--face-top: 58px;
+				--eye-width: 12px;
+				--eye-height: 20px;
+				--eye-gap: 20px;
+				--cheek-color: #ef2920;
+				--cheek-size: 20px;
+				--cheek-gap: 80px;
+				--leg-span: 62px;
+				--leg-height: 44px;
+				--shoe-color: #ff6a28;
+				--shoe-accent: #f7c21a;
+				--shadow-width: 104px;
+				--blink-delay: 0.3s;
+			}
+			.char-star .dev-char-shape {
+				clip-path: polygon(50% 0%, 60% 20%, 82% 5%, 73% 28%, 100% 34%, 78% 47%, 97% 68%, 72% 70%, 80% 95%, 57% 80%, 50% 100%, 42% 80%, 20% 95%, 28% 70%, 4% 68%, 23% 48%, 0% 34%, 27% 28%, 18% 5%, 40% 21%);
+			}
+			.char-cloud {
+				left: 6px;
+				bottom: 2px;
+				z-index: 5;
+				--turn-direction: -1;
+				--turn-scale: -0.92;
+				--char-color: #0b4dc5;
+				--shape-width: 122px;
+				--shape-height: 92px;
+				--face-top: 28px;
+				--eye-width: 10px;
+				--eye-height: 18px;
+				--eye-gap: 18px;
+				--cheek-color: #7dc4e6;
+				--cheek-gap: 72px;
+				--leg-span: 56px;
+				--leg-height: 28px;
+				--shoe-color: #0b4dc5;
+				--shoe-accent: #74a9ff;
+				--shadow-width: 76px;
+				--blink-delay: 1.6s;
+			}
+			.char-cloud .dev-char-shape {
+				clip-path: polygon(13% 18%, 27% 9%, 43% 13%, 58% 6%, 75% 12%, 90% 28%, 95% 48%, 91% 71%, 76% 86%, 56% 91%, 38% 88%, 18% 92%, 5% 74%, 1% 50%, 5% 28%);
+			}
+			.char-purple {
+				left: 126px;
+				bottom: 64px;
+				z-index: 2;
+				--turn-direction: 1;
+				--turn-scale: 0.92;
+				--char-color: #9877df;
+				--shape-width: 152px;
+				--shape-height: 188px;
+				--face-top: 58px;
+				--eye-width: 12px;
+				--eye-height: 22px;
+				--eye-gap: 22px;
+				--cheek-color: #ffd020;
+				--cheek-gap: 88px;
+				--leg-span: 58px;
+				--leg-height: 34px;
+				--shoe-color: #c59bff;
+				--shoe-accent: #ffd74c;
+				--shadow-width: 92px;
+				--blink-delay: 2.3s;
+			}
+			.char-purple .dev-char-shape {
+				border-radius: 48% 48% 36% 36% / 54% 54% 28% 28%;
+			}
+			.char-triangle {
+				left: 128px;
+				bottom: 6px;
+				z-index: 6;
+				--turn-direction: -1;
+				--turn-scale: -0.9;
+				--char-color: #09b565;
+				--shape-width: 148px;
+				--shape-height: 142px;
+				--face-top: 60px;
+				--eye-width: 11px;
+				--eye-height: 20px;
+				--eye-gap: 20px;
+				--cheek-color: #f6c0b5;
+				--cheek-gap: 74px;
+				--leg-span: 64px;
+				--leg-height: 34px;
+				--shoe-color: #09b565;
+				--shoe-accent: #ab86f5;
+				--shadow-width: 88px;
+				--blink-delay: 3.05s;
+			}
+			.char-triangle .dev-char-shape {
+				clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+			}
+			.char-diamond {
+				left: 272px;
+				bottom: 150px;
+				z-index: 1;
+				--turn-direction: 1;
+				--turn-scale: 0.9;
+				--char-color: #8cd3e7;
+				--shape-width: 116px;
+				--shape-height: 116px;
+				--face-top: 42px;
+				--eye-width: 11px;
+				--eye-height: 18px;
+				--eye-gap: 18px;
+				--cheek-color: #f7a6ba;
+				--cheek-gap: 70px;
+				--leg-span: 44px;
+				--leg-height: 30px;
+				--shoe-color: #ffffff;
+				--shoe-accent: #9ec9d9;
+				--shadow-width: 66px;
+				--blink-delay: 0.95s;
+			}
+			.char-diamond .dev-char-shape {
+				clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+			}
+			.char-circle {
+				left: 244px;
+				bottom: 18px;
+				z-index: 5;
+				--turn-direction: 1;
+				--turn-scale: 0.94;
+				--char-color: #ffd408;
+				--shape-width: 154px;
+				--shape-height: 154px;
+				--face-top: 50px;
+				--eye-width: 11px;
+				--eye-height: 20px;
+				--eye-gap: 22px;
+				--cheek-color: #ff6f1d;
+				--cheek-size: 18px;
+				--cheek-gap: 86px;
+				--leg-span: 74px;
+				--leg-height: 36px;
+				--shoe-color: #ffffff;
+				--shoe-accent: #8ccfe2;
+				--shadow-width: 98px;
+				--blink-delay: 4.15s;
+			}
+			.char-circle .dev-char-shape {
+				border-radius: 50%;
+			}
+			.dev-auth-modal.interaction-a:not(.pwd-focused) .char-star {
+				--buddy-x: 8px;
+				--buddy-y: -5px;
+				--buddy-rotate: 6deg;
+				--buddy-face-x: 4px;
+			}
+			.dev-auth-modal.interaction-a:not(.pwd-focused) .char-purple {
+				--buddy-x: -7px;
+				--buddy-y: -3px;
+				--buddy-rotate: -5deg;
+				--buddy-face-x: -3px;
+			}
+			.dev-auth-modal.interaction-a:not(.pwd-focused) .char-circle {
+				--buddy-y: -6px;
+				--buddy-rotate: -3deg;
+			}
+			.dev-auth-modal.interaction-b:not(.pwd-focused) .char-cloud {
+				--buddy-x: 6px;
+				--buddy-y: -3px;
+				--buddy-rotate: 5deg;
+				--buddy-face-x: 2px;
+			}
+			.dev-auth-modal.interaction-b:not(.pwd-focused) .char-triangle {
+				--buddy-x: -5px;
+				--buddy-y: -8px;
+				--buddy-rotate: -4deg;
+				--buddy-face-y: -2px;
+			}
+			.dev-auth-modal.interaction-b:not(.pwd-focused) .char-diamond {
+				--buddy-x: -4px;
+				--buddy-y: -7px;
+				--buddy-rotate: -10deg;
+			}
+			.dev-auth-modal.interaction-c:not(.pwd-focused) .char-star {
+				--buddy-y: -4px;
+			}
+			.dev-auth-modal.interaction-c:not(.pwd-focused) .char-purple {
+				--buddy-y: -7px;
+				--buddy-rotate: 3deg;
+			}
+			.dev-auth-modal.interaction-c:not(.pwd-focused) .char-circle {
+				--buddy-x: -8px;
+				--buddy-rotate: -5deg;
+				--buddy-face-x: -3px;
+			}
+			.dev-auth-modal.interaction-c:not(.pwd-focused) .char-diamond {
+				--buddy-x: 7px;
+				--buddy-y: -4px;
+				--buddy-rotate: 9deg;
+			}
+			.dev-auth-modal.user-focused:not(.pwd-focused) .dev-char {
+				--privacy-x: 10px;
+				--privacy-y: -1px;
+				--privacy-rotate: 7deg;
+				--privacy-face-x: 4px;
+				--privacy-face-y: -1px;
+			}
+			.dev-auth-modal.user-focused:not(.pwd-focused) .char-star {
+				--privacy-x: 12px;
+				--privacy-rotate: 9deg;
+			}
+			.dev-auth-modal.user-focused:not(.pwd-focused) .char-cloud {
+				--privacy-x: 8px;
+				--privacy-rotate: 8deg;
+			}
+			.dev-auth-modal.user-focused:not(.pwd-focused) .char-purple {
+				--privacy-x: 10px;
+				--privacy-y: -2px;
+				--privacy-rotate: 6deg;
+			}
+			.dev-auth-modal.user-focused:not(.pwd-focused) .char-triangle {
+				--privacy-x: 11px;
+				--privacy-rotate: 7deg;
+			}
+			.dev-auth-modal.user-focused:not(.pwd-focused) .char-circle {
+				--privacy-x: 9px;
+				--privacy-rotate: 5deg;
+			}
+			.dev-auth-modal.user-focused:not(.pwd-focused) .char-diamond {
+				--privacy-x: 6px;
+				--privacy-rotate: 10deg;
+			}
+			.dev-auth-modal.pwd-focused:not(.show-password) .dev-char {
+				--privacy-x: -10px;
+				--privacy-y: 2px;
+				--privacy-rotate: -8deg;
+				--privacy-face-x: -4px;
+				--privacy-face-y: 1px;
+			}
+			.dev-auth-modal.pwd-focused:not(.show-password) .char-star {
+				--privacy-x: -12px;
+				--privacy-rotate: -10deg;
+			}
+			.dev-auth-modal.pwd-focused:not(.show-password) .char-cloud {
+				--privacy-x: -9px;
+				--privacy-rotate: -9deg;
+			}
+			.dev-auth-modal.pwd-focused:not(.show-password) .char-purple {
+				--privacy-x: -11px;
+				--privacy-rotate: -7deg;
+			}
+			.dev-auth-modal.pwd-focused:not(.show-password) .char-triangle {
+				--privacy-x: -10px;
+				--privacy-rotate: -8deg;
+			}
+			.dev-auth-modal.pwd-focused:not(.show-password) .char-circle {
+				--privacy-x: -8px;
+				--privacy-rotate: -6deg;
+			}
+			.dev-auth-modal.pwd-focused:not(.show-password) .char-diamond {
+				--privacy-x: -6px;
+				--privacy-rotate: -11deg;
+			}
+			.dev-login-form {
+				position: relative;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				padding: 48px 42px;
+				background: var(--surface, #ffffff);
+				opacity: 0;
+				transform: translateX(20px);
+				transition: opacity 0.32s ease 0.12s, transform 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.12s;
+			}
+			html[data-theme="dark"] .dev-login-form {
+				background: rgba(15, 23, 42, 0.96);
+			}
+			.dev-auth-modal.visible .dev-login-form {
+				opacity: 1;
+				transform: translateX(0);
+			}
+			.dev-form-badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				align-self: flex-start;
+				padding: 8px 12px;
+				margin-bottom: 18px;
+				border-radius: 999px;
+				background: rgba(90, 62, 232, 0.08);
+				color: #5a3ee8;
+				font-size: 0.78rem;
+				font-weight: 700;
+				letter-spacing: 0.02em;
+			}
+			html[data-theme="dark"] .dev-form-badge {
+				background: rgba(109, 75, 255, 0.16);
+				color: #c4b5fd;
+			}
+			.dev-login-form h2 {
+				margin: 0 0 22px;
+				font-size: clamp(1.9rem, 2vw, 2.4rem);
+				line-height: 1.05;
+				color: var(--text, #111827);
+			}
+			.dev-form-copy {
+				margin: 0 0 28px;
+				color: var(--text-light, #64748b);
+				font-size: 0.97rem;
+				line-height: 1.65;
+			}
+			.dev-input-group { margin-bottom: 16px; }
+			.dev-input-group label {
+				display: block;
+				margin-bottom: 8px;
+				color: var(--text-light, #64748b);
+				font-size: 0.84rem;
+				font-weight: 600;
+				letter-spacing: 0.02em;
+			}
+			.dev-input-shell {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				min-height: 54px;
+				padding: 0 14px;
+				border: 1.5px solid var(--border, #dbe1ea);
+				border-radius: 14px;
+				background: var(--bg, #ffffff);
+				transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+				box-sizing: border-box;
+			}
+			html[data-theme="dark"] .dev-input-shell {
+				background: rgba(15, 23, 42, 0.72);
+				border-color: rgba(148, 163, 184, 0.16);
+			}
+			.dev-input-shell:focus-within {
+				border-color: #5a3ee8;
+				box-shadow: 0 0 0 4px rgba(90, 62, 232, 0.12);
+				transform: translateY(-1px);
+			}
+			.dev-input-icon {
+				color: #94a3b8;
+				font-size: 1.08rem;
+			}
+			.dev-input-shell input {
+				flex: 1;
+				min-width: 0;
+				padding: 14px 0;
+				border: none;
+				outline: none;
+				background: transparent;
+				color: var(--text, #111827);
+				font-size: 0.98rem;
+				font-family: inherit;
+			}
+			.dev-password-toggle {
+				display: grid;
+				place-items: center;
+				width: 34px;
+				height: 34px;
+				border: none;
+				border-radius: 999px;
+				background: transparent;
+				color: #64748b;
+				cursor: pointer;
+				transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+			}
+			.dev-password-toggle:hover {
+				background: rgba(90, 62, 232, 0.08);
+				color: #5a3ee8;
+			}
+			html[data-theme="dark"] .dev-password-toggle:hover {
+				background: rgba(109, 75, 255, 0.16);
+			}
+			.dev-password-toggle:focus-visible {
+				outline: 2px solid rgba(90, 62, 232, 0.35);
+				outline-offset: 2px;
+			}
+			.dev-status-message {
+				min-height: 22px;
+				margin: 4px 0 0;
+				color: #ef4444;
+				font-size: 0.88rem;
+			}
+			.dev-status-message[hidden] { display: none; }
+			.dev-form-actions {
+				display: flex;
+				gap: 12px;
+				margin-top: 18px;
+			}
+			.dev-btn {
+				flex: 1;
+				min-height: 48px;
+				border: none;
+				border-radius: 14px;
+				font-size: 0.96rem;
+				font-weight: 700;
+				cursor: pointer;
+				transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+			}
+			.dev-btn:active { transform: scale(0.98); }
+			.dev-btn:disabled {
+				cursor: progress;
+				opacity: 0.72;
+			}
+			.dev-btn-cancel {
+				background: var(--bg-secondary, #f4f6f8);
+				color: var(--text, #334155);
+				border: 1.5px solid var(--border, #dbe1ea);
+			}
+			html[data-theme="dark"] .dev-btn-cancel {
+				background: rgba(255, 255, 255, 0.03);
+				border-color: rgba(148, 163, 184, 0.16);
+				color: var(--text, #e5e7eb);
+			}
+			.dev-btn-cancel:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 12px 22px rgba(15, 23, 42, 0.08);
+			}
+			.dev-btn-login {
+				background: linear-gradient(135deg, #6d4bff, #4f7cff);
+				color: #ffffff;
+				box-shadow: 0 18px 30px rgba(79, 124, 255, 0.22);
+			}
+			.dev-btn-login:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 22px 34px rgba(79, 124, 255, 0.28);
+			}
+			.dev-form-tip {
+				margin: 16px 0 0;
+				color: var(--text-light, #7b8794);
+				font-size: 0.82rem;
+			}
+			.dev-auth-modal.login-error .dev-login-card {
+				animation: cardShake 0.58s ease-in-out;
+			}
+			.dev-auth-modal.login-error .dev-login-scene {
+				box-shadow: inset 0 0 0 999px rgba(239, 68, 68, 0.07);
+			}
+			.dev-auth-modal.login-error .dev-char {
+				animation: errorBump 0.58s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+				opacity: 1;
+			}
+			.dev-auth-modal.login-error .dev-mouth {
+				width: 12px;
+				height: 12px;
+				margin-top: 6px;
+				border: none;
+				border-radius: 999px;
+				background: #111827;
+			}
+			.dev-auth-modal.login-error .dev-mouth::before,
+			.dev-auth-modal.login-error .dev-mouth::after {
+				content: none;
+			}
+			.dev-auth-modal.login-error .dev-input-shell {
+				border-color: #ef4444;
+				box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+			}
+			.dev-auth-modal.login-success .dev-login-card {
+				box-shadow: 0 28px 72px rgba(34, 197, 94, 0.18), 0 20px 60px rgba(15, 23, 42, 0.24);
+			}
+			.dev-auth-modal.login-success .dev-login-scene {
+				background: linear-gradient(180deg, #f4fff5 0%, #e9fced 58%, #e0f7e6 100%);
+			}
+			html[data-theme="dark"] .dev-auth-modal.login-success .dev-login-scene {
+				background: linear-gradient(180deg, #0d1d16 0%, #13281e 58%, #173124 100%);
+			}
+			.dev-auth-modal.login-success .dev-char {
+				animation: celebrate 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
+				opacity: 1;
+			}
+			.dev-auth-modal.login-success .dev-char::after {
+				animation: successShadow 0.72s ease both;
+			}
+			.dev-auth-modal.visible:not(.scene-settled) .char-star {
+				animation: starDrop 0.92s cubic-bezier(0.22, 1, 0.36, 1) 0.04s both, idleFloat 4.1s ease-in-out 1.08s infinite;
+			}
+			.dev-auth-modal.visible:not(.scene-settled) .char-purple {
+				animation: blobDrop 0.94s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both, idleFloat 4.4s ease-in-out 1.24s infinite;
+			}
+			.dev-auth-modal.visible:not(.scene-settled) .char-circle {
+				animation: circleDrop 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.36s both, idleFloat 4s ease-in-out 1.34s infinite;
+			}
+			.dev-auth-modal.visible:not(.scene-settled) .char-cloud {
+				animation: cloudHop 0.84s cubic-bezier(0.34, 1.56, 0.64, 1) 0.56s both, idleFloat 3.7s ease-in-out 1.18s infinite;
+			}
+			.dev-auth-modal.visible:not(.scene-settled) .char-triangle {
+				animation: trianglePop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.66s both, idleFloat 3.55s ease-in-out 1.32s infinite;
+			}
+			.dev-auth-modal.visible:not(.scene-settled) .char-diamond {
+				animation: diamondSlide 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.28s both, idleFloat 3.9s ease-in-out 1.2s infinite;
+			}
+			.dev-auth-modal.visible.scene-settled .char-star {
+				opacity: 1;
+				animation: idleFloat 4.1s ease-in-out infinite;
+			}
+			.dev-auth-modal.visible.scene-settled .char-purple {
+				opacity: 1;
+				animation: idleFloat 4.4s ease-in-out infinite;
+			}
+			.dev-auth-modal.visible.scene-settled .char-circle {
+				opacity: 1;
+				animation: idleFloat 4s ease-in-out infinite;
+			}
+			.dev-auth-modal.visible.scene-settled .char-cloud {
+				opacity: 1;
+				animation: idleFloat 3.7s ease-in-out infinite;
+			}
+			.dev-auth-modal.visible.scene-settled .char-triangle {
+				opacity: 1;
+				animation: idleFloat 3.55s ease-in-out infinite;
+			}
+			.dev-auth-modal.visible.scene-settled .char-diamond {
+				opacity: 1;
+				animation: idleFloat 3.9s ease-in-out infinite;
+			}
+			@keyframes orbitFloat {
+				0%, 100% { transform: translateY(0) scale(1); }
+				50% { transform: translateY(-8px) scale(1.04); }
+			}
+			@keyframes blink {
+				0%, 44%, 48%, 100% { transform: scaleY(0); }
+				46% { transform: scaleY(1); }
+			}
+			@keyframes shadowPulse {
+				0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.45; }
+				50% { transform: translateX(-50%) scale(0.9); opacity: 0.32; }
+			}
+			@keyframes starDrop {
+				0% { opacity: 0; transform: translate(-36px, -320px) rotate(-18deg) scale(0.8); }
+				55% { opacity: 1; transform: translate(0, 12px) rotate(8deg) scale(1.06); }
+				78% { transform: translate(0, -8px) rotate(-4deg) scale(0.98); }
+				100% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+			}
+			@keyframes blobDrop {
+				0% { opacity: 0; transform: translateY(-360px) scaleY(1.16) scaleX(0.88); }
+				52% { opacity: 1; transform: translateY(12px) scaleY(0.82) scaleX(1.1); }
+				76% { transform: translateY(-10px) scaleY(1.03) scaleX(0.98); }
+				100% { opacity: 1; transform: translateY(0) scale(1); }
+			}
+			@keyframes circleDrop {
+				0% { opacity: 0; transform: translate(22px, -310px) scale(0.82); }
+				56% { opacity: 1; transform: translate(0, 12px) scale(1.08); }
+				80% { transform: translate(0, -7px) scale(0.98); }
+				100% { opacity: 1; transform: translate(0, 0) scale(1); }
+			}
+			@keyframes cloudHop {
+				0% { opacity: 0; transform: translate(-20px, 44px) scale(0.7); }
+				55% { opacity: 1; transform: translate(0, -12px) scale(1.08); }
+				78% { transform: translate(0, 4px) scale(0.97); }
+				100% { opacity: 1; transform: translate(0, 0) scale(1); }
+			}
+			@keyframes trianglePop {
+				0% { opacity: 0; transform: translateY(48px) scale(0.74); }
+				58% { opacity: 1; transform: translateY(-14px) scale(1.08); }
+				82% { transform: translateY(5px) scale(0.98); }
+				100% { opacity: 1; transform: translateY(0) scale(1); }
+			}
+			@keyframes diamondSlide {
+				0% { opacity: 0; transform: translate(70px, -40px) rotate(18deg) scale(0.76); }
+				56% { opacity: 1; transform: translate(0, 10px) rotate(-8deg) scale(1.05); }
+				80% { transform: translate(0, -5px) rotate(4deg) scale(0.98); }
+				100% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+			}
+			@keyframes idleFloat {
+				0%, 100% { transform: translateY(0) scale(1); }
+				25% { transform: translateY(-2px) scaleY(1.01) scaleX(0.995); }
+				50% { transform: translateY(-4px) scaleY(1.02) scaleX(0.99); }
+				75% { transform: translateY(-1px) scaleY(1.01) scaleX(0.997); }
+			}
+			@keyframes cardShake {
+				0%, 100% { transform: translateX(0); }
+				12% { transform: translateX(-12px) rotate(-0.9deg); }
+				24% { transform: translateX(10px) rotate(0.9deg); }
+				36% { transform: translateX(-7px) rotate(-0.4deg); }
+				48% { transform: translateX(5px) rotate(0.3deg); }
+				60% { transform: translateX(-2px); }
+			}
+			@keyframes errorBump {
+				0% { transform: translateY(0) scale(1); }
+				24% { transform: translateY(-22px) scaleY(1.14) scaleX(0.9); }
+				52% { transform: translateY(0) scaleY(0.87) scaleX(1.1); }
+				76% { transform: translateY(-7px) scale(1.02); }
+				100% { transform: translateY(0) scale(1); }
+			}
+			@keyframes celebrate {
+				0% { transform: translateY(0) scale(1); }
+				30% { transform: translateY(-24px) scaleY(1.08) scaleX(0.94); }
+				60% { transform: translateY(0) scaleY(0.92) scaleX(1.08); }
+				100% { transform: translateY(-4px) scale(1); }
+			}
+			@keyframes successShadow {
+				0% { transform: translateX(-50%) scale(1); opacity: 0.45; }
+				30% { transform: translateX(-50%) scale(0.72); opacity: 0.2; }
+				100% { transform: translateX(-50%) scale(0.88); opacity: 0.32; }
+			}
+			@media (max-width: 900px) {
+				.dev-login-card {
+					grid-template-columns: 1fr;
+					width: min(560px, 100%);
+					min-height: auto;
+				}
+				.dev-login-scene {
+					min-height: 320px;
+				}
+			}
+			@media (max-width: 560px) {
+				.dev-auth-modal { padding: 14px; }
+				.dev-login-card { border-radius: 24px; }
+				.dev-login-scene { min-height: 286px; }
+				.chars-container {
+					bottom: 18px;
+					transform: translateX(-50%) scale(0.7);
+					transform-origin: bottom center;
+				}
+				.dev-login-form { padding: 30px 22px 24px; }
+				.dev-form-actions { flex-direction: column-reverse; }
+			}
+		</style>
+		<div id="dev-auth-modal" class="dev-auth-modal" style="display: none;" aria-hidden="true">
+			<div class="dev-login-card" id="dev-login-card" role="dialog" aria-modal="true" aria-labelledby="dev-login-title">
+				<div class="dev-login-scene" aria-hidden="true">
+					<div class="scene-glow scene-glow-left"></div>
+					<div class="scene-glow scene-glow-right"></div>
+					<div class="scene-orbit orbit-a"></div>
+					<div class="scene-orbit orbit-b"></div>
+					<div class="scene-orbit orbit-c"></div>
+					<div class="chars-container">
+						<div class="dev-char char-star" data-depth="1.18">
+							<div class="dev-char-motion">
+								<div class="dev-char-shape">
+									<div class="dev-char-back"></div>
+									<div class="dev-face face-angry">
+										<div class="dev-cheeks">
+											<div class="dev-cheek"></div>
+											<div class="dev-cheek"></div>
+										</div>
+										<div class="dev-eyes">
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+										</div>
+										<div class="dev-mouth mouth-frown"></div>
+									</div>
+								</div>
+								<div class="dev-legs">
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+								</div>
+							</div>
+						</div>
+						<div class="dev-char char-purple" data-depth="0.92">
+							<div class="dev-char-motion">
+								<div class="dev-char-shape">
+									<div class="dev-char-back"></div>
+									<div class="dev-face">
+										<div class="dev-cheeks">
+											<div class="dev-cheek"></div>
+											<div class="dev-cheek"></div>
+										</div>
+										<div class="dev-eyes">
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+										</div>
+										<div class="dev-mouth mouth-zigzag"></div>
+									</div>
+								</div>
+								<div class="dev-legs">
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+								</div>
+							</div>
+						</div>
+						<div class="dev-char char-diamond" data-depth="0.8">
+							<div class="dev-char-motion">
+								<div class="dev-char-shape">
+									<div class="dev-char-back"></div>
+									<div class="dev-face face-playful">
+										<div class="dev-cheeks">
+											<div class="dev-cheek"></div>
+											<div class="dev-cheek"></div>
+										</div>
+										<div class="dev-eyes">
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+										</div>
+										<div class="dev-mouth mouth-smile"></div>
+									</div>
+								</div>
+								<div class="dev-legs">
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+								</div>
+							</div>
+						</div>
+						<div class="dev-char char-cloud" data-depth="1.05">
+							<div class="dev-char-motion">
+								<div class="dev-char-shape">
+									<div class="dev-char-back"></div>
+									<div class="dev-face face-sad">
+										<div class="dev-cheeks">
+											<div class="dev-cheek"></div>
+											<div class="dev-cheek"></div>
+										</div>
+										<div class="dev-eyes">
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+										</div>
+										<div class="dev-mouth mouth-frown"></div>
+									</div>
+								</div>
+								<div class="dev-legs">
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+								</div>
+							</div>
+						</div>
+						<div class="dev-char char-triangle" data-depth="1.1">
+							<div class="dev-char-motion">
+								<div class="dev-char-shape">
+									<div class="dev-char-back"></div>
+									<div class="dev-face">
+										<div class="dev-cheeks">
+											<div class="dev-cheek"></div>
+											<div class="dev-cheek"></div>
+										</div>
+										<div class="dev-eyes">
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+										</div>
+										<div class="dev-mouth mouth-o"></div>
+									</div>
+								</div>
+								<div class="dev-legs">
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+								</div>
+							</div>
+						</div>
+						<div class="dev-char char-circle" data-depth="1.14">
+							<div class="dev-char-motion">
+								<div class="dev-char-shape">
+									<div class="dev-char-back"></div>
+									<div class="dev-face">
+										<div class="dev-cheeks">
+											<div class="dev-cheek"></div>
+											<div class="dev-cheek"></div>
+										</div>
+										<div class="dev-eyes">
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+											<div class="dev-eye"><div class="dev-pupil"></div></div>
+										</div>
+										<div class="dev-mouth mouth-smile-wide"></div>
+									</div>
+								</div>
+								<div class="dev-legs">
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+									<div class="dev-leg"><div class="dev-shin"></div><div class="dev-shoe"></div></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="scene-stage"></div>
 				</div>
-				<p id="dev-error-msg" style="color: #ff3a3a; font-size: 0.85rem; margin-top: 15px; display: none;">用户名或密码错误</p>
+				<div class="dev-login-form">
+					<h2 id="dev-login-title">开发者模式登录</h2>
+					<form id="dev-auth-form" novalidate>
+						<div class="dev-input-group">
+							<label for="dev-user">用户名</label>
+							<div class="dev-input-shell">
+								<span class="material-icons-round dev-input-icon" aria-hidden="true">person</span>
+								<input type="text" id="dev-user" placeholder="输入开发者用户名" autocomplete="username" spellcheck="false">
+							</div>
+						</div>
+						<div class="dev-input-group">
+							<label for="dev-pwd">密码</label>
+							<div class="dev-input-shell">
+								<span class="material-icons-round dev-input-icon" aria-hidden="true">lock</span>
+								<input type="password" id="dev-pwd" placeholder="输入密码" autocomplete="current-password">
+								<button type="button" class="dev-password-toggle" id="dev-password-toggle" aria-label="显示密码" aria-pressed="false">
+									<span class="material-icons-round" aria-hidden="true">visibility_off</span>
+								</button>
+							</div>
+						</div>
+						<p id="dev-error-msg" class="dev-status-message" role="alert" aria-live="polite" hidden></p>
+						<div class="dev-form-actions">
+							<button type="button" class="dev-btn dev-btn-cancel">取消</button>
+							<button type="submit" class="dev-btn dev-btn-login">进入开发者模式</button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
-
 		<script is:inline>
-			// Developer Mode Authentication Logic
-			const triggerArea = document.getElementById('dev-trigger-area');
-			const authModal = document.getElementById('dev-auth-modal');
-			const cancelBtn = document.getElementById('dev-cancel-btn');
-			const loginBtn = document.getElementById('dev-login-btn');
-			const userInp = document.getElementById('dev-username');
-			const passInp = document.getElementById('dev-password');
-			const errorMsg = document.getElementById('dev-error-msg');
-			
-			let clickCount = 0;
-			let clickTimer = null;
+			(() => {
+				if (window._okayDevModalCleanup) {
+					window._okayDevModalCleanup();
+				}
 
-			// Check current state
-			const isDevMode = localStorage.getItem('okay_dev_mode') === 'true';
-			if (isDevMode) {
-				document.body.classList.add('dev-mode-active');
-			}
+				const triggerArea = document.getElementById('dev-trigger-area');
+				const authModal = document.getElementById('dev-auth-modal');
+				const loginCard = document.getElementById('dev-login-card');
+				const authForm = document.getElementById('dev-auth-form');
+				if (!triggerArea || !authModal || !loginCard || !authForm) return;
 
-			if (triggerArea) {
-				triggerArea.addEventListener('click', () => {
-					// Dev mode only works on localhost
-					if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) return;
-					clickCount++;
-					if (clickTimer) clearTimeout(clickTimer);
-					
-					if (clickCount >= 5) {
-						clickCount = 0;
-						if (authModal && !document.body.classList.contains('dev-mode-active')) {
-							authModal.style.display = 'flex';
-							errorMsg.style.display = 'none';
-							userInp.value = '';
-							passInp.value = '';
-							userInp.focus();
-						}
-					} else {
-						clickTimer = setTimeout(() => {
-							clickCount = 0;
-						}, 1000);
+				const cancelBtn = authModal.querySelector('.dev-btn-cancel');
+				const loginBtn = authModal.querySelector('.dev-btn-login');
+				const togglePwdBtn = document.getElementById('dev-password-toggle');
+				const userInp = document.getElementById('dev-user');
+				const passInp = document.getElementById('dev-pwd');
+				const errorMsg = document.getElementById('dev-error-msg');
+				const userShell = userInp ? userInp.closest('.dev-input-shell') : null;
+				const passShell = passInp ? passInp.closest('.dev-input-shell') : null;
+				const charElements = Array.from(authModal.querySelectorAll('.dev-char'));
+				const charMotions = Array.from(authModal.querySelectorAll('.dev-char-motion'));
+				const pupils = Array.from(authModal.querySelectorAll('.dev-pupil'));
+				const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+				const interactionClasses = ['interaction-a', 'interaction-b', 'interaction-c'];
+				const closeDelayMs = 280;
+				const successDelayMs = 720;
+				const settleDelayMs = 1800;
+				
+				let clickCount = 0;
+				let clickTimer = null;
+				let isTracking = false;
+				let hideTimer = null;
+				let successTimer = null;
+				let errorTimer = null;
+				let focusTimer = null;
+				let settleTimer = null;
+				let interactionTimer = null;
+				let interactionIndex = -1;
+				let lastFocusedElement = null;
+
+				if (!cancelBtn || !loginBtn || !togglePwdBtn || !userInp || !passInp || !errorMsg) return;
+
+				const isDevMode = localStorage.getItem('okay_dev_mode') === 'true';
+				if (isDevMode) {
+					document.body.classList.add('dev-mode-active');
+				}
+
+				const clearTimer = (timerRef) => {
+					if (timerRef) {
+						window.clearTimeout(timerRef);
 					}
-				});
-			}
+					return null;
+				};
 
-			if (cancelBtn) {
-				cancelBtn.addEventListener('click', () => {
-					authModal.style.display = 'none';
-				});
-			}
+				const resetPupils = () => {
+					pupils.forEach(pupil => {
+						pupil.style.setProperty('--look-x', '0px');
+						pupil.style.setProperty('--look-y', '0px');
+					});
+				};
 
-			if (loginBtn) {
-				const attemptLogin = () => {
-					const u = userInp.value.trim();
-					const p = passInp.value.trim();
-					if (u === 'OKay' && p === 'Jhh20040314') {
-						localStorage.setItem('okay_dev_mode', 'true');
-						document.body.classList.add('dev-mode-active');
-						authModal.style.display = 'none';
-						// Dispatch event so other components (Header) can react
-						window.dispatchEvent(new Event('dev-mode-changed'));
-					} else {
-						errorMsg.style.display = 'block';
+				const setStaticGaze = (lookX, lookY = 0) => {
+					pupils.forEach((pupil, index) => {
+						const wobble = index % 2 === 0 ? 0.16 : -0.16;
+						pupil.style.setProperty('--look-x', `${(lookX + wobble).toFixed(2)}px`);
+						pupil.style.setProperty('--look-y', `${lookY.toFixed(2)}px`);
+					});
+				};
+
+				const resetCharacterMotion = () => {
+					charMotions.forEach((motion) => {
+						motion.style.setProperty('--body-x', '0px');
+						motion.style.setProperty('--body-y', '0px');
+						motion.style.setProperty('--body-rotate', '0deg');
+						motion.style.setProperty('--face-x', '0px');
+						motion.style.setProperty('--face-y', '0px');
+					});
+				};
+
+				const clearInteractionStates = () => {
+					authModal.classList.remove(...interactionClasses);
+				};
+
+				const stopCharacterInteractions = () => {
+					interactionTimer = clearTimer(interactionTimer);
+					interactionIndex = -1;
+					clearInteractionStates();
+				};
+
+				const startCharacterInteractions = () => {
+					if (!authModal.classList.contains('scene-settled')) return;
+					if (authModal.classList.contains('user-focused')) return;
+					if (authModal.classList.contains('pwd-focused') && !authModal.classList.contains('show-password')) return;
+
+					stopCharacterInteractions();
+					interactionIndex = 0;
+					authModal.classList.add(interactionClasses[interactionIndex]);
+					interactionTimer = window.setInterval(() => {
+						interactionIndex = (interactionIndex + 1) % interactionClasses.length;
+						clearInteractionStates();
+						authModal.classList.add(interactionClasses[interactionIndex]);
+					}, 2100);
+				};
+
+				const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+				const moveScene = (clientX, clientY, options = {}) => {
+					const maxDistance = options.pupilMaxDistance ?? 3.5;
+					const bodyScale = options.bodyScale ?? 1;
+
+					pupils.forEach((pupil) => {
+						const eye = pupil.parentElement;
+						if (!eye) return;
+						const rect = eye.getBoundingClientRect();
+						const eyeX = rect.left + rect.width / 2;
+						const eyeY = rect.top + rect.height / 2;
+
+						const deltaX = clientX - eyeX;
+						const deltaY = clientY - eyeY;
+						const angle = Math.atan2(deltaY, deltaX);
+						const distance = Math.min(maxDistance, Math.hypot(deltaX, deltaY) / 18);
+						const moveX = Math.cos(angle) * distance;
+						const moveY = Math.sin(angle) * distance;
+
+						pupil.style.setProperty('--look-x', `${moveX.toFixed(2)}px`);
+						pupil.style.setProperty('--look-y', `${moveY.toFixed(2)}px`);
+					});
+
+					charMotions.forEach((motion, index) => {
+						const host = charElements[index];
+						const depth = host ? Number(host.dataset.depth || '1') : 1;
+						const rect = motion.getBoundingClientRect();
+						const centerX = rect.left + rect.width / 2;
+						const centerY = rect.top + rect.height * 0.42;
+						const deltaX = clientX - centerX;
+						const deltaY = clientY - centerY;
+						const distance = Math.hypot(deltaX, deltaY);
+						const strength = 0.24 + (1 - Math.min(distance, 320) / 320) * 0.76;
+
+						const bodyX = clamp(deltaX * 0.045 * depth * strength * bodyScale, -14 * depth, 14 * depth);
+						const bodyY = clamp(deltaY * 0.018 * depth * strength * bodyScale, -7 * depth, 9 * depth);
+						const bodyRotate = clamp(deltaX * 0.03 * depth * strength * bodyScale, -10 * depth, 10 * depth);
+
+						motion.style.setProperty('--body-x', `${bodyX.toFixed(2)}px`);
+						motion.style.setProperty('--body-y', `${bodyY.toFixed(2)}px`);
+						motion.style.setProperty('--body-rotate', `${bodyRotate.toFixed(2)}deg`);
+						motion.style.setProperty('--face-x', `${(bodyX * 0.48).toFixed(2)}px`);
+						motion.style.setProperty('--face-y', `${(bodyY * 0.28).toFixed(2)}px`);
+					});
+				};
+
+				const lookAtInput = (input) => {
+					const rect = input.getBoundingClientRect();
+					const anchorX = rect.left + rect.width * Math.min(0.72, 0.35 + input.value.length * 0.04);
+					const anchorY = rect.top + rect.height / 2;
+					moveScene(anchorX, anchorY, { pupilMaxDistance: 2.7, bodyScale: 0.72 });
+				};
+
+				const activateUserFocus = () => {
+					authModal.classList.add('user-focused');
+					authModal.classList.remove('pwd-focused');
+					stopCharacterInteractions();
+					if (isTracking) {
+						lookAtInput(userInp);
 					}
 				};
-				loginBtn.addEventListener('click', attemptLogin);
-				passInp.addEventListener('keypress', (e) => {
-					if (e.key === 'Enter') attemptLogin();
+
+				const releaseUserFocus = () => {
+					if (authModal.classList.contains('pwd-focused') || document.activeElement === passInp) return;
+					authModal.classList.remove('user-focused');
+					resetCharacterMotion();
+					resetPupils();
+					if (authModal.classList.contains('scene-settled')) {
+						startCharacterInteractions();
+					}
+				};
+
+				const activatePasswordFocus = () => {
+					authModal.classList.remove('user-focused');
+					authModal.classList.add('pwd-focused');
+					stopCharacterInteractions();
+					resetCharacterMotion();
+					setStaticGaze(-1.75, -0.1);
+				};
+
+				const releasePasswordFocus = () => {
+					if (authModal.classList.contains('user-focused') || document.activeElement === userInp) return;
+					if (authModal.classList.contains('show-password')) return;
+					authModal.classList.remove('pwd-focused');
+					resetCharacterMotion();
+					resetPupils();
+					if (authModal.classList.contains('scene-settled')) {
+						startCharacterInteractions();
+					}
+				};
+
+				const focusables = () => Array.from(authModal.querySelectorAll(focusableSelector)).filter((element) => {
+					return !element.hasAttribute('disabled') && element.offsetParent !== null;
 				});
-			}
+
+				const resetFormState = () => {
+					authModal.classList.remove('login-error', 'login-success', 'user-focused', 'pwd-focused', 'show-password', 'scene-settled');
+					clearInteractionStates();
+					errorMsg.hidden = true;
+					errorMsg.textContent = '';
+					userInp.disabled = false;
+					passInp.disabled = false;
+					loginBtn.disabled = false;
+					cancelBtn.disabled = false;
+					togglePwdBtn.disabled = false;
+					passInp.type = 'password';
+					togglePwdBtn.setAttribute('aria-pressed', 'false');
+					const toggleIcon = togglePwdBtn.querySelector('.material-icons-round');
+					if (toggleIcon) toggleIcon.textContent = 'visibility_off';
+					togglePwdBtn.setAttribute('aria-label', '显示密码');
+				};
+
+				const clearError = () => {
+					errorTimer = clearTimer(errorTimer);
+					authModal.classList.remove('login-error');
+					errorMsg.hidden = true;
+					errorMsg.textContent = '';
+				};
+
+				const showError = (message) => {
+					successTimer = clearTimer(successTimer);
+					errorTimer = clearTimer(errorTimer);
+					authModal.classList.remove('login-success');
+					authModal.classList.add('login-error');
+					errorMsg.textContent = message;
+					errorMsg.hidden = false;
+					errorTimer = window.setTimeout(() => {
+						authModal.classList.remove('login-error');
+					}, 720);
+				};
+
+				const setPasswordVisibility = (visible) => {
+					passInp.type = visible ? 'text' : 'password';
+					authModal.classList.toggle('show-password', visible);
+					togglePwdBtn.setAttribute('aria-pressed', String(visible));
+					togglePwdBtn.setAttribute('aria-label', visible ? '隐藏密码' : '显示密码');
+					const toggleIcon = togglePwdBtn.querySelector('.material-icons-round');
+					if (toggleIcon) {
+						toggleIcon.textContent = visible ? 'visibility' : 'visibility_off';
+					}
+					if (!visible && document.activeElement !== passInp) {
+						authModal.classList.remove('pwd-focused');
+					}
+				};
+
+				const closeModal = (restoreFocus = true) => {
+					hideTimer = clearTimer(hideTimer);
+					successTimer = clearTimer(successTimer);
+					errorTimer = clearTimer(errorTimer);
+					focusTimer = clearTimer(focusTimer);
+					settleTimer = clearTimer(settleTimer);
+					stopCharacterInteractions();
+					authModal.classList.remove('visible', 'login-error', 'login-success', 'pwd-focused', 'show-password', 'scene-settled');
+					authModal.setAttribute('aria-hidden', 'true');
+					document.body.classList.remove('dev-modal-open');
+					isTracking = false;
+
+					hideTimer = window.setTimeout(() => {
+						authModal.style.display = 'none';
+						setPasswordVisibility(false);
+						authForm.reset();
+						resetFormState();
+						resetPupils();
+						resetCharacterMotion();
+						if (restoreFocus && lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+							lastFocusedElement.focus();
+						}
+					}, closeDelayMs);
+				};
+
+				const openModal = () => {
+					if (document.body.classList.contains('dev-mode-active')) return;
+
+					hideTimer = clearTimer(hideTimer);
+					successTimer = clearTimer(successTimer);
+					errorTimer = clearTimer(errorTimer);
+					focusTimer = clearTimer(focusTimer);
+					settleTimer = clearTimer(settleTimer);
+					stopCharacterInteractions();
+					lastFocusedElement = document.activeElement;
+					authForm.reset();
+					resetFormState();
+					resetPupils();
+					resetCharacterMotion();
+
+					authModal.style.display = 'flex';
+					authModal.setAttribute('aria-hidden', 'false');
+					document.body.classList.add('dev-modal-open');
+					isTracking = true;
+
+					if (window.getSelection) {
+						window.getSelection().removeAllRanges();
+					}
+
+					requestAnimationFrame(() => {
+						requestAnimationFrame(() => {
+							authModal.classList.add('visible');
+						});
+					});
+
+					focusTimer = window.setTimeout(() => {
+						userInp.focus();
+						lookAtInput(userInp);
+					}, 430);
+					settleTimer = window.setTimeout(() => {
+						authModal.classList.add('scene-settled');
+						startCharacterInteractions();
+					}, settleDelayMs);
+				};
+
+				const attemptLogin = () => {
+					const username = userInp.value.trim();
+					const password = passInp.value.trim();
+
+					if (!username || !password) {
+						showError('请输入用户名和密码。');
+						if (!username) {
+							userInp.focus();
+						} else {
+							passInp.focus();
+						}
+						return;
+					}
+
+					if (username === 'OKay' && password === 'Jhh20040314') {
+						clearError();
+						authModal.classList.add('login-success');
+						userInp.disabled = true;
+						passInp.disabled = true;
+						loginBtn.disabled = true;
+						cancelBtn.disabled = true;
+						togglePwdBtn.disabled = true;
+						isTracking = false;
+
+						successTimer = window.setTimeout(() => {
+							localStorage.setItem('okay_dev_mode', 'true');
+							document.body.classList.add('dev-mode-active');
+							closeModal(false);
+							window.dispatchEvent(new Event('dev-mode-changed'));
+						}, successDelayMs);
+						return;
+					}
+
+					showError('用户名或密码错误，请重试。');
+					passInp.focus();
+					passInp.select();
+				};
+
+				const handleMouseMove = (event) => {
+					if (!isTracking) return;
+					if (authModal.classList.contains('user-focused')) {
+						lookAtInput(userInp);
+						return;
+					}
+					if (authModal.classList.contains('pwd-focused') && !authModal.classList.contains('show-password')) return;
+					moveScene(event.clientX, event.clientY);
+				};
+
+				const handleKeyDown = (event) => {
+					if (authModal.style.display === 'none') return;
+
+					if (event.key === 'Escape') {
+						event.preventDefault();
+						closeModal();
+						return;
+					}
+
+					if (event.key !== 'Tab') return;
+
+					const items = focusables();
+					if (items.length === 0) return;
+
+					const first = items[0];
+					const last = items[items.length - 1];
+
+					if (event.shiftKey && document.activeElement === first) {
+						event.preventDefault();
+						last.focus();
+					} else if (!event.shiftKey && document.activeElement === last) {
+						event.preventDefault();
+						first.focus();
+					}
+				};
+
+				document.addEventListener('mousemove', handleMouseMove, { passive: true });
+				document.addEventListener('keydown', handleKeyDown);
+
+				userInp.addEventListener('focus', activateUserFocus);
+				userInp.addEventListener('blur', () => {
+					window.setTimeout(() => {
+						if (document.activeElement !== userInp) {
+							releaseUserFocus();
+						}
+					}, 0);
+				});
+				userInp.addEventListener('input', () => {
+					clearError();
+					if (isTracking) {
+						lookAtInput(userInp);
+					}
+				});
+				passInp.addEventListener('focus', activatePasswordFocus);
+				passInp.addEventListener('blur', () => {
+					window.setTimeout(() => {
+						if (document.activeElement !== passInp) {
+							releasePasswordFocus();
+						}
+					}, 0);
+				});
+				passInp.addEventListener('input', clearError);
+				togglePwdBtn.addEventListener('click', () => {
+					const shouldShow = passInp.type === 'password';
+					setPasswordVisibility(shouldShow);
+					passInp.focus();
+					if (shouldShow) {
+						lookAtInput(passInp);
+					} else {
+						setStaticGaze(-1.75, -0.1);
+					}
+				});
+				if (userShell) {
+					userShell.addEventListener('mouseenter', () => {
+						if (authModal.style.display === 'none' || authModal.classList.contains('pwd-focused')) return;
+						activateUserFocus();
+					});
+					userShell.addEventListener('mouseleave', () => {
+						if (document.activeElement !== userInp) {
+							releaseUserFocus();
+						}
+					});
+				}
+				if (passShell) {
+					passShell.addEventListener('mouseenter', () => {
+						if (authModal.style.display === 'none' || document.activeElement === passInp) return;
+						authModal.classList.remove('user-focused');
+					});
+				}
+
+				if (triggerArea) {
+					triggerArea.addEventListener('click', () => {
+						if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) return;
+						clickCount++;
+						if (clickTimer) clearTimeout(clickTimer);
+						
+						if (clickCount >= 5) {
+							clickCount = 0;
+							openModal();
+						} else {
+							clickTimer = setTimeout(() => {
+								clickCount = 0;
+							}, 1000);
+						}
+					});
+				}
+
+				authModal.addEventListener('mousedown', (event) => {
+					if (event.target === authModal) {
+						closeModal();
+					}
+				});
+
+				cancelBtn.addEventListener('click', () => closeModal());
+				authForm.addEventListener('submit', (event) => {
+					event.preventDefault();
+					attemptLogin();
+				});
+
+				window._okayDevModalCleanup = () => {
+					document.removeEventListener('mousemove', handleMouseMove);
+					document.removeEventListener('keydown', handleKeyDown);
+					clickTimer = clearTimer(clickTimer);
+					hideTimer = clearTimer(hideTimer);
+					successTimer = clearTimer(successTimer);
+					errorTimer = clearTimer(errorTimer);
+					focusTimer = clearTimer(focusTimer);
+					settleTimer = clearTimer(settleTimer);
+					interactionTimer = clearTimer(interactionTimer);
+					document.body.classList.remove('dev-modal-open');
+				};
+			})();
 		</script>
 	</body>
 </html>
