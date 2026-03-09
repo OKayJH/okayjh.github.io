@@ -40,8 +40,9 @@ posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 <style>
   .blog-index {
-    max-width: 800px;
+    width: min(800px, calc(100% - (var(--page-gutter) * 2)));
     margin: 0 auto;
+    padding: 96px 0 60px;
     animation: fadeIn 0.5s ease-out forwards;
   }
 
@@ -67,7 +68,7 @@ posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
   .post-list {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 
   .post-item {
@@ -75,10 +76,21 @@ posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
     text-decoration: none;
     color: inherit;
     transition: all 0.3s ease;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
   }
 
   .post-item:hover h2 {
     color: var(--link-color);
+  }
+
+  .post-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
   }
 
   .post-header {
@@ -134,6 +146,40 @@ posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
     time {
       white-space: nowrap;
       margin-top: 5px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .blog-index {
+      padding-top: 84px;
+      padding-bottom: 48px;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .page-header h1 {
+      font-size: 2rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .blog-index {
+      padding-top: 76px;
+    }
+
+    .post-item {
+      padding: 18px;
+    }
+
+    .page-header h1 {
+      font-size: 1.6rem;
+    }
+
+    .page-header p {
+      font-size: 0.98rem;
     }
   }
 

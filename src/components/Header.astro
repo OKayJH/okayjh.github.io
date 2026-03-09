@@ -29,18 +29,21 @@ const headerSearchIndex = posts.map((post) => ({
                 <div class="search-results" id="search-results"></div>
             </div>
         </div>
-        <div class="nav-right" style="gap: 12px; align-items: center;">
-            <a href="/serial" class="nav-works-btn" title="串口调试" style="display: flex; align-items: center; gap: 4px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s;">
-                <span class="material-icons-round" style="font-size: 18px;">terminal</span>
+        <div class="nav-right">
+            <a href="/search" class="nav-search-link" title="搜索文章">
+                <span class="material-icons-round">search</span>
+            </a>
+            <a href="/serial" class="nav-works-btn" title="串口调试">
+                <span class="material-icons-round">terminal</span>
                 <span class="nav-works-text">调试</span>
             </a>
-            <a href="/works" class="nav-works-btn" title="3D 展厅" style="display: flex; align-items: center; gap: 4px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s;">
-                <span class="material-icons-round" style="font-size: 18px;">view_in_ar</span>
+            <a href="/works" class="nav-works-btn" title="3D 展厅">
+                <span class="material-icons-round">view_in_ar</span>
                 <span class="nav-works-text">展厅</span>
             </a>
             <a href="/editor" class="nav-create-btn" id="nav-create-btn" title="发布新文章" data-astro-reload>
                 <span class="material-icons-round" style="font-size: 15px;">add</span>
-                创作
+                <span class="nav-create-text">创作</span>
             </a>
             <button class="nav-exit-dev-btn" id="nav-exit-dev-btn" title="退出开发者模式">
                 退出
@@ -57,6 +60,43 @@ const headerSearchIndex = posts.map((post) => ({
 </nav>
 
 <style>
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .nav-search-link,
+    .nav-works-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 8px 10px;
+        border-radius: 999px;
+        transition: color 0.2s, background 0.2s, transform 0.2s;
+        white-space: nowrap;
+    }
+    .nav-search-link {
+        display: none;
+    }
+    .nav-search-link .material-icons-round,
+    .nav-works-btn .material-icons-round {
+        font-size: 18px;
+    }
+    .nav-search-link:hover,
+    .nav-works-btn:hover {
+        background: var(--bg-secondary);
+        color: var(--text);
+        transform: translateY(-1px);
+    }
+    .nav-avatar-link {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
     .nav-create-btn {
         display: none; /* hidden by default */
         align-items: center;
@@ -92,6 +132,43 @@ const headerSearchIndex = posts.map((post) => ({
     .nav-exit-dev-btn:hover {
         background: var(--surface);
         color: var(--text);
+    }
+    @media (max-width: 768px) {
+        .nav-search-link {
+            display: inline-flex;
+        }
+        .nav-works-text {
+            display: none;
+        }
+        .nav-search-link,
+        .nav-works-btn {
+            padding: 8px;
+            gap: 0;
+        }
+        .nav-create-btn {
+            padding: 6px 10px;
+        }
+        .nav-exit-dev-btn {
+            padding: 6px 10px;
+        }
+        .nav-avatar-link {
+            display: none;
+        }
+    }
+    @media (max-width: 520px) {
+        .nav-right {
+            gap: 6px;
+        }
+        .nav-create-text {
+            display: none;
+        }
+        .nav-create-btn {
+            padding: 6px 9px;
+        }
+        .nav-exit-dev-btn {
+            padding: 6px 9px;
+            font-size: 0.78rem;
+        }
     }
 </style>
 
