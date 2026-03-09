@@ -1138,7 +1138,7 @@ const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.p
 			}
 		</style>
 		<div id="dev-auth-modal" class="dev-auth-modal" style="display: none;" aria-hidden="true">
-			<div class="dev-login-card" id="dev-login-card" role="dialog" aria-modal="true" aria-labelledby="dev-login-title">
+			<div class="dev-login-card" id="dev-login-card" role="dialog" aria-modal="true" aria-labelledby="dev-login-title" tabindex="-1">
 				<div class="dev-login-scene" aria-hidden="true">
 					<div class="scene-glow scene-glow-left"></div>
 					<div class="scene-glow scene-glow-right"></div>
@@ -1617,8 +1617,7 @@ const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.p
 					});
 
 					focusTimer = window.setTimeout(() => {
-						userInp.focus();
-						lookAtInput(userInp);
+						loginCard.focus();
 					}, 430);
 					settleTimer = window.setTimeout(() => {
 						authModal.classList.add('scene-settled');
