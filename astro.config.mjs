@@ -9,7 +9,7 @@ const isDev = process.env.NODE_ENV !== 'production' && !process.env.CI;
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://okayjh.github.io',
+  site: 'https://okayblog.me',
   ...(isDev ? { adapter: node({ mode: 'standalone' }) } : {}),
   integrations: [mdx()],
   markdown: {

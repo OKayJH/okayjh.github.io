@@ -99,7 +99,7 @@ const searchIndex = posts.map(post => ({
         resultsContainer.innerHTML = results.map((post: any) => `
           <div class="search-result">
             <a href="/blog/${post.slug}" class="result-title">${post.title}</a>
-            <div class="result-url">okayjh.github.io/blog/${post.slug}</div>
+            <div class="result-url">okayblog.me/blog/${post.slug}</div>
             <div class="result-meta">
               <span class="date">${post.date}</span>
               ${post.tags.map((tag: string) => `<span class="tag-badge">${tag}</span>`).join('')}
