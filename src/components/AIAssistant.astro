@@ -24,7 +24,13 @@ const sendText = '\u53d1\u9001';
       aria-expanded="false"
       title={titleText}
     >
-      <span class="material-icons-round">smart_toy</span>
+      <div class="robot-face">
+        <div class="robot-eyes">
+          <div class="robot-eye left"></div>
+          <div class="robot-eye right"></div>
+        </div>
+        <div class="robot-mouth"></div>
+      </div>
       <span class="ai-toggle-label">{assistantName}</span>
     </button>
 
@@ -242,6 +248,9 @@ const sendText = '\u53d1\u9001';
         let assistantText = '';
         activeController = new AbortController();
 
+        // Start thinking animation
+        root.classList.add('is-thinking');
+
         try {
           const payload = {
             assistant: assistantName,
@@ -265,13 +274,17 @@ const sendText = '\u53d1\u9001';
             throw new Error(textResp || `\u8bf7\u6c42\u5931\u8d25\uff08${response.status}\uff09`);
           }
 
-          const contentType = response.headers.get('content-type') || '';
           if (contentType.includes('text/event-stream') && response.body) {
+            // Start speaking animation once we know we are getting a stream
+            root.classList.remove('is-thinking');
+            root.classList.add('is-speaking');
+            
             await readSseStream(response.body, (delta) => {
               assistantText += delta;
               updateMessage(assistantItem, assistantText);
             });
           } else {
+            root.classList.remove('is-thinking');
             const data = await response.json();
             assistantText =
               data?.answer ||
@@ -296,6 +309,8 @@ const sendText = '\u53d1\u9001';
         } finally {
           activeController = null;
           setBusy(false);
+          // Stop all animations
+          root.classList.remove('is-thinking', 'is-speaking');
         }
       };
 
@@ -377,10 +392,97 @@ const sendText = '\u53d1\u9001';
 
   .ai-toggle-btn:hover {
     filter: brightness(1.03);
+    transform: scale(1.05);
   }
 
-  .ai-toggle-btn .material-icons-round {
-    font-size: 18px;
+  .ai-toggle-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* 2D Robot Face Styles */
+  .robot-face {
+    width: 28px;
+    height: 28px;
+    background: #ffffff;
+    border-radius: 8px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .robot-eyes {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 3px;
+  }
+
+  .robot-eye {
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: blink 4s infinite ease-in-out;
+    transition: all 0.3s ease;
+  }
+
+  .robot-mouth {
+    width: 10px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  /* Idle Animations */
+  @keyframes blink {
+    0%, 96%, 100% { transform: scaleY(1); }
+    98% { transform: scaleY(0.1); }
+  }
+
+  /* Thinking State */
+  .is-thinking .robot-eye {
+    animation: none;
+    height: 4px;
+    width: 8px;
+    border-radius: 2px;
+    background: #ffab00; /* Yellow */
+    transform: translateY(-2px);
+  }
+  
+  .is-thinking .robot-eyes {
+    animation: look-around 2s infinite alternate ease-in-out;
+  }
+
+  .is-thinking .robot-mouth {
+    width: 6px;
+    background: #ffab00;
+  }
+
+  @keyframes look-around {
+    0% { transform: translateX(-2px); }
+    100% { transform: translateX(2px); }
+  }
+
+  /* Speaking State */
+  .is-speaking .robot-eye {
+    animation: none;
+    transform: scaleY(1.1);
+  }
+
+  .is-speaking .robot-mouth {
+    height: 6px;
+    width: 8px;
+    border-radius: 50% 50% 2px 2px;
+    animation: speak 0.3s infinite alternate;
+  }
+
+  @keyframes speak {
+    0% { height: 3px; transform: scaleX(1); }
+    100% { height: 7px; transform: scaleX(0.8); }
   }
 
   .ai-panel {

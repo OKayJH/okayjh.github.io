@@ -8,8 +8,7 @@ AI_BASE_URL = "https://api.deepseek.com/v1"
 AI_MODEL = "deepseek-chat"
 ASSISTANT_NAME = "小O"
 
-# Comma-separated exact origins
-ALLOWED_ORIGINS = "https://okayjh.github.io,http://localhost:4321"
+ALLOWED_ORIGINS = "https://okayjh.github.io,https://okayblog.me,http://localhost:4321"
 
 # Cheapest-mode defaults
 RATE_LIMIT_PER_MIN = "10"
