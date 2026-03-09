@@ -5,6 +5,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MusicPlayer from '../components/MusicPlayer.astro';
 import AIAssistant from '../components/AIAssistant.astro';
+import FloatingClock from '../components/FloatingClock.astro';
 import { ViewTransitions } from 'astro:transitions';
 
 interface Props {
@@ -68,6 +69,8 @@ const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.p
 				</div>
 			</div>
 		</div>
+
+		<FloatingClock />
 
 		<div id="app" class="app" style="opacity: 0; transition: opacity 0.5s ease;">
 			<Header />

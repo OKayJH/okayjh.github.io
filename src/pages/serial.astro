@@ -12,24 +12,6 @@ import Layout from '../layouts/Layout.astro';
     <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
     <main class="serial-main">
-        <div class="mobile-debug-guard" id="mobile-debug-guard" hidden>
-            <div class="mobile-debug-card">
-                <span class="material-icons-round mobile-debug-icon">desktop_windows</span>
-                <h2>该功能仅支持 PC 端使用</h2>
-                <p>串口调试依赖 Web Serial API 与更大的操作空间，建议使用电脑浏览器打开。</p>
-                <div class="mobile-debug-actions">
-                    <a href="/" class="btn btn-primary mobile-debug-home">
-                        <span class="material-icons-round">home</span>
-                        回到主界面
-                    </a>
-                    <button type="button" class="btn" id="mobile-debug-continue">
-                        <span class="material-icons-round">visibility</span>
-                        继续查看
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <header class="serial-header">
             <div class="header-left">
                 <a href="/" class="back-link">
@@ -307,16 +289,7 @@ import Layout from '../layouts/Layout.astro';
     </main>
 
     <style is:global>
-        body.serial-mobile-guard-open { overflow: hidden; }
         .serial-main { max-width: 1400px; margin: 80px auto 0; padding: 20px 24px 100px; min-height: 100vh; }
-        .mobile-debug-guard { position: fixed; inset: 0; z-index: 12000; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(8, 12, 22, 0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-        .mobile-debug-card { width: min(92vw, 420px); padding: 28px 24px; border-radius: 24px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-xl); text-align: center; }
-        .mobile-debug-icon { font-size: 44px; color: var(--accent); margin-bottom: 12px; }
-        .mobile-debug-card h2 { margin: 0 0 10px; font-size: 1.4rem; color: var(--text); }
-        .mobile-debug-card p { margin: 0; color: var(--text-secondary); line-height: 1.7; }
-        .mobile-debug-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
-        .mobile-debug-actions .btn,
-        .mobile-debug-home { justify-content: center; min-width: 148px; }
         .serial-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; position: relative; }
         .header-left, .header-right { width: 120px; flex-shrink: 0; }
         .header-center { flex: 1; text-align: center; }
@@ -512,11 +485,6 @@ import Layout from '../layouts/Layout.astro';
 
         @media (max-width: 768px) {
             .serial-main { padding: 20px 12px 120px; }
-            .mobile-debug-card { padding: 24px 18px; border-radius: 20px; }
-            .mobile-debug-card h2 { font-size: 1.2rem; }
-            .mobile-debug-actions { flex-direction: column; }
-            .mobile-debug-actions .btn,
-            .mobile-debug-home { width: 100%; }
             .toolbar-row { gap: 10px; }
             .toolbar-status { margin-left: 0; }
             .toolbar-divider { display: none; }
@@ -536,43 +504,6 @@ import Layout from '../layouts/Layout.astro';
     <script is:inline>
 function initSerialDebug() {
     if (!document.getElementById('terminals-wrapper')) return;
-    var mobileGuard = document.getElementById('mobile-debug-guard');
-    var mobileContinueBtn = document.getElementById('mobile-debug-continue');
-
-    function isMobileGuardRequired() {
-        var mobileUa = /Android|iPhone|iPad|iPod|Mobile|HarmonyOS/i.test(navigator.userAgent || '');
-        var narrowTouchViewport = window.matchMedia('(max-width: 900px)').matches && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-        return mobileUa || narrowTouchViewport;
-    }
-
-    function hideMobileGuard() {
-        if (mobileGuard) mobileGuard.hidden = true;
-        document.body.classList.remove('serial-mobile-guard-open');
-    }
-
-    function showMobileGuard() {
-        if (mobileGuard) mobileGuard.hidden = false;
-        document.body.classList.add('serial-mobile-guard-open');
-    }
-
-    if (mobileGuard && mobileGuard.getAttribute('data-bound') !== 'true') {
-        mobileGuard.setAttribute('data-bound', 'true');
-        if (mobileContinueBtn) {
-            mobileContinueBtn.addEventListener('click', function () {
-                window.__serialMobileGuardDismissed = true;
-                hideMobileGuard();
-                window.__serialDebugInit = false;
-                initSerialDebug();
-            });
-        }
-    }
-
-    if (isMobileGuardRequired() && !window.__serialMobileGuardDismissed) {
-        showMobileGuard();
-        return;
-    }
-
-    hideMobileGuard();
     if (window.__serialDebugInit) return;
     window.__serialDebugInit = true;
 
@@ -1507,16 +1438,7 @@ initChartJS();
 createSession();
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initSerialDebug, { once: true });
-        } else {
-            initSerialDebug();
-        }
-
-        document.addEventListener('astro:page-load', function() {
-            window.__serialDebugInit = false;
-            window.__serialMobileGuardDismissed = false;
-            initSerialDebug();
-        });
+    
+        document.addEventListener('astro:page-load', function() { window.__serialDebugInit = false; initSerialDebug(); });
     </script>
 </Layout>

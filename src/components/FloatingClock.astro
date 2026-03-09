@@ -1,0 +1,169 @@
+<div class="site-clock-shell" id="site-clock" aria-hidden="true">
+  <div class="site-clock-display site-clock-display-back">
+    <span class="site-clock-part" data-clock-hour>00</span>
+    <span class="site-clock-colon" aria-hidden="true">
+      <span></span>
+      <span></span>
+    </span>
+    <span class="site-clock-part" data-clock-minute>00</span>
+  </div>
+  <div class="site-clock-display site-clock-display-front">
+    <span class="site-clock-part" data-clock-hour>00</span>
+    <span class="site-clock-colon" aria-hidden="true">
+      <span></span>
+      <span></span>
+    </span>
+    <span class="site-clock-part" data-clock-minute>00</span>
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    const mountClock = () => {
+      const root = document.getElementById('site-clock');
+      if (!root) return;
+
+      const hourNodes = root.querySelectorAll('[data-clock-hour]');
+      const minuteNodes = root.querySelectorAll('[data-clock-minute]');
+
+      const updateClock = () => {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+
+        hourNodes.forEach((node) => {
+          node.textContent = hours;
+        });
+
+        minuteNodes.forEach((node) => {
+          node.textContent = minutes;
+        });
+      };
+
+      if (window._okayClockCleanup) {
+        window._okayClockCleanup();
+      }
+
+      updateClock();
+
+      const onVisibilityChange = () => {
+        if (!document.hidden) {
+          updateClock();
+        }
+      };
+
+      const timerId = window.setInterval(updateClock, 1000);
+      document.addEventListener('visibilitychange', onVisibilityChange);
+
+      window._okayClockCleanup = () => {
+        window.clearInterval(timerId);
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+      };
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', mountClock, { once: true });
+    } else {
+      mountClock();
+    }
+
+    document.addEventListener('astro:page-load', mountClock);
+  })();
+</script>
+
+<style>
+  :global(.app) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .site-clock-shell {
+    position: fixed;
+    top: 14px;
+    right: clamp(18px, 3vw, 36px);
+    width: min(180px, 28vw);
+    pointer-events: none;
+    user-select: none;
+    z-index: 1001;
+    opacity: 0.9;
+  }
+
+  .site-clock-display {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: clamp(1.55rem, 2.8vw, 2.35rem);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.08em;
+    white-space: nowrap;
+  }
+
+  .site-clock-display-back {
+    position: absolute;
+    inset: 0;
+    transform: translate(0.12em, 0.02em);
+    color: rgba(129, 210, 255, 0.78);
+    filter: saturate(1.12);
+  }
+
+  .site-clock-display-front {
+    position: relative;
+    color: rgba(34, 122, 219, 0.9);
+    text-shadow: 0 10px 20px rgba(26, 115, 232, 0.1);
+  }
+
+  .site-clock-part {
+    display: inline-block;
+    min-width: 1.62em;
+    text-align: center;
+  }
+
+  .site-clock-colon {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(0.16em, 0.5vw, 0.2em);
+    margin: 0 clamp(0.05em, 0.5vw, 0.1em);
+  }
+
+  .site-clock-colon span {
+    width: clamp(0.16em, 0.45vw, 0.2em);
+    height: clamp(0.16em, 0.45vw, 0.2em);
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  @media (max-width: 1024px) {
+    .site-clock-shell {
+      top: 16px;
+      width: min(160px, 24vw);
+      opacity: 0.84;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .site-clock-shell {
+      top: 12px;
+      right: 56px;
+      left: auto;
+      width: min(120px, 28vw);
+      transform: none;
+      opacity: 0.74;
+    }
+
+    .site-clock-display {
+      justify-content: flex-end;
+      font-size: clamp(1rem, 4vw, 1.3rem);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .site-clock-shell {
+      top: 12px;
+      right: 54px;
+      width: 104px;
+      opacity: 0.68;
+    }
+  }
+</style>
