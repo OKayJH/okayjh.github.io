@@ -1,5 +1,100 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const modelGroups = [
+    {
+        title: 'PCB',
+        models: [
+            {
+                src: '/models/IMX415.glb',
+                title: 'IMX415',
+                name: 'IMX415',
+                desc: '基于 IMX415 图像传感器的 PCB / 模组 3D 展示，用来呈现器件布局、接口结构与整体硬件设计细节。',
+                icon: 'developer_board',
+                iconColor: '#0b57d0',
+                tag: 'PCB 作品',
+                tagStyle: 'background: rgba(11, 87, 208, 0.12); color: #0b57d0;'
+            },
+            {
+                src: '/models/OS08A20.glb',
+                title: 'OS08A20',
+                name: 'OS08A20',
+                desc: '基于 OS08A20 图像传感器的 PCB / 模组 3D 展示，用来呈现传感器布局、接口设计与硬件结构细节。',
+                icon: 'developer_board',
+                iconColor: '#1a73e8',
+                tag: 'PCB 作品',
+                tagStyle: 'background: rgba(26, 115, 232, 0.12); color: #1a73e8;'
+            }
+        ]
+    },
+    {
+        title: 'Toy',
+        models: [
+            {
+                src: '/models/pocket3.glb',
+                title: 'DJI Pocket 3',
+                name: 'Pocket 3',
+                desc: '大疆口袋云台相机，1 英寸 CMOS 传感器，4K/120fps 录制，三轴机械增稳，轻巧便携的 Vlog 神器。',
+                icon: 'videocam',
+                iconColor: '#ea4335',
+                tag: '摄影设备',
+                tagStyle: 'background: rgba(234, 67, 53, 0.1); color: #ea4335;'
+            },
+            {
+                src: '/models/cat.glb',
+                title: 'Pad Pad',
+                name: 'Pad Pad',
+                desc: '中国原产家猫品种，虎斑纹理，性格独立机敏，身手矫健，是最受欢迎的本土猫咪之一。',
+                icon: 'pets',
+                iconColor: '#ff9800',
+                tag: '萌宠伙伴',
+                tagStyle: 'background: rgba(255, 152, 0, 0.1); color: #ff9800;'
+            },
+            {
+                src: '/models/xiaomisu7.glb',
+                title: 'Xiaomi Su7',
+                name: 'Xiaomi Su7',
+                desc: '小米首款纯电轿车，零百加速 2.78 秒，流线型车身设计，搭载澎湃智能座舱与高阶智驾系统。',
+                icon: 'directions_car',
+                iconColor: '#ff6d00',
+                tag: '智能汽车',
+                tagStyle: 'background: rgba(255, 109, 0, 0.1); color: #ff6d00;'
+            },
+            {
+                src: '/models/lexusLFA.glb',
+                title: 'Lexus LFA',
+                name: 'Lexus LFA',
+                desc: '雷克萨斯传奇超跑，4.8L V10 自然吸气引擎，560 匹马力，全球限量 500 台，日系性能巅峰之作。',
+                icon: 'sports_score',
+                iconColor: '#1a237e',
+                tag: '经典超跑',
+                tagStyle: 'background: rgba(26, 35, 126, 0.1); color: #1a237e;'
+            },
+            {
+                src: '/models/Gundam.glb',
+                title: 'Gundam',
+                name: 'Gundam',
+                desc: '经典日系机甲，精密机械结构与装甲设计的完美融合，承载着一代人的热血与梦想。',
+                icon: 'smart_toy',
+                iconColor: '#7c4dff',
+                tag: '机甲模型',
+                tagStyle: 'background: rgba(124, 77, 255, 0.1); color: #7c4dff;'
+            },
+            {
+                src: '/models/sonnyWH-1000-XM5.glb',
+                title: 'Sonny🎧',
+                name: 'Sonny🎧',
+                desc: '索尼 WH-1000XM5 无线降噪耳机，提供沉浸式的无损音质与顶级的静谧体验。',
+                icon: 'headphones',
+                iconColor: '#e91e63',
+                tag: '音频设备',
+                tagStyle: 'background: rgba(233, 30, 99, 0.1); color: #e91e63;'
+            }
+        ]
+    }
+];
+
+const initialModel = modelGroups[0].models[0];
 ---
 
 <Layout title="3D 展厅 | OKay's Blog">
@@ -14,68 +109,42 @@ import Layout from '../layouts/Layout.astro';
             <h1 class="works-title">
                 <span class="material-icons-round">view_in_ar</span> 作品展厅
             </h1>
-            <p class="works-subtitle">拖拽旋转，滚轮缩放，沉浸式探索我的开源硬件与 3D 设计</p>
+            <p class="works-subtitle">拖拽旋转，滚轮缩放，沉浸式探索我的 PCB 设计与 Toy 模型收藏</p>
         </header>
 
         <section class="showroom-container">
             <!-- 左侧模型选择列表 -->
             <div class="model-list">
-                <h3 class="list-heading">精选</h3>
-                <button class="model-btn active" data-src="/models/pocket3.glb" data-title="DJI Pocket 3" data-desc="大疆口袋云台相机，1 英寸 CMOS 传感器，4K/120fps 录制，三轴机械增稳，轻巧便携的 Vlog 神器。">
-                    <div class="model-icon"><span class="material-icons-round" style="color: #ea4335;">videocam</span></div>
-                    <div class="model-info">
-                        <span class="model-name">Pocket 3</span>
-                        <span class="model-tag highlight" style="background: rgba(234, 67, 53, 0.1); color: #ea4335;">摄影设备</span>
-                    </div>
-                </button>
-                
-                <button class="model-btn" data-src="/models/cat.glb" data-title="Pad Pad" data-desc="中国原产家猫品种，虎斑纹理，性格独立机敏，身手矫健，是最受欢迎的本土猫咪之一。">
-                    <div class="model-icon"><span class="material-icons-round" style="color: #ff9800;">pets</span></div>
-                    <div class="model-info">
-                        <span class="model-name">Pad Pad</span>
-                        <span class="model-tag highlight" style="background: rgba(255, 152, 0, 0.1); color: #ff9800;">萌宠伙伴</span>
-                    </div>
-                </button>
-
-                <button class="model-btn" data-src="/models/xiaomisu7.glb" data-title="Xiaomi Su7" data-desc="小米首款纯电轿车，零百加速 2.78 秒，流线型车身设计，搭载澎湃智能座舱与高阶智驾系统。">
-                    <div class="model-icon"><span class="material-icons-round" style="color: #ff6d00;">directions_car</span></div>
-                    <div class="model-info">
-                        <span class="model-name">Xiaomi Su7</span>
-                        <span class="model-tag highlight" style="background: rgba(255, 109, 0, 0.1); color: #ff6d00;">智能汽车</span>
-                    </div>
-                </button>
-
-                <button class="model-btn" data-src="/models/lexusLFA.glb" data-title="Lexus LFA" data-desc="雷克萨斯传奇超跑，4.8L V10 自然吸气引擎，560 匹马力，全球限量 500 台，日系性能巅峰之作。">
-                    <div class="model-icon"><span class="material-icons-round" style="color: #1a237e;">sports_score</span></div>
-                    <div class="model-info">
-                        <span class="model-name">Lexus LFA</span>
-                        <span class="model-tag highlight" style="background: rgba(26, 35, 126, 0.1); color: #1a237e;">经典超跑</span>
-                    </div>
-                </button>
-
-                <button class="model-btn" data-src="/models/Gundam.glb" data-title="Gundam" data-desc="经典日系机甲，精密机械结构与装甲设计的完美融合，承载着一代人的热血与梦想。">
-                    <div class="model-icon"><span class="material-icons-round" style="color: #7c4dff;">smart_toy</span></div>
-                    <div class="model-info">
-                        <span class="model-name">Gundam</span>
-                        <span class="model-tag highlight" style="background: rgba(124, 77, 255, 0.1); color: #7c4dff;">机甲模型</span>
-                    </div>
-                </button>
-
-                <button class="model-btn" data-src="/models/sonnyWH-1000-XM5.glb" data-title="Sonny🎧" data-desc="索尼 WH-1000XM5 无线降噪耳机，提供沉浸式的无损音质与顶级的静谧体验。">
-                    <div class="model-icon"><span class="material-icons-round" style="color: #e91e63;">headphones</span></div>
-                    <div class="model-info">
-                        <span class="model-name">Sonny🎧</span>
-                        <span class="model-tag highlight" style="background: rgba(233, 30, 99, 0.1); color: #e91e63;">音频设备</span>
-                    </div>
-                </button>
+                {modelGroups.map((group) => (
+                    <section class="model-group">
+                        <h3 class="list-heading">{group.title}</h3>
+                        {group.models.map((model) => (
+                            <button
+                                class={`model-btn${model.src === initialModel.src ? ' active' : ''}`}
+                                data-src={model.src}
+                                data-title={model.title}
+                                data-desc={model.desc}
+                                data-alt={`3D 模型展示 - ${model.title}`}
+                            >
+                                <div class="model-icon">
+                                    <span class="material-icons-round" style={`color: ${model.iconColor};`}>{model.icon}</span>
+                                </div>
+                                <div class="model-info">
+                                    <span class="model-name">{model.name}</span>
+                                    <span class="model-tag highlight" style={model.tagStyle}>{model.tag}</span>
+                                </div>
+                            </button>
+                        ))}
+                    </section>
+                ))}
             </div>
 
             <!-- 右侧 3D 互动展示区 -->
             <div class="viewer-wrapper">
                 <model-viewer 
                     id="main-viewer"
-                    src="/models/pocket3.glb"
-                    alt="3D 模型展示 - DJI Pocket 3"
+                    src={initialModel.src}
+                    alt={`3D 模型展示 - ${initialModel.title}`}
                     camera-controls 
                     auto-rotate
                     autoplay
@@ -99,8 +168,8 @@ import Layout from '../layouts/Layout.astro';
 
                 <!-- 模型信息卡片浮层 -->
                 <div class="model-details-card glass-panel">
-                    <h2 id="overlay-title">DJI Pocket 3</h2>
-                    <p id="overlay-desc">大疆口袋云台相机，1 英寸 CMOS 传感器，4K/120fps 录制，三轴机械增稳，轻巧便携的 Vlog 神器。</p>
+                    <h2 id="overlay-title">{initialModel.title}</h2>
+                    <p id="overlay-desc">{initialModel.desc}</p>
                 </div>
             </div>
         </section>
@@ -196,9 +265,20 @@ import Layout from '../layouts/Layout.astro';
             flex: 0 0 300px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 18px;
             overflow-y: auto;
             padding-right: 10px;
+        }
+
+        .model-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .model-group + .model-group {
+            padding-top: 4px;
+            border-top: 1px solid var(--border);
         }
 
         /* 自定义滚动条 */
@@ -213,7 +293,7 @@ import Layout from '../layouts/Layout.astro';
         .list-heading {
             font-size: 1.2rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin: 0;
             padding-bottom: 12px;
             border-bottom: 1px solid var(--border);
             color: var(--text);
@@ -414,13 +494,10 @@ import Layout from '../layouts/Layout.astro';
             }
             .model-list {
                 flex: none;
-                max-height: 200px;
-                flex-direction: row;
-                overflow-x: auto;
-                overflow-y: hidden;
-            }
-            .model-btn {
-                min-width: 260px;
+                max-height: 260px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding-right: 4px;
             }
             .viewer-wrapper {
                 height: 500px;
@@ -435,8 +512,11 @@ import Layout from '../layouts/Layout.astro';
             const titleEl = document.getElementById('overlay-title');
             const descEl = document.getElementById('overlay-desc');
             const cardEl = document.querySelector('.model-details-card');
+            const showroom = document.querySelector('.showroom-container');
 
-            if (!viewer || btns.length === 0) return; // Prevent errors internally if DOM is different
+            if (!viewer || btns.length === 0 || !showroom) return;
+            if (showroom.getAttribute('data-showroom-bound') === 'true') return;
+            showroom.setAttribute('data-showroom-bound', 'true');
 
             // 进度条逻辑
             viewer.addEventListener('progress', (event) => {
@@ -457,12 +537,7 @@ import Layout from '../layouts/Layout.astro';
 
             // 切换模型加载逻辑
             btns.forEach(btn => {
-                // Ensure no double listeners if script runs multiple times in some edge cases
-                btn.removeEventListener('click', window._showroomClickHandler);
-                
-                btn.addEventListener('click', function _handler() {
-                    window._showroomClickHandler = _handler; // Store for cleanup if ever needed
-                    
+                btn.addEventListener('click', function() {
                     // Update active state
                     btns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
@@ -471,11 +546,13 @@ import Layout from '../layouts/Layout.astro';
                     const src = btn.getAttribute('data-src');
                     const title = btn.getAttribute('data-title');
                     const desc = btn.getAttribute('data-desc');
+                    const alt = btn.getAttribute('data-alt');
 
                     if (cardEl) cardEl.classList.add('card-animating');
                     
                     // Switch model source
                     viewer.src = src;
+                    if (alt) viewer.alt = alt;
 
                     // Re-enable auto-rotate if user stopped it by interacting previously
                     viewer.autoRotate = true;
