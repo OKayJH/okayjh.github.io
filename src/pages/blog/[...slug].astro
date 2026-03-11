@@ -56,10 +56,10 @@ const { Content, headings } = await post.render();
 
 <style>
   .blog-post {
-    width: 100%;
-    max-width: none;
+    width: min(var(--content-max-width), calc(100% - (var(--page-gutter) * 2)));
+    max-width: var(--content-max-width);
     margin: 0 auto;
-    padding-top: 1.5rem;
+    padding-top: 2rem;
     animation: fadeIn 0.5s ease-out forwards;
   }
 
