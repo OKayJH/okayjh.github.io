@@ -13,7 +13,14 @@ interface Props {
 	description?: string;
 }
 
-const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.props;
+const siteName = "OKay的博客";
+const defaultDescription = "一个专注于智能硬件、嵌入式系统、电子产品设计的独立博客";
+const { title, description = defaultDescription } = Astro.props;
+const normalizedTitle = title
+	.replace(/\s*\|\s*OKay's Blog$/, '')
+	.replace(/\s*-\s*OKay Blog$/, '')
+	.trim();
+const pageTitle = normalizedTitle.includes(siteName) ? normalizedTitle : `${normalizedTitle} | ${siteName}`;
 ---
 
 <!doctype html>
@@ -24,7 +31,7 @@ const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.p
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
+		<title>{pageTitle}</title>
 		<ViewTransitions />
 
 		<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -63,7 +70,7 @@ const { title, description = "嵌入式 Linux · AI · 硬件开发" } = Astro.p
 					<span class="welcome-letter" style="--i:9">o</span>
 					<span class="welcome-letter" style="--i:10">g</span>
 				</div>
-				<p class="welcome-subtitle">嵌入式 Linux · AI · 硬件开发</p>
+				<p class="welcome-subtitle">智能硬件 · 嵌入式系统 · 电子产品设计</p>
 				<div class="welcome-loader">
 					<div class="welcome-bar"></div>
 				</div>

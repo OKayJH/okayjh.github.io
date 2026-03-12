@@ -23,7 +23,10 @@ const processedPosts = allPosts.map(p => ({
 const displayPosts = processedPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 ---
 
-<Layout title="首页 | OKay's Blog">
+<Layout
+    title="OKay的博客 | 专注智能硬件、嵌入式系统、电子产品设计"
+    description="一个专注于智能硬件、嵌入式系统、电子产品设计的独立博客，记录设计实践、开发经验与调试思考。"
+>
     <!-- Quick Nav -->
     <GuideBar />
 
