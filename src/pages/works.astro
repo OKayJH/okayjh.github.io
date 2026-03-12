@@ -1,29 +1,111 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
+const pcbTagStyle = 'background: rgba(255, 152, 0, 0.12); color: #ff9800;';
+
 const modelGroups = [
     {
-        title: 'PCB',
+        title: 'Camera',
         models: [
             {
                 src: '/models/IMX415.glb',
                 title: 'IMX415',
                 name: 'IMX415',
-                desc: '基于 IMX415 图像传感器的 PCB / 模组 3D 展示，用来呈现器件布局、接口结构与整体硬件设计细节。',
+                desc: '基于IMX415图像传感器的相机板，用于展示器件布局、接口设计与整体硬件结构。',
                 icon: 'developer_board',
                 iconColor: '#0b57d0',
-                tag: 'PCB 作品',
-                tagStyle: 'background: rgba(11, 87, 208, 0.12); color: #0b57d0;'
+                tag: 'PCB',
+                tagStyle: pcbTagStyle
             },
             {
                 src: '/models/OS08A20.glb',
                 title: 'OS08A20',
                 name: 'OS08A20',
-                desc: '基于 OS08A20 图像传感器的 PCB / 模组 3D 展示，用来呈现传感器布局、接口设计与硬件结构细节。',
+                desc: '基于OS08A20图像传感器的相机板，用于展示传感器布局、接口设计与硬件结构细节。',
                 icon: 'developer_board',
                 iconColor: '#1a73e8',
-                tag: 'PCB 作品',
-                tagStyle: 'background: rgba(26, 115, 232, 0.12); color: #1a73e8;'
+                tag: 'PCB',
+                tagStyle: pcbTagStyle
+            }
+        ]
+    },
+    {
+        title: 'RK3566',
+        models: [
+            {
+                src: '/models/RK3566.glb',
+                title: 'RK3566',
+                name: 'RK3566',
+                desc: '基于RK3566的边缘计算网关。',
+                icon: 'developer_board',
+                iconColor: '#455a64',
+                tag: 'PCB',
+                tagStyle: pcbTagStyle
+            }
+        ]
+    },
+    {
+        title: 'TestingTerminal',
+        models: [
+            {
+                src: '/models/TestingTerminal.glb',
+                title: 'TestingTerminal',
+                name: 'TestingTerminal',
+                desc: '基于STM32F103C8T6的检测终端。',
+                icon: 'precision_manufacturing',
+                iconColor: '#00897b',
+                tag: 'PCB',
+                tagStyle: pcbTagStyle
+            }
+        ]
+    },
+    {
+        title: 'Car',
+        models: [
+            {
+                src: '/models/CarCtrl.glb',
+                title: 'CarCtrl',
+                name: 'CarCtrl',
+                desc: '小车运动控制主控板，用于实现运动控制、接口管理与系统通信。',
+                icon: 'memory',
+                iconColor: '#f57c00',
+                tag: 'PCB',
+                tagStyle: pcbTagStyle
+            },
+            {
+                src: '/models/CarBottom.glb',
+                title: 'CarBottom',
+                name: 'CarBottom',
+                desc: '小车运动控制电源底板，用于电源分配、接口引出与底板支撑。',
+                icon: 'layers',
+                iconColor: '#fb8c00',
+                tag: 'PCB',
+                tagStyle: pcbTagStyle
+            }
+        ]
+    },
+    {
+        title: 'Robot',
+        models: [
+            {
+                src: '/models/RobCtrl.glb',
+                title: 'RobCtrl',
+                name: 'RobCtrl',
+                desc: '人形机器人运动控制主控板，用于关节控制、动作协调与系统通信。',
+                icon: 'memory',
+                iconColor: '#7b61ff',
+                tag: 'PCB',
+                tagStyle: pcbTagStyle
+            },
+            {
+                src: '/models/RobBottom.glb',
+                title: 'RobBottom',
+                name: 'RobBottom',
+                desc: '人形机器人运动控制电源底板，用于电源管理、接口连接与底板支撑。',
+                icon: 'layers',
+                iconColor: '#4f8df7',
+                tag: 'PCB',
+                tagStyle: pcbTagStyle
             }
         ]
     },
@@ -109,7 +191,7 @@ const initialModel = modelGroups[0].models[0];
             <h1 class="works-title">
                 <span class="material-icons-round">view_in_ar</span> 作品展厅
             </h1>
-            <p class="works-subtitle">拖拽旋转，滚轮缩放，沉浸式探索我的 PCB 设计与 Toy 模型收藏</p>
+            <p class="works-subtitle">拖拽旋转，滚轮缩放，沉浸式探索我的 Camera 模组、PCB 设计与 Toy 模型收藏</p>
         </header>
 
         <section class="showroom-container">
